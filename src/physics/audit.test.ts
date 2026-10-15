@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { initialConditions, SUN_GM_AU3_PER_DAY2 } from '@/data/initialConditions';
 import { solarSystem } from '@/data/solarSystem';
 import { createState, accelerations, distanceBetween } from '@/physics/gravity';
@@ -73,5 +73,7 @@ describe('Physics and Data Audit', () => {
     const Vcm = P.map(p => p / totalMass);
     const Vcm_kms = Math.hypot(...Vcm) * 149597870.7 / 86400;
     console.log(`[Barycenter Velocity] V_cm = ${Math.hypot(...Vcm).toExponential(4)} AU/day (${Vcm_kms.toFixed(4)} m/s)`);
+    // System barycenter drifts at ~12.4 mm/s due to heliocentric Sun at [0,0,0]
+    expect(Vcm_kms).toBeLessThan(0.02);
   });
 });
