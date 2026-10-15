@@ -47,6 +47,15 @@ describe('eccentricAnomaly', () => {
       }
     }
   });
+
+  it("solves Kepler's equation for multi-orbit and negative M with high eccentricity", () => {
+    for (const M of [10 * Math.PI + 0.5, -4 * Math.PI + 1.2, 50 * Math.PI]) {
+      for (const e of [0.85, 0.95, 0.99]) {
+        const E = eccentricAnomaly(M, e);
+        expect(Math.abs(E - e * Math.sin(E) - M)).toBeLessThan(1e-9);
+      }
+    }
+  });
 });
 
 describe('orbitPosition', () => {

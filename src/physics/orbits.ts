@@ -41,17 +41,19 @@ export function meanAnomaly(elements: OrbitElements, time: number): number {
 }
 
 /**
- * Solves Kepler's equation by Newton-Raphson. Converges in a few steps for the
- * eccentricities in this system (max 0.206, Mercury).
+ * Solves Kepler's equation M = E - e*sin(E) by Newton-Raphson.
+ * Wraps M into [-π, π] for numerical stability across multi-orbit times and high eccentricities.
  */
 export function eccentricAnomaly(M: number, eccentricity: number): number {
-  let E = eccentricity < 0.8 ? M : Math.PI;
-  for (let i = 0; i < NEWTON_ITERATIONS; i += 1) {
-    const step = (E - eccentricity * Math.sin(E) - M) / (1 - eccentricity * Math.cos(E));
+  const k = Math.round(M / TWO_PI);
+  const m = M - k * TWO_PI;
+  let E = eccentricity < 0.8 ? m : m + eccentricity * Math.sin(m);
+  for (let i = 0; i < 15; i += 1) {
+    const step = (E - eccentricity * Math.sin(E) - m) / (1 - eccentricity * Math.cos(E));
     E -= step;
     if (Math.abs(step) < NEWTON_TOLERANCE) break;
   }
-  return E;
+  return E + k * TWO_PI;
 }
 
 export function orbitPosition(elements: OrbitElements, time: number): PlanePosition {
