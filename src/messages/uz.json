@@ -1,0 +1,97 @@
+{
+  "app": {
+    "title": "NEXUS",
+    "tagline": "Interaktiv 3D koinot va fizika simulyatsiyasi"
+  },
+  "sidebar": {
+    "title": "Scena obyektlari",
+    "empty": "Ro'yxat hozircha bo'sh"
+  },
+  "toolbar": {
+    "title": "Simulyatsiya",
+    "play": "Davom ettirish",
+    "pause": "Pauza",
+    "reset": "Noldan boshlash",
+    "speed": "Tezlik",
+    "timeNote": "1× — bu haqiqiy vaqt emas, sahna vaqti"
+  },
+  "diagnostics": {
+    "title": "Diagnostika",
+    "viewAs": "Ko'rinish turi",
+    "viewReadout": "Matn",
+    "viewTable": "Jadval",
+    "waiting": "Birinchi kadr kutilmoqda…",
+    "tableCaption": "Sayyoralar bo'yicha jonli qiymatlar",
+    "columnBody": "Jism",
+    "unitAu": "a.b.",
+    "distance": "Quyoshgacha masofa",
+    "speed": "Tezlik",
+    "boundRatio": "Qochish tezligiga nisbat",
+    "ratioGlyph": "v/vesc",
+    "energyDrift": "To'liq energiya og'ishi",
+    "momentumDrift": "Impuls momenti og'ishi",
+    "elapsed": "Simulyatsiya vaqti",
+    "elapsedValue": "{days} kun",
+    "stepsPerSecond": "Qadam/sek",
+    "valuesLabel": "Qiymatlar",
+    "thresholdsLabel": "Chegaralar",
+    "stability": "Barqarorlik",
+    "allBound": "Barcha jism Quyoshga bog'langan",
+    "warningUnbound": "qochish tezligidan oshdi: {measured} > {limit} {unit}",
+    "warningDistance": "modellash chegarasidan uzoqroq: {measured} > {limit} {unit}",
+    "kick": "Tanlangan sayyorani tezlashtirish",
+    "kickHint": "Tezligi {factor}× ortadi; ogarish va jarayon keyingi kadrdan ko'rinadi",
+    "kickNeedsBody": "Avval sayyorani bosing",
+    "devOnly": "Bu tugma faqat development yig'mada"
+  },
+  "inspector": {
+    "title": "Inspektor",
+    "noSelection": "Obyekt tanlanmagan",
+    "property": "Xususiyat",
+    "value": "Qiymat",
+    "provenance": "Kelib chiqishi"
+  },
+  "bodies": {
+    "sun": "Quyosh",
+    "mercury": "Merkuriy",
+    "venus": "Venera",
+    "earth": "Yer",
+    "mars": "Mars",
+    "jupiter": "Yupiter",
+    "saturn": "Saturn",
+    "uranus": "Uran",
+    "neptune": "Neptun"
+  },
+  "settings": {
+    "title": "Sozlamalar",
+    "language": "Til",
+    "languageHint": "Tanlov shu brauzerda saqlanadi"
+  },
+  "viewport": {
+    "title": "Koinot ko'rinishi",
+    "notToScale": "Masshtabga rioya qilinmagan",
+    "loading": "Sahna yuklanmoqda…",
+    "webglUnsupported": "Brauzeringiz WebGL'ni qo'llab-quvvatlamaydi, shuning uchun 3D ko'rinish chizilmaydi.",
+    "sceneError": "3D sahna xato bilan to'xtadi.",
+    "controlsHint": "Chap tugma — aylantirish, g'ildirak — masshtab, o'ng tugma — surish, WASD yoki strelkalar — parvoz. Obyektga bosilsa, kamera unga qaraydi."
+  },
+  "common": {
+    "comingSoon": "Tez orada"
+  },
+  "provenance": {
+    "measured": "measured",
+    "derived": "derived",
+    "estimated": "estimated",
+    "fictional": "fictional",
+    "artistic": "artistic"
+  },
+  "themePreview": {
+    "title": "mavzu ko'rinishi",
+    "subtitle": "Rang tokenlari va shriftlar",
+    "colors": "Ranglar",
+    "fonts": "Shriftlar",
+    "provenanceLabels": "Kelib chiqish yorliqlari",
+    "sansLabel": "Inter — interfeys matni",
+    "monoLabel": "JetBrains Mono — raqamlar"
+  }
+}

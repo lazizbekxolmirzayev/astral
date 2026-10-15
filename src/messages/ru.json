@@ -1,0 +1,97 @@
+{
+  "app": {
+    "title": "NEXUS",
+    "tagline": "Интерактивная 3D-вселенная и симуляция физики"
+  },
+  "sidebar": {
+    "title": "Объекты сцены",
+    "empty": "Список пока пуст"
+  },
+  "toolbar": {
+    "title": "Симуляция",
+    "play": "Продолжить",
+    "pause": "Пауза",
+    "reset": "Сброс",
+    "speed": "Скорость",
+    "timeNote": "1× — это время сцены, а не реальное время"
+  },
+  "diagnostics": {
+    "title": "Диагностика",
+    "viewAs": "Режим отображения",
+    "viewReadout": "Текст",
+    "viewTable": "Таблица",
+    "waiting": "Ожидаю первый кадр…",
+    "tableCaption": "Живые значения по планетам",
+    "columnBody": "Тело",
+    "unitAu": "а.е.",
+    "distance": "Расстояние от Солнца",
+    "speed": "Скорость",
+    "boundRatio": "Скорость относительно второй космической",
+    "ratioGlyph": "v/vesc",
+    "energyDrift": "Уклонение полной энергии",
+    "momentumDrift": "Уклонение момента импульса",
+    "elapsed": "Время симуляции",
+    "elapsedValue": "{days} сут",
+    "stepsPerSecond": "Шагов/с",
+    "valuesLabel": "Значения",
+    "thresholdsLabel": "Пороги",
+    "stability": "Устойчивость",
+    "allBound": "Все тела связаны с Солнцем",
+    "warningUnbound": "превысил вторую космическую: {measured} > {limit} {unit}",
+    "warningDistance": "ушёл за предел модели: {measured} > {limit} {unit}",
+    "kick": "Разогнать выбранную планету",
+    "kickHint": "Скорость вырастет в {factor}; уклонение и предупреждение появятся в следующем кадре",
+    "kickNeedsBody": "Сначала кликните по планете",
+    "devOnly": "Только в dev-сборке"
+  },
+  "inspector": {
+    "title": "Инспектор",
+    "noSelection": "Объект не выбран",
+    "property": "Свойство",
+    "value": "Значение",
+    "provenance": "Происхождение"
+  },
+  "bodies": {
+    "sun": "Солнце",
+    "mercury": "Меркурий",
+    "venus": "Венера",
+    "earth": "Земля",
+    "mars": "Марс",
+    "jupiter": "Юпитер",
+    "saturn": "Сатурн",
+    "uranus": "Уран",
+    "neptune": "Нептун"
+  },
+  "settings": {
+    "title": "Настройки",
+    "language": "Язык",
+    "languageHint": "Выбор сохраняется в этом браузере"
+  },
+  "viewport": {
+    "title": "Обзор вселенной",
+    "notToScale": "Не в масштабе",
+    "loading": "Загрузка сцены…",
+    "webglUnsupported": "Браузер не поддерживает WebGL, поэтому 3D-вид не может отрисоваться.",
+    "sceneError": "3D-сцена остановилась из-за ошибки.",
+    "controlsHint": "Левая кнопка — вращение, колесо — масштаб, правая кнопка — перемещение, WASD или стрелки — полёт. Клик по объекту наводит на него камеру."
+  },
+  "common": {
+    "comingSoon": "Скоро"
+  },
+  "provenance": {
+    "measured": "measured",
+    "derived": "derived",
+    "estimated": "estimated",
+    "fictional": "fictional",
+    "artistic": "artistic"
+  },
+  "themePreview": {
+    "title": "превью темы",
+    "subtitle": "Цветовые токены и шрифты",
+    "colors": "Цвета",
+    "fonts": "Шрифты",
+    "provenanceLabels": "Метки происхождения",
+    "sansLabel": "Inter — текст интерфейса",
+    "monoLabel": "JetBrains Mono — числа"
+  }
+}

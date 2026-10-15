@@ -1,0 +1,97 @@
+{
+  "app": {
+    "title": "NEXUS",
+    "tagline": "Interactive 3D universe and physics simulation"
+  },
+  "sidebar": {
+    "title": "Scene objects",
+    "empty": "The list is empty for now"
+  },
+  "toolbar": {
+    "title": "Simulation",
+    "play": "Resume",
+    "pause": "Pause",
+    "reset": "Reset",
+    "speed": "Speed",
+    "timeNote": "1× is scene time, not real time"
+  },
+  "diagnostics": {
+    "title": "Diagnostics",
+    "viewAs": "View mode",
+    "viewReadout": "Text",
+    "viewTable": "Table",
+    "waiting": "Waiting for the first frame…",
+    "tableCaption": "Live values per planet",
+    "columnBody": "Body",
+    "unitAu": "AU",
+    "distance": "Distance from the Sun",
+    "speed": "Speed",
+    "boundRatio": "Speed against escape speed",
+    "ratioGlyph": "v/vesc",
+    "energyDrift": "Total energy drift",
+    "momentumDrift": "Angular momentum drift",
+    "elapsed": "Simulated time",
+    "elapsedValue": "{days} days",
+    "stepsPerSecond": "Steps/s",
+    "valuesLabel": "Values",
+    "thresholdsLabel": "Thresholds",
+    "stability": "Stability",
+    "allBound": "Every body is bound to the Sun",
+    "warningUnbound": "has passed escape speed: {measured} > {limit} {unit}",
+    "warningDistance": "is past the modelled limit: {measured} > {limit} {unit}",
+    "kick": "Speed up selected planet",
+    "kickHint": "Multiplies its speed by {factor}; drift and the warning show on the next frame",
+    "kickNeedsBody": "Click a planet first",
+    "devOnly": "Development build only"
+  },
+  "inspector": {
+    "title": "Inspector",
+    "noSelection": "No object selected",
+    "property": "Property",
+    "value": "Value",
+    "provenance": "Provenance"
+  },
+  "bodies": {
+    "sun": "Sun",
+    "mercury": "Mercury",
+    "venus": "Venus",
+    "earth": "Earth",
+    "mars": "Mars",
+    "jupiter": "Jupiter",
+    "saturn": "Saturn",
+    "uranus": "Uranus",
+    "neptune": "Neptune"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageHint": "Your choice is saved in this browser"
+  },
+  "viewport": {
+    "title": "Universe view",
+    "notToScale": "Not to scale",
+    "loading": "Loading scene…",
+    "webglUnsupported": "Your browser does not support WebGL, so the 3D view cannot render.",
+    "sceneError": "The 3D scene stopped with an error.",
+    "controlsHint": "Left drag rotates, wheel zooms, right drag pans, WASD or arrow keys fly. Clicking a body glides the camera onto it."
+  },
+  "common": {
+    "comingSoon": "Coming soon"
+  },
+  "provenance": {
+    "measured": "measured",
+    "derived": "derived",
+    "estimated": "estimated",
+    "fictional": "fictional",
+    "artistic": "artistic"
+  },
+  "themePreview": {
+    "title": "theme preview",
+    "subtitle": "Color tokens and font pair",
+    "colors": "Colors",
+    "fonts": "Fonts",
+    "provenanceLabels": "Provenance labels",
+    "sansLabel": "Inter — interface text",
+    "monoLabel": "JetBrains Mono — numbers"
+  }
+}
