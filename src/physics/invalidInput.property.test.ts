@@ -22,6 +22,7 @@ import {
 import { MAX_TIMESTEP_DAYS, MIN_TIMESTEP_DAYS, stepVelocityVerlet, validateTimestep } from './integrator';
 import {
   MAX_GM_AU3_PER_DAY2,
+  MIN_DISTANCE_AU,
   angularMomentum,
   driftPercent,
   escapeSpeed,
@@ -199,7 +200,7 @@ describe('accepted input never produces NaN', () => {
           gm > 0 &&
           gm <= MAX_GM_AU3_PER_DAY2 &&
           Number.isFinite(distance) &&
-          distance > 0 &&
+          distance >= MIN_DISTANCE_AU &&
           distance <= MAX_COORDINATE_AU;
         if (supported) {
           expect(Number.isFinite(escapeSpeed(gm, distance))).toBe(true);

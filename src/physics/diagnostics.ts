@@ -121,6 +121,9 @@ export const MAX_GM_AU3_PER_DAY2 = 1;
  * Units: `gm` in AU³/day², `r` in AU, result in AU/day. 1 AU/day = 1731.5 km/s
  * (from the IAU astronomical unit and the SI second), so the UI can convert.
  */
+/** Floor on distance to prevent float64 overflow when computing escape speed. */
+export const MIN_DISTANCE_AU = 1e-300;
+
 export function escapeSpeed(gmCentral: number, distanceAu: number): number {
   if (!Number.isFinite(gmCentral) || gmCentral <= 0) {
     throw new PhysicsInputError(`central gm must be positive, got ${String(gmCentral)}`);
@@ -133,10 +136,17 @@ export function escapeSpeed(gmCentral: number, distanceAu: number): number {
   if (!Number.isFinite(distanceAu) || distanceAu <= 0) {
     throw new PhysicsInputError(`distance must be a positive number of AU, got ${String(distanceAu)}`);
   }
+  if (distanceAu < MIN_DISTANCE_AU) {
+    throw new PhysicsInputError(`distance ${String(distanceAu)} AU is below the supported floor of ${String(MIN_DISTANCE_AU)} AU`);
+  }
   if (distanceAu > MAX_COORDINATE_AU) {
     throw new PhysicsInputError(`distance ${String(distanceAu)} AU exceeds the supported maximum of ${String(MAX_COORDINATE_AU)}`);
   }
-  return Math.sqrt((2 * gmCentral) / distanceAu);
+  const speed = Math.sqrt((2 * gmCentral) / distanceAu);
+  if (!Number.isFinite(speed)) {
+    throw new PhysicsInputError(`escape speed overflows for distance ${String(distanceAu)} AU`);
+  }
+  return speed;
 }
 
 /** AU/day → km/s. 1 AU = 149 597 870.7 km (IAU 2012), 1 day = 86 400 s. */
