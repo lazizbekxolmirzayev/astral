@@ -117,6 +117,18 @@ describe('invalid input is rejected, never absorbed', () => {
       { numRuns: 200 },
     );
   });
+
+  it('rejects non-finite positions in accelerations', () => {
+    const state = createState([
+      { id: 'sun', gm: 2.959122082855911e-4, position: [0, 0, 0], velocity: [0, 0, 0] },
+      { id: 'earth', gm: 8.887692445123496e-10, position: [1, 0, 0], velocity: [0, 0, 0.0172] },
+    ]);
+    state.positions[0] = Number.NaN;
+    expect(() => accelerations(state, 1e-4)).toThrow(PhysicsInputError);
+
+    state.positions[0] = Number.POSITIVE_INFINITY;
+    expect(() => accelerations(state, 1e-4)).toThrow(PhysicsInputError);
+  });
 });
 
 describe('accepted input never produces NaN', () => {

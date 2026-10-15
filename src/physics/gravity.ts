@@ -153,6 +153,9 @@ export function accelerations(
   out.fill(0);
 
   const { positions, velocities, gm } = state;
+  for (let i = 0; i < positions.length; i += 1) {
+    requireFinite(`position[${String(i)}] (AU)`, positions[i] as number);
+  }
   for (let i = 0; i < velocities.length; i += 1) {
     requireFinite(`velocity[${String(i)}] (AU/day)`, velocities[i] as number);
   }
