@@ -190,9 +190,9 @@ export function osculatingElements(
   };
 }
 
-/** Point on a spatial orbit at `time`, measured from perihelion. */
+/** Point on a spatial orbit at `time`. */
 export function spatialOrbitPosition(elements: SpatialOrbitElements, time: number): Vec3 {
-  const E = eccentricAnomaly((TWO_PI * time) / elements.period, elements.eccentricity);
+  const E = eccentricAnomaly(meanAnomaly(elements, time), elements.eccentricity);
   const x = elements.semiMajorAxis * (Math.cos(E) - elements.eccentricity);
   const z = elements.semiMajorAxis * Math.sqrt(1 - elements.eccentricity ** 2) * Math.sin(E);
   const { towardPerihelion: u, quarterTurnAhead: w } = elements.plane;

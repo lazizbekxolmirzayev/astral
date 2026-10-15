@@ -4,6 +4,7 @@ import {
   meanAnomaly,
   orbitPath,
   orbitPosition,
+  spatialOrbitPosition,
   type OrbitElements,
 } from './orbits';
 
@@ -106,3 +107,23 @@ describe('orbitPath', () => {
     });
   });
 });
+
+describe('spatialOrbitPosition', () => {
+  it('respects initial phase offset', () => {
+    const spatial: import('./orbits').SpatialOrbitElements = {
+      ...eccentric,
+      phase: 1.25,
+      plane: {
+        towardPerihelion: [1, 0, 0],
+        quarterTurnAhead: [0, 0, 1],
+      },
+    };
+    const planar = orbitPosition(spatial, 0);
+    const pos3d = spatialOrbitPosition(spatial, 0);
+
+    expect(pos3d[0]).toBeCloseTo(planar.x, 9);
+    expect(pos3d[1]).toBeCloseTo(0, 9);
+    expect(pos3d[2]).toBeCloseTo(planar.z, 9);
+  });
+});
+
