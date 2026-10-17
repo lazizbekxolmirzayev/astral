@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { listPublicExperiments } from '@/lib/server/experiment-sharing';
 
-export const runtime = 'nodejs';
-
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const rawPage = Number(url.searchParams.get('page') ?? '1');

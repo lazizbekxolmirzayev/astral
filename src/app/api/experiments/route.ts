@@ -7,8 +7,6 @@ import { connectMongo } from '@/lib/server/mongodb';
 import { rateLimit, rateLimitIdentifier } from '@/lib/server/ratelimit';
 import { validateCsrf } from '@/lib/server/csrf';
 
-export const runtime = 'nodejs';
-
 const createSchema = z.object({
   title: z.string().trim().min(1).max(120),
   description: z.string().trim().max(1000).default(''),

@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generateCsrfToken, attachCsrfCookie } from '@/lib/server/csrf';
 
-export const runtime = 'nodejs';
-
 /**
  * Issues a CSRF token to the client via a non-HttpOnly cookie (`nexus_csrf`)
  * and returns it in the response body. The client reads the cookie (or the

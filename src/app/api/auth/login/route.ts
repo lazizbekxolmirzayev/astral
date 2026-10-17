@@ -8,8 +8,6 @@ import { rateLimit, rateLimitIdentifier } from '@/lib/server/ratelimit';
 import { validateCsrf } from '@/lib/server/csrf';
 import User from '@/models/User';
 
-export const runtime = 'nodejs';
-
 const loginSchema = z.object({
   email: z.string().trim().email().max(254),
   password: z.string().refine(isPasswordLengthValid, `Password must be ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} characters`),

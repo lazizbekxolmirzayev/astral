@@ -8,8 +8,6 @@ import { requestHasSameOrigin } from '@/lib/server/auth-api';
 import { rateLimit, rateLimitIdentifier } from '@/lib/server/ratelimit';
 import { validateCsrf } from '@/lib/server/csrf';
 
-export const runtime = 'nodejs';
-
 function rateLimitResponse(reset: number): NextResponse {
   const retryAfter = Math.max(0, Math.ceil((reset - Date.now()) / 1000));
   return NextResponse.json(

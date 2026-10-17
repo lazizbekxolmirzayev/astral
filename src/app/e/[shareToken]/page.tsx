@@ -4,8 +4,6 @@ import { getTranslations } from 'next-intl/server';
 import { getShareableExperiment } from '@/lib/server/experiment-sharing';
 import { ReportButton } from './ReportButton';
 
-export const runtime = 'nodejs';
-
 export default async function SharedExperimentPage({ params }: PageProps<'/e/[shareToken]'>) {
   const { shareToken } = await params;
   const experiment = await getShareableExperiment(shareToken);

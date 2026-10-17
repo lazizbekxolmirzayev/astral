@@ -3,8 +3,6 @@ import { authAdapter } from '@/lib/server/auth-mongo';
 import { clearSessionCookie, readSessionToken, requestHasSameOrigin, revokeDatabaseSession } from '@/lib/server/auth-api';
 import { validateCsrf } from '@/lib/server/csrf';
 
-export const runtime = 'nodejs';
-
 export async function POST(request: Request) {
   const csrfError = validateCsrf(request);
   if (csrfError) return csrfError;

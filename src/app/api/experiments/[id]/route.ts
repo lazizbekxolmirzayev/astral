@@ -6,7 +6,6 @@ import { scenarioSchema } from '@/lib/schemas/scenario';
 import { connectMongo } from '@/lib/server/mongodb';
 import { validateCsrf } from '@/lib/server/csrf';
 
-export const runtime = 'nodejs';
 type Context = { params: Promise<{ id: string }> };
 
 const updateSchema = z.object({

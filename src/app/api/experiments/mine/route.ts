@@ -3,8 +3,6 @@ import { auth } from '@/auth';
 import { SavedExperiment } from '@/lib/models/SavedExperiment';
 import { connectMongo } from '@/lib/server/mongodb';
 
-export const runtime = 'nodejs';
-
 function sanitizeFilter(raw: string | null): Record<string, unknown> | undefined {
   if (!raw || raw.trim() === '') return undefined;
 

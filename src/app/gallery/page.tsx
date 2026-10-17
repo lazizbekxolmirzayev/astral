@@ -10,8 +10,6 @@ function single(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export const runtime = 'nodejs';
-
 export default async function PublicGalleryPage({ searchParams }: Props) {
   const params = await searchParams;
   const q = (single(params.q) ?? '').slice(0, 100);
