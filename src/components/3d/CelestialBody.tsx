@@ -53,7 +53,18 @@ export function CelestialBody({
 
   useEffect(() => {
     registerMesh?.(meshRef.current);
-    return () => registerMesh?.(null);
+    return () => {
+      registerMesh?.(null);
+      const mesh = meshRef.current;
+      if (!mesh) return;
+      mesh.geometry.dispose();
+      const material = mesh.material;
+      if (Array.isArray(material)) {
+        material.forEach((entry) => entry.dispose());
+      } else if (material) {
+        material.dispose();
+      }
+    };
   }, [registerMesh]);
 
   useFrame(({ camera }) => {

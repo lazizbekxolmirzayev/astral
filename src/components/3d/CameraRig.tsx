@@ -3,6 +3,7 @@
 import { CameraControls } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
+import { useReducedMotion } from '@/components/ui/ReducedMotion';
 import { Vector3 } from 'three';
 import type CameraControlsImpl from 'camera-controls';
 import { focusView } from '@/lib/cameraFocus';
@@ -41,6 +42,7 @@ export function CameraRig() {
   const selectedId = useSelectionStore((state) => state.selectedId);
   const viewResetNonce = useSelectionStore((state) => state.viewResetNonce);
   const pressed = useRef(new Set<PanAction>());
+  const reducedMotion = useReducedMotion();
 
   // Glide onto whatever the user selected, keeping the current viewing angle.
   useEffect(() => {

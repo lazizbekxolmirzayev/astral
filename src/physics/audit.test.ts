@@ -24,6 +24,8 @@ describe('Physics and Data Audit', () => {
       const dE = driftPercent(E, E0);
       const dL = driftPercent(L, L0);
       console.log(`[Drift] Year ${yr} (${days} d, ${steps} steps): dE = ${dE.toExponential(4)} %, dL = ${dL.toExponential(4)} %`);
+      expect(Math.abs(dE), `energy drift after ${yr} years`).toBeLessThan(1e-6);
+      expect(Math.abs(dL), `angular-momentum drift after ${yr} years`).toBeLessThan(1e-9);
     }
   });
 
@@ -50,9 +52,10 @@ describe('Physics and Data Audit', () => {
     console.log('[Kepler Period Consistency in solarSystem.ts]');
     for (const body of solarSystem) {
       if (body.type === 'planet') {
-        const aKm = body.semiMajorAxis?.value!;
+        if (!body.semiMajorAxis || !body.orbitalPeriod) continue;
+        const aKm = body.semiMajorAxis.value;
         const aAu = aKm / 149597870.7;
-        const T_stated_days = body.orbitalPeriod?.value!;
+        const T_stated_days = body.orbitalPeriod.value;
         const T_kepler_days = keplerPeriod(SUN_GM_AU3_PER_DAY2, aAu);
         const diffPercent = ((T_kepler_days - T_stated_days) / T_stated_days) * 100;
         console.log(`  ${body.id.padEnd(8)}: a=${aAu.toFixed(3)} AU, T_stated=${T_stated_days} d, T_kepler=${T_kepler_days.toFixed(2)} d, diff=${diffPercent.toFixed(2)}%`);

@@ -1,4 +1,5 @@
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { UniverseViewport } from '../3d/UniverseViewport';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
 import { SettingsPanel } from './SettingsPanel';
@@ -20,6 +21,15 @@ export function Shell() {
           {t('app.title')}
         </span>
         <span className="text-xs text-foreground/50">{t('app.tagline')}</span>
+        <Link href="/gallery" className="text-xs text-foreground/60 transition-colors hover:text-accent-cyan">
+          {t('sharing.nav')}
+        </Link>
+        <Link href="/sandbox" className="text-xs text-foreground/60 transition-colors hover:text-accent-cyan">
+          {t('sandbox.nav')}
+        </Link>
+        <Link href="/saved" className="ml-auto text-xs text-foreground/60 transition-colors hover:text-accent-cyan">
+          {t('saved.nav')}
+        </Link>
       </header>
 
       <div className="flex min-h-0 flex-1">

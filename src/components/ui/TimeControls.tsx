@@ -4,6 +4,8 @@ import { Pause, Play, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSelectionStore } from '@/stores/selectionStore';
 import { TIME_SPEEDS, useTimeStore } from '@/stores/timeStore';
+import { focusRing } from './FocusRing';
+import { useRadiogroup } from './useRadiogroup';
 
 /**
  * Playback controls for `simulationClock`. Local component state is not used
@@ -19,6 +21,13 @@ export function TimeControls() {
   const select = useSelectionStore((state) => state.select);
   const requestViewReset = useSelectionStore((state) => state.requestViewReset);
 
+  const speedOptions = TIME_SPEEDS.map((s) => String(s));
+  const { optionProps } = useRadiogroup({
+    value: String(speed),
+    options: speedOptions,
+    onChange: (next) => setSpeed(Number(next) as (typeof TIME_SPEEDS)[number]),
+  });
+
   /** Reset means "back to the start": clock, selection and camera together. */
   function reset() {
     resetClock();
@@ -32,14 +41,14 @@ export function TimeControls() {
         type="button"
         onClick={togglePlaying}
         aria-pressed={!playing}
-        className="flex items-center gap-1.5 rounded border border-panel-border px-2 py-1 text-xs text-foreground/80 transition-colors hover:bg-panel-border hover:text-foreground"
+        className={`flex items-center gap-1.5 rounded border border-panel-border px-2 py-1 text-xs text-foreground/80 transition-colors hover:bg-panel-border hover:text-foreground ${focusRing()}`}
       >
         {playing ? <Pause size={13} aria-hidden /> : <Play size={13} aria-hidden />}
         {playing ? t('pause') : t('play')}
       </button>
 
       <div className="flex items-center gap-2">
-        <span className="text-[11px] uppercase tracking-wider text-foreground/50">
+        <span className="text-[11px] uppercase tracking-wider text-foreground/75">
           {t('speed')}
         </span>
         <div
@@ -47,20 +56,18 @@ export function TimeControls() {
           aria-label={t('speed')}
           className="flex gap-1 rounded-md border border-panel-border p-1"
         >
-          {TIME_SPEEDS.map((option) => {
+          {TIME_SPEEDS.map((option, index) => {
             const isActive = option === speed;
             return (
               <button
                 key={option}
                 type="button"
-                role="radio"
-                aria-checked={isActive}
-                onClick={() => setSpeed(option)}
+                {...optionProps(String(option), index)}
                 className={`rounded px-2 py-0.5 font-mono text-xs transition-colors ${
                   isActive
                     ? 'bg-accent-cyan/15 text-accent-cyan'
-                    : 'text-foreground/60 hover:bg-panel-border hover:text-foreground'
-                }`}
+                    : 'text-foreground/75 hover:bg-panel-border hover:text-foreground'
+                } ${focusRing()}`}
               >
                 {option}×
               </button>
@@ -72,13 +79,13 @@ export function TimeControls() {
       <button
         type="button"
         onClick={reset}
-        className="flex items-center gap-1.5 rounded border border-panel-border px-2 py-1 text-xs text-foreground/80 transition-colors hover:bg-panel-border hover:text-foreground"
+        className={`flex items-center gap-1.5 rounded border border-panel-border px-2 py-1 text-xs text-foreground/80 transition-colors hover:bg-panel-border hover:text-foreground ${focusRing()}`}
       >
         <RotateCcw size={13} aria-hidden />
         {t('reset')}
       </button>
 
-      <p className="ml-auto text-[11px] text-foreground/40">{t('timeNote')}</p>
+      <p className="ml-auto text-[11px] text-foreground/75">{t('timeNote')}</p>
     </div>
   );
 }

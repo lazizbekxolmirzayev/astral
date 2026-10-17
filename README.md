@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# NEXUS
 
-## Getting Started
+NEXUS is a Next.js App Router demo for an interactive, explicitly **not to scale** solar system view and physics experiments. Simulated positions are data-driven; visual sizes and the compressed scene layout are artistic.
 
-First, run the development server:
+## Install and run
 
 ```bash
+npm ci
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). Run checks with `npm run typecheck`, `npm run lint`, and `npm test`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+MongoDB-backed sharing and authentication require a MongoDB Atlas URI (or local MongoDB) in `MONGODB_URI`. Environment variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `MONGODB_URI`: server-side MongoDB connection URI.
+- `MONGODB_DB`: database name, for example `nexus`.
+- `AUTH_SECRET`: long, random Auth.js secret; keep it private.
+- `AUTH_URL`: Auth.js base URL, locally `http://localhost:3000/api/auth`.
+- `AUTH_TRUST_HOST`: set to `true` when the deployment host is trusted by Auth.js.
+- `AUTH_COOKIE_SECURE`: set to `true` for HTTPS deployments; use `false` only for local HTTP.
+- `ADMIN_EMAIL`, `ADMIN_PASSWORD`: optional admin seed-script credentials; registration does not grant admin roles.
 
-## Learn More
+Never expose these values through `NEXT_PUBLIC_` variables.
 
-To learn more about Next.js, take a look at the following resources:
+## Demo scenario
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open the home page, wait for the Solar System view, then zoom with the mouse wheel and click a body to focus it. The permanent “Not to scale” notice applies to the rendered layout.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Browser tests
 
-## Deploy on Vercel
+CI runs Vitest and Playwright in Chromium. It installs Playwright temporarily without changing the app dependency manifest. Browser tests that need shared-link data use the CI MongoDB service. To run locally, install `@playwright/test` temporarily and Chromium, provide MongoDB at `MONGODB_URI`, then run `npx playwright test`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See [LICENSES.md](./LICENSES.md) for visual asset sources and licenses.

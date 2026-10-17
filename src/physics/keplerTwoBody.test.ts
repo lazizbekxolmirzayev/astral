@@ -60,6 +60,7 @@ describe('velocity Verlet against the analytic Kepler solution', () => {
       const [x, y, z] = relative(state);
       worstRadiusError = Math.max(worstRadiusError, Math.abs(Math.hypot(x, y, z) - 1));
     }
+    console.info(`[Kepler error] circular max radius error: ${worstRadiusError.toExponential(6)} AU`);
     expect(worstRadiusError).toBeLessThan(1e-6);
   });
 
@@ -78,6 +79,7 @@ describe('velocity Verlet against the analytic Kepler solution', () => {
       const [x, , z] = relative(state);
       worstError = Math.max(worstError, Math.hypot(x - analytic.x, z - analytic.z));
     }
+    console.info(`[Kepler error] eccentric max position error (e=0.2): ${worstError.toExponential(6)} AU`);
     expect(worstError).toBeLessThan(1e-4);
   });
 
@@ -109,6 +111,7 @@ describe('velocity Verlet against the analytic Kepler solution', () => {
       }
       expect(crossings).toBe(2);
       const periodError = Math.abs(measuredPeriod - elements.period) / elements.period;
+      console.info(`[Kepler error] a=${semiMajorAxis} AU, e=${eccentricity}: period error ${(periodError * 100).toExponential(6)} %`);
       expect(periodError).toBeLessThan(0.001);
     }
   });
@@ -135,5 +138,21 @@ describe('conservation over 100 orbits', () => {
 
     expect(energyDrift).toBeLessThan(1e-6);
     expect(momentumDrift).toBeLessThan(1e-9);
+  });
+});
+
+describe('deterministic integration', () => {
+  it('reproduces the same state bit-for-bit from identical initial conditions', () => {
+    const dt = 0.02;
+    const steps = 10_000;
+    const first = twoBody(1, 0.2).state;
+    const second = twoBody(1, 0.2).state;
+
+    integrate(first, dt, steps, DEFAULT_SOFTENING_AU);
+    integrate(second, dt, steps, DEFAULT_SOFTENING_AU);
+
+    expect(Array.from(first.positions)).toEqual(Array.from(second.positions));
+    expect(Array.from(first.velocities)).toEqual(Array.from(second.velocities));
+    expect(Array.from(first.gm)).toEqual(Array.from(second.gm));
   });
 });

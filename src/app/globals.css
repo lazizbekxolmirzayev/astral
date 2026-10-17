@@ -22,3 +22,57 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans);
 }
+
+/* ============================================================================
+   Accessibility: visible focus states (WCAG 2.4.7, 2.4.11)
+   ============================================================================ */
+
+/* A high-contrast focus-visible ring that only appears for keyboard users.
+   Applied via the focusRing() helper in components. */
+:focus-visible {
+  outline: 2px solid var(--color-accent-cyan);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Ensure inputs that previously used outline-none still show a visible focus.
+   The focusRing() helper handles this per-component; this is a safety net. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible,
+[role="radio"]:focus-visible,
+[role="tab"]:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--color-accent-cyan);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Accessibility: contrast minimums (WCAG 1.4.3)
+   ============================================================================ */
+
+/* Raise the lowest-contrast text to at least 4.5:1 against #0b0e14.
+   text-foreground/40 (~#e6edf3 at 40%) fails; bump to /75 minimum where it
+   is body or label text. Decorative chrome may stay lighter. */
+.text-foreground\/40 {
+  color: rgb(230 237 243 / 75%);
+}
+
+/* ============================================================================
+   Accessibility: prefers-reduced-motion
+   ============================================================================ */
+
+/* When the user requests reduced motion, disable all animated transitions and
+   animations throughout the app. Components can also consult
+   useReducedMotion() / isReducedMotion() in JavaScript. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

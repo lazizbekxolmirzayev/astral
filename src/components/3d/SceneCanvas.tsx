@@ -3,6 +3,7 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { capDprForTier, detectQualityTier } from '@/lib/performance';
 import { useSelectionStore } from '@/stores/selectionStore';
 import { publishDiagnostics } from '@/stores/diagnosticsStore';
 import { stepSimulation } from '@/stores/timeStore';
@@ -33,9 +34,11 @@ function SimulationDriver() {
  * down as plain strings, because the R3F reconciler inside `<Canvas>` does not
  * inherit the next-intl context.
  */
-export default function SceneCanvas({ onReady }: { onReady?: () => void }) {
+export default function SceneCanvas({ onReady, staticView = false }: { onReady?: () => void; staticView?: boolean }) {
   const t = useTranslations('bodies');
   const select = useSelectionStore((state) => state.select);
+  const qualityTier = useMemo(() => detectQualityTier(), []);
+  const dprMax = useMemo(() => capDprForTier(qualityTier), [qualityTier]);
   const bodyNames = useMemo(
     () => Object.fromEntries(planets.map((planet) => [planet.id, t(planet.id)])),
     [t],
@@ -43,15 +46,19 @@ export default function SceneCanvas({ onReady }: { onReady?: () => void }) {
 
   return (
     <Canvas
-      dpr={[1, 2]}
+      frameloop={staticView ? 'demand' : 'always'}
+      dpr={[1, dprMax]}
       camera={{
         position: [DEFAULT_CAMERA_POSITION[0], DEFAULT_CAMERA_POSITION[1], DEFAULT_CAMERA_POSITION[2]],
         fov: 50,
         near: 0.1,
         far: 400,
       }}
-      gl={{ antialias: true, powerPreference: 'high-performance' }}
-      onCreated={() => onReady?.()}
+      gl={{ antialias: qualityTier !== 'low', powerPreference: qualityTier === 'low' ? 'default' : 'high-performance' }}
+      onCreated={({ gl }) => {
+        gl.setPixelRatio(Math.min(gl.getPixelRatio(), dprMax));
+        onReady?.();
+      }}
       onPointerMissed={() => select(null)}
     >
       <ambientLight intensity={0.14} />
