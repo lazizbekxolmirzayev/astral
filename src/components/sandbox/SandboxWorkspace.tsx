@@ -2,10 +2,14 @@
 
 import { Pause, Play, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
-import { createSandboxSimulation, SANDBOX_PRESETS, SANDBOX_SPEEDS, type SandboxPreset, type SandboxSpeed } from '@/lib/sandboxSimulation';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { getCatalogEntry } from '@/data/catalog/entries';
+import { CustomBodyEditor } from './CustomBodyEditor';
+import { catalogScenario, createSandboxSimulation, customScenario, type CustomBodySpec, SANDBOX_PRESETS, SANDBOX_SPEEDS, type SandboxPreset, type SandboxSpeed } from '@/lib/sandboxSimulation';
 import type { NBodyState } from '@/physics/gravity';
-import type { SandboxSnapshot } from '@/lib/sandboxSimulation';
+import type { SandboxPresetInfo, SandboxSnapshot } from '@/lib/sandboxSimulation';
 
 const BODY_COLORS: Record<string, string> = {
   sun: '#ffd166',
@@ -20,6 +24,8 @@ const BODY_COLORS: Record<string, string> = {
   asteroid: '#dbdbdb',
   'test-particle': '#56dbcc',
   'black-hole': '#050509',
+  star: '#ffd166',
+  planet: '#58a6ff',
 };
 
 function drawSandbox(canvas: HTMLCanvasElement, state: NBodyState, centerId?: string) {
@@ -63,7 +69,7 @@ function drawSandbox(canvas: HTMLCanvasElement, state: NBodyState, centerId?: st
     const id = state.ids[index] as string;
     const x = originX + ((state.positions[index * 3] as number) - centerX) * scale;
     const y = originY - ((state.positions[index * 3 + 1] as number) - centerY) * scale;
-    const radius = id === 'sun' || id === 'black-hole' ? 6 : id === 'asteroid' ? 2 : 3.5;
+    const radius = id === 'sun' || id === 'star' || id === 'black-hole' ? 6 : id === 'asteroid' ? 2 : 3.5;
     context.beginPath();
     context.arc(x, y, radius, 0, Math.PI * 2);
     context.fillStyle = BODY_COLORS[id] ?? '#d7e2f1';
@@ -83,12 +89,14 @@ function formatDrift(value: number) {
   return `${value.toExponential(3)}%`;
 }
 
-export function SandboxWorkspace({ preset, onPresetChange }: {
+export function SandboxWorkspace({ preset, onPresetChange, override }: {
   preset: SandboxPreset;
   onPresetChange: (preset: SandboxPreset) => void;
+  /** A scenario built from a catalogue record; replaces the preset's own setup. */
+  override?: SandboxPresetInfo;
 }) {
   const t = useTranslations('sandbox');
-  const [engine] = useState(() => createSandboxSimulation(preset));
+  const [engine] = useState(() => createSandboxSimulation(preset, override));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [playing, setPlaying] = useState(true);
   const [speed, setSpeed] = useState<SandboxSpeed>(1);
@@ -127,7 +135,7 @@ export function SandboxWorkspace({ preset, onPresetChange }: {
   }
 
   const validity = engine.info.blackHole?.validity;
-  const presetName = t(`presets.${preset}`);
+  const presetName = override?.kind === 'catalog' ? (override.title ?? '') : t(`presets.${preset}`);
 
   return (
     <main className="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-5 px-5 py-7 text-foreground sm:px-8">
@@ -141,10 +149,11 @@ export function SandboxWorkspace({ preset, onPresetChange }: {
           {t('presetLabel')}
           <select
             aria-label={t('presetLabel')}
-            value={preset}
+            value={override?.kind === 'catalog' ? '' : preset}
             onChange={(event) => onPresetChange(event.target.value as SandboxPreset)}
             className="min-w-56 rounded-md border border-panel-border bg-background px-3 py-2 text-sm text-foreground"
           >
+            {override?.kind === 'catalog' ? <option value="" disabled>{override.title}</option> : null}
             {SANDBOX_PRESETS.map((option) => <option key={option} value={option}>{t(`presets.${option}`)}</option>)}
           </select>
         </label>
@@ -160,7 +169,15 @@ export function SandboxWorkspace({ preset, onPresetChange }: {
         <aside className="flex flex-col gap-4 rounded-lg border border-panel-border bg-background/50 p-4">
           <div>
             <h2 className="text-sm font-semibold">{presetName}</h2>
-            <p className="mt-1 text-xs leading-relaxed text-foreground/55">{t(`notes.${engine.info.note}`)}</p>
+            <p className="mt-1 text-xs leading-relaxed text-foreground/55">{override?.kind === 'catalog' ? t('catalogNote') : t(`notes.${engine.info.note}`)}</p>
+            {override?.kind === 'catalog' ? (
+              <div className="mt-2 space-y-1 text-[11px] leading-relaxed text-star-gold">
+                <p>{t('catalogLoaded', { name: override.title ?? '' })}</p>
+                {override.assumptions && override.assumptions.length > 0 ? <p>{t('assumptions', { list: override.assumptions.join(', ') })}</p> : null}
+                <p>{t('unverified')}</p>
+                <Link href="/catalog" className="inline-block text-accent-cyan underline">{t('backToCatalog')}</Link>
+              </div>
+            ) : null}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -204,6 +221,13 @@ export function SandboxWorkspace({ preset, onPresetChange }: {
             </div>
           ) : null}
 
+          {snapshot.collision ? (
+            <div role="alert" className="rounded border border-red-400/50 bg-red-400/10 p-3 text-xs">
+              <h3 className="font-semibold text-red-300">{t('collisionTitle')}</h3>
+              <p className="mt-1 text-foreground/75">{t('collisionBody', { days: snapshot.collision.elapsedDays.toFixed(4), speed: snapshot.collision.speedKmS.toFixed(1) })}</p>
+            </div>
+          ) : null}
+
           <div className="border-t border-panel-border pt-3" aria-live="polite">
             <h3 className="text-xs font-semibold">{t('stability')}</h3>
             {snapshot.warnings.length === 0 ? <p className="mt-1 text-xs text-foreground/55">{t('noWarnings')}</p> : (
@@ -223,6 +247,36 @@ export function SandboxWorkspace({ preset, onPresetChange }: {
 }
 
 export function Sandbox() {
-  const [preset, setPreset] = useState<SandboxPreset>('stable-system');
-  return <SandboxWorkspace key={preset} preset={preset} onPresetChange={setPreset} />;
+  const router = useRouter();
+  const catalogId = useSearchParams().get('catalog');
+  const entry = catalogId ? getCatalogEntry(catalogId) : undefined;
+  const catalogOverride = useMemo(() => (entry ? catalogScenario(entry) : null), [entry]);
+  const presetParam = useSearchParams().get('preset');
+  const [preset, setPreset] = useState<SandboxPreset>(() => SANDBOX_PRESETS.find((option) => option === presetParam) ?? 'stable-system');
+  const [custom, setCustom] = useState<CustomBodySpec[]>([]);
+  const fromCatalog = catalogOverride !== null;
+  const editing = !fromCatalog && preset === 'empty-space';
+  const customOverride = useMemo(() => (editing && custom.length > 0 ? customScenario(custom) : null), [editing, custom]);
+  const override = catalogOverride ?? customOverride;
+
+  function changePreset(next: SandboxPreset) {
+    if (fromCatalog) router.replace('/sandbox');
+    setPreset(next);
+  }
+
+  return (
+    <>
+      <SandboxWorkspace
+        key={fromCatalog ? `catalog:${catalogId}` : `${preset}:${custom.map((body) => body.name).join(',')}`}
+        preset={fromCatalog ? 'empty-space' : preset}
+        override={override ?? undefined}
+        onPresetChange={changePreset}
+      />
+      {editing ? (
+        <div className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-8">
+          <CustomBodyEditor bodies={custom} onChange={setCustom} />
+        </div>
+      ) : null}
+    </>
+  );
 }

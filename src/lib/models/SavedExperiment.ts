@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid';
 import { model, models, Schema } from 'mongoose';
 
 const savedExperimentSchema = new Schema(
@@ -13,7 +12,7 @@ const savedExperimentSchema = new Schema(
       type: String,
       unique: true,
       sparse: true,
-      default: () => nanoid(22),
+      // No default: private experiments must not carry a share token. The API mints one when visibility becomes unlisted/public.
     },
   },
   { timestamps: true, collection: 'savedexperiments' },

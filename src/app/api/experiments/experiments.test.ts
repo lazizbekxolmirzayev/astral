@@ -44,9 +44,9 @@ describe('public experiment sharing', () => {
       skip: vi.fn().mockReturnThis(),
       limit: vi.fn().mockReturnThis(),
       lean: vi.fn().mockResolvedValue([
-        { _id: 'public-id', visibility: 'public', title: 'Public', description: '', shareToken: 'a'.repeat(64), createdAt: new Date() },
+        { _id: 'public-id', visibility: 'public', title: 'Public', description: '', shareToken: 'a'.repeat(22), createdAt: new Date() },
         { _id: 'private-id', visibility: 'private', title: 'Secret', description: 'must not leak', shareToken: undefined, createdAt: new Date() },
-        { _id: 'unlisted-id', visibility: 'unlisted', title: 'Link only', description: 'must not list', shareToken: 'b'.repeat(64), createdAt: new Date() },
+        { _id: 'unlisted-id', visibility: 'unlisted', title: 'Link only', description: 'must not list', shareToken: 'b'.repeat(22), createdAt: new Date() },
       ]),
     };
     findMock.mockReturnValue(query);
@@ -61,7 +61,7 @@ describe('public experiment sharing', () => {
   });
 
   it('resolves unlisted experiments only by their token and rejects private tokens', async () => {
-    const token = 'c'.repeat(64);
+    const token = 'c'.repeat(22);
     const leanMock = vi.fn().mockResolvedValueOnce({
       _id: 'private-id', visibility: 'private', shareToken: token, schemaVersion: 1, data: validScenario,
     }).mockResolvedValueOnce({
@@ -185,5 +185,36 @@ describe('SavedExperiment API authorization and validation', () => {
     const body = await response.json();
     expect(response.status).toBe(403);
     expect(body.error.code).toBe('forbidden');
+  });
+
+  describe('PATCH share token lifecycle', () => {
+    const csrf = 'test-csrf-token';
+    async function patch(existing: Record<string, unknown>, visibility: string) {
+      authMock.mockResolvedValue({ user: { id: 'user-a' } });
+      findOneMock.mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: 'exp-9', owner: 'user-a', schemaVersion: 1, data: validScenario, ...existing }) });
+      findOneAndUpdateMock.mockReturnValue({ lean: vi.fn().mockResolvedValue({ _id: 'exp-9' }) });
+      await updateExperiment(new Request('http://localhost/api/experiments/exp-9', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json', cookie: `nexus_csrf=${csrf}`, 'x-csrf-token': csrf },
+        body: JSON.stringify({ visibility }),
+      }), { params: Promise.resolve({ id: 'exp-9' }) });
+      return findOneAndUpdateMock.mock.calls.at(-1)?.[1] as Record<string, Record<string, unknown>>;
+    }
+
+    it('keeps an existing token when switching between unlisted and public', async () => {
+      const op = await patch({ visibility: 'unlisted', shareToken: 'a'.repeat(22) }, 'public');
+      expect(op.$set.shareToken).toBeUndefined();
+    });
+
+    it('mints a token only when none exists', async () => {
+      const op = await patch({ visibility: 'private' }, 'unlisted');
+      expect(op.$set.shareToken).toMatch(/^[A-Za-z0-9_-]{22}$/);
+    });
+
+    it('revokes the token when going private', async () => {
+      const op = await patch({ visibility: 'public', shareToken: 'a'.repeat(22) }, 'private');
+      expect(op.$unset).toEqual({ shareToken: '' });
+      expect(op.$set.shareToken).toBeUndefined();
+    });
   });
 });

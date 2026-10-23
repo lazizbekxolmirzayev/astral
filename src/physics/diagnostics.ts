@@ -110,10 +110,10 @@ export function driftPercent(current: number, reference: number): number {
 
 /**
  * Upper bound on a gravity parameter this module will reason about, in
- * AU³/day². The Sun is 2.96e-4, so 1 is already ~3,000x anything real here;
- * beyond it the products below overflow to Infinity.
+ * AU³/day². The Sun is 2.96e-4; 1e8 covers the most massive black hole in the
+ * catalogue (M87*, ~1.9e6) with margin, and is far below float64 overflow.
  */
-export const MAX_GM_AU3_PER_DAY2 = 1;
+export const MAX_GM_AU3_PER_DAY2 = 1e8;
 
 /**
  * Escape speed at distance `r` from a body of parameter `gm`: √(2·gm/r).

@@ -14,11 +14,10 @@ const MAX_FRAMING_DISTANCE = 26;
  *
  * PROVENANCE: artistic — the distance is a framing choice, not a real one.
  */
-export function focusView(bodyCenter: Point3, bodyRadius: number, from: Point3): FocusView {
-  const distance = Math.min(
-    Math.max(bodyRadius * FRAMING_RADII, MIN_FRAMING_DISTANCE),
-    MAX_FRAMING_DISTANCE,
-  );
+export function focusView(bodyCenter: Point3, bodyRadius: number, from: Point3, limits?: { min: number; max: number }): FocusView {
+  const minDistance = limits?.min ?? MIN_FRAMING_DISTANCE;
+  const maxDistance = limits?.max ?? MAX_FRAMING_DISTANCE;
+  const distance = Math.min(Math.max(bodyRadius * FRAMING_RADII, minDistance), maxDistance);
 
   let dx = from.x - bodyCenter.x;
   let dy = from.y - bodyCenter.y;

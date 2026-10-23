@@ -89,16 +89,21 @@ export async function PATCH(request: Request, context: Context) {
   }
 
   const update: Record<string, unknown> = { ...parsed.data };
-  if (update.visibility === 'private') {
-    update.shareToken = undefined;
-  }
-  if (update.visibility && update.visibility !== 'private') {
+  const operation: Record<string, unknown> = {};
+  const visibility = parsed.data.visibility;
+  if (visibility === 'private') {
+    // Revoke the link: a private experiment must not keep a usable token.
+    delete update.shareToken;
+    operation.$unset = { shareToken: '' };
+  } else if (visibility && !result.experiment.shareToken) {
+    // Only mint a token when there is none, so changing public<->unlisted keeps existing links.
     update.shareToken = (await import('nanoid')).nanoid(22);
   }
+  operation.$set = update;
 
   const experiment = await SavedExperiment.findOneAndUpdate(
     { _id: id, owner: session.user.id },
-    { $set: update },
+    operation,
     { new: true, runValidators: true },
   ).lean();
 

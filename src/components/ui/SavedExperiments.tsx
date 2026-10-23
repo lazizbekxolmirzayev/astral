@@ -4,6 +4,7 @@ import { ArrowLeft, Download, FileUp, Save, Share2, Trash2 } from 'lucide-react'
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { apiFetch } from '@/lib/client/api';
 import { solarSystem } from '@/data/solarSystem';
 import {
   deleteScenario,
@@ -146,9 +147,8 @@ export function SavedExperiments() {
     setError('');
     setNotice('');
     try {
-      const response = await fetch('/api/experiments', {
+      const response = await apiFetch('/api/experiments', {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           title: shareTitle,
           description: shareDescription,

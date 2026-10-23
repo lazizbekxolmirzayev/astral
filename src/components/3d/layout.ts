@@ -1,4 +1,5 @@
 import type { Vec3 } from '@/physics/orbits';
+import type { TextureLook } from './proceduralTextures';
 
 /**
  * Visual layout for the viewport: what each body looks like, and how a real
@@ -56,35 +57,57 @@ export function sceneRadiusFor(distanceAu: number): number {
   return SCENE_RADIAL_SCALE * Math.pow(distanceAu, SCENE_RADIAL_EXPONENT);
 }
 
-type PlanetVisual = {
+export type PlanetVisual = {
   id: string;
   name: string;
   /** Hex color, artistic choice. */
   color: string;
   /** Sphere radius in scene units, artistic and compressed. */
   radius: number;
+  /** Procedural surface; artistic, not imagery. */
+  look: TextureLook;
+  /** Atmosphere rim color, if the planet gets one. */
+  atmosphere?: string;
+  /** Ring system as multiples of the planet radius. */
+  ring?: { inner: number; outer: number; color: string; tilt: number };
+  /** Spin in radians per second (artistic). */
+  spin: number;
 };
 
 /**
- * Planet names and their order from the Sun are real; the colors and drawn
- * radii are not. Bodies here must match `data/initialConditions.ts` ids.
+ * Planet names and their order from the Sun are real; the colors, drawn radii
+ * and surface patterns are not. Bodies here must match `data/initialConditions.ts` ids.
  */
 export const planets: readonly PlanetVisual[] = [
-  { id: 'mercury', name: 'Mercury', color: '#9c8e82', radius: 0.38 },
-  { id: 'venus', name: 'Venus', color: '#d8b46a', radius: 0.62 },
-  { id: 'earth', name: 'Earth', color: '#3f7fd0', radius: 0.66 },
-  { id: 'mars', name: 'Mars', color: '#c1543a', radius: 0.46 },
-  { id: 'jupiter', name: 'Jupiter', color: '#c9a273', radius: 1.9 },
-  { id: 'saturn', name: 'Saturn', color: '#dcc386', radius: 1.6 },
-  { id: 'uranus', name: 'Uranus', color: '#7fc7cf', radius: 1.1 },
-  { id: 'neptune', name: 'Neptune', color: '#3f5ecb', radius: 1.05 },
+  { id: 'mercury', name: 'Mercury', color: '#9c8e82', radius: 0.38, spin: 0.05, look: { mode: 'blobs', palette: ['#4d4640', '#7d746b', '#a89d90', '#c9bfb2'], seed: 11, scale: 4, seaLevel: 0.5 } },
+  { id: 'venus', name: 'Venus', color: '#d8b46a', radius: 0.62, spin: -0.03, atmosphere: '#f2cf8a', look: { mode: 'bands', palette: ['#b98a47', '#e3c27d', '#f3dca2', '#d8a95c'], seed: 21, turbulence: 0.8 } },
+  { id: 'earth', name: 'Earth', color: '#3f7fd0', radius: 0.66, spin: 0.35, atmosphere: '#6fb2ff', look: { mode: 'blobs', palette: ['#0b2f66', '#1b5fae', '#2b86c9', '#4f8a3c', '#7da04c', '#a89868'], seed: 31, scale: 2.2, seaLevel: 0.55, clouds: 0.45 } },
+  { id: 'mars', name: 'Mars', color: '#c1543a', radius: 0.46, spin: 0.33, atmosphere: '#e89a7a', look: { mode: 'blobs', palette: ['#6f2f1d', '#a8452b', '#c9693f', '#dba074'], seed: 41, scale: 3, seaLevel: 0.5 } },
+  { id: 'jupiter', name: 'Jupiter', color: '#c9a273', radius: 1.9, spin: 0.7, look: { mode: 'bands', palette: ['#7a5b3e', '#c9a273', '#ecd9b8', '#b4835a', '#f0e2c8'], seed: 51, turbulence: 0.55 } },
+  { id: 'saturn', name: 'Saturn', color: '#dcc386', radius: 1.6, spin: 0.62, ring: { inner: 1.35, outer: 2.45, color: '#d9c9a0', tilt: 0.47 }, look: { mode: 'bands', palette: ['#a98d57', '#dcc386', '#f1e2b4', '#c8aa6c'], seed: 61, turbulence: 0.25 } },
+  { id: 'uranus', name: 'Uranus', color: '#7fc7cf', radius: 1.1, spin: -0.4, atmosphere: '#a6e6ee', ring: { inner: 1.5, outer: 1.85, color: '#9fbfc4', tilt: 1.4 }, look: { mode: 'bands', palette: ['#6bb7c1', '#8ad4dc', '#a6e6ee'], seed: 71, turbulence: 0.1 } },
+  { id: 'neptune', name: 'Neptune', color: '#3f5ecb', radius: 1.05, spin: 0.45, atmosphere: '#6f8dff', look: { mode: 'bands', palette: ['#2a43a8', '#3f5ecb', '#6c8af0', '#2d4bb8'], seed: 81, turbulence: 0.45 } },
 ];
+
+/** Surface pattern of the Sun; emissive, so only the pattern matters. */
+export const SUN_LOOK: TextureLook = { mode: 'granules', palette: ['#c45a0a', '#f08a1c', '#ffc34d', '#fff0b0'], seed: 3, scale: 2.4 };
 
 /** Where the camera starts, and where the toolbar reset returns it to. */
 export const DEFAULT_CAMERA_POSITION = [0, 24, 56] as const;
 export const DEFAULT_CAMERA_TARGET = [0, 0, 0] as const;
 
 /** Sphere radius per selectable body, used to frame the camera. */
+export type ScaleLevel = 'system' | 'galaxy' | 'universe';
+
+export const SCALE_LEVELS: readonly ScaleLevel[] = ['system', 'galaxy', 'universe'];
+
+/** Camera framing per scale (scene units, artistic). */
+export const VIEWS: Record<ScaleLevel, { position: readonly [number, number, number]; target: readonly [number, number, number]; minDistance: number; maxDistance: number }> = {
+  system: { position: DEFAULT_CAMERA_POSITION, target: DEFAULT_CAMERA_TARGET, minDistance: 2, maxDistance: 220 },
+  galaxy: { position: [40, 120, 190], target: [0, 0, 0], minDistance: 0.02, maxDistance: 600 },
+  universe: { position: [0, 130, 240], target: [0, 0, 0], minDistance: 0.5, maxDistance: 900 },
+};
+
 export const bodyRadiusById: Record<string, number> = {
   sun: SUN_RADIUS,
   ...Object.fromEntries(planets.map((planet) => [planet.id, planet.radius])),

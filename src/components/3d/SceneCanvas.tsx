@@ -10,6 +10,8 @@ import { stepSimulation } from '@/stores/timeStore';
 import { updateStepRate } from '@/lib/simulation';
 import { CameraRig } from './CameraRig';
 import { DEFAULT_CAMERA_POSITION, planets } from './layout';
+import { GalaxyScene } from './GalaxyScene';
+import { UniverseScene } from './UniverseScene';
 import { OrbitLines } from './OrbitLines';
 import { Planets } from './Planets';
 import { Starfield } from './Starfield';
@@ -37,6 +39,8 @@ function SimulationDriver() {
 export default function SceneCanvas({ onReady, staticView = false }: { onReady?: () => void; staticView?: boolean }) {
   const t = useTranslations('bodies');
   const select = useSelectionStore((state) => state.select);
+  const scale = useSelectionStore((state) => state.scale);
+  const sceneNames = useMemo(() => ({ sun: t('sun') }), [t]);
   const qualityTier = useMemo(() => detectQualityTier(), []);
   const dprMax = useMemo(() => capDprForTier(qualityTier), [qualityTier]);
   const bodyNames = useMemo(
@@ -52,7 +56,7 @@ export default function SceneCanvas({ onReady, staticView = false }: { onReady?:
         position: [DEFAULT_CAMERA_POSITION[0], DEFAULT_CAMERA_POSITION[1], DEFAULT_CAMERA_POSITION[2]],
         fov: 50,
         near: 0.1,
-        far: 400,
+        far: 3000,
       }}
       gl={{ antialias: qualityTier !== 'low', powerPreference: qualityTier === 'low' ? 'default' : 'high-performance' }}
       onCreated={({ gl }) => {
@@ -61,13 +65,19 @@ export default function SceneCanvas({ onReady, staticView = false }: { onReady?:
       }}
       onPointerMissed={() => select(null)}
     >
-      <ambientLight intensity={0.14} />
       <CameraRig />
       <SimulationDriver />
-      <Starfield />
-      <Sun label={t('sun')} />
-      <OrbitLines />
-      <Planets bodyNames={bodyNames} />
+      {scale === 'system' ? (
+        <>
+          <ambientLight intensity={0.14} />
+          <Starfield />
+          <Sun label={t('sun')} />
+          <OrbitLines />
+          <Planets bodyNames={bodyNames} />
+        </>
+      ) : null}
+      {scale === 'galaxy' ? <GalaxyScene names={sceneNames} /> : null}
+      {scale === 'universe' ? <UniverseScene names={sceneNames} /> : null}
     </Canvas>
   );
 }

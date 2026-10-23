@@ -24,7 +24,7 @@ export const DEFAULT_SOFTENING_AU = 1e-4;
 export const MAX_TIMESTEP_DAYS = 5;
 
 /** Practical floor: below this the step count per frame explodes. */
-export const MIN_TIMESTEP_DAYS = 1e-6;
+export const MIN_TIMESTEP_DAYS = 1e-8;
 
 export function validateTimestep(dtDays: number): void {
   if (!Number.isFinite(dtDays)) {

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import type { ScaleLevel } from '@/components/3d/layout';
 
 /**
  * Which body the user pointed at. Changes here come from pointer events, never
@@ -10,6 +11,9 @@ type SelectionState = {
   hoveredId: string | null;
   /** Bumped by the toolbar reset so the camera can return to its default view. */
   viewResetNonce: number;
+  /** Which part of the universe is shown. Changing it clears the selection and resets the view. */
+  scale: ScaleLevel;
+  setScale: (scale: ScaleLevel) => void;
   select: (id: string | null) => void;
   hover: (id: string) => void;
   /** Ignored when another body is already the hovered one being left. */
@@ -21,6 +25,8 @@ export const useSelectionStore = create<SelectionState>()((set) => ({
   selectedId: null,
   hoveredId: null,
   viewResetNonce: 0,
+  scale: 'system',
+  setScale: (scale) => set((state) => (state.scale === scale ? state : { scale, selectedId: null, hoveredId: null, viewResetNonce: state.viewResetNonce + 1 })),
   select: (selectedId) => set({ selectedId }),
   hover: (hoveredId) => set({ hoveredId }),
   leaveHover: (id) =>

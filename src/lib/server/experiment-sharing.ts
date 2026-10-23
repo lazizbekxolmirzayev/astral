@@ -58,7 +58,7 @@ export async function listPublicExperiments(search: string, page: number, pageSi
 }
 
 export async function getShareableExperiment(shareToken: string) {
-  if (!/^[a-f0-9]{64}$/.test(shareToken)) return null;
+  if (!/^[A-Za-z0-9_-]{22}$/.test(shareToken)) return null;
   await connectMongo();
   const record = await SavedExperiment.findOne({
     shareToken,

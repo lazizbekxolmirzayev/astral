@@ -1,0 +1,34 @@
+import { describe, expect, it } from 'vitest';
+import { galaxyMarkers, LY_PER_GALAXY_UNIT, MILKY_WAY_RADIUS, SUN_GALAXY_POSITION, universeDistance, universeMarkers } from './universeLayout';
+
+describe('galaxy layout', () => {
+  it('places Sagittarius A* at the galactic centre, 26,000 ly from the Sun', () => {
+    const sgr = galaxyMarkers().find((m) => m.id === 'sagittarius-a-star')!;
+    expect(Math.hypot(...sgr.position)).toBeLessThan(0.5); // origin, within 250 ly
+    const d = Math.hypot(...sgr.position.map((v, i) => v - SUN_GALAXY_POSITION[i]!) as [number, number, number]);
+    expect(d * LY_PER_GALAXY_UNIT).toBeGreaterThan(25_500);
+    expect(d * LY_PER_GALAXY_UNIT).toBeLessThan(26_500);
+  });
+  it('puts every marker inside the Milky Way disc and keeps unique ids', () => {
+    const markers = galaxyMarkers();
+    expect(new Set(markers.map((m) => m.id)).size).toBe(markers.length);
+    for (const m of markers) expect(Math.hypot(...m.position)).toBeLessThan(MILKY_WAY_RADIUS * 1.2);
+  });
+  it('keeps nearby stars at their real distance from the Sun', () => {
+    const sirius = galaxyMarkers().find((m) => m.id === 'sirius-a')!;
+    const d = Math.hypot(...sirius.position.map((v, i) => v - SUN_GALAXY_POSITION[i]!) as [number, number, number]);
+    expect(d * LY_PER_GALAXY_UNIT).toBeCloseTo(8.6, 0);
+  });
+});
+
+describe('universe layout', () => {
+  it('keeps the distance order and puts the Milky Way at the origin', () => {
+    const m = universeMarkers();
+    expect(m.find((x) => x.id === 'milky-way')!.position).toEqual([0, 0, 0]);
+    const r = (id: string) => Math.hypot(...m.find((x) => x.id === id)!.position);
+    expect(r('lmc')).toBeLessThan(r('andromeda'));
+    expect(r('andromeda')).toBeLessThan(r('whirlpool'));
+    expect(r('whirlpool')).toBeLessThan(r('m87-star'));
+    expect(universeDistance(0)).toBe(0);
+  });
+});

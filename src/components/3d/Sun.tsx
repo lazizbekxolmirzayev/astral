@@ -1,10 +1,11 @@
 'use client';
 
 import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { Group } from 'three';
 import { CENTRAL_BODY_INDEX, simulation } from '@/lib/simulation';
-import { SUN_RADIUS, projectToScene } from './layout';
+import { SUN_LOOK, SUN_RADIUS, projectToScene } from './layout';
+import { createGlowTexture, GLOW_BLENDING } from './proceduralTextures';
 import { CelestialBody } from './CelestialBody';
 
 /**
@@ -22,6 +23,8 @@ import { CelestialBody } from './CelestialBody';
  */
 export function Sun({ label }: { label: string }) {
   const groupRef = useRef<Group>(null);
+  const halo = useMemo(() => createGlowTexture('#ffd48a', 'rgba(255,140,40,0)'), []);
+  useEffect(() => () => halo.dispose(), [halo]);
 
   useFrame(() => {
     const group = groupRef.current;
@@ -38,7 +41,10 @@ export function Sun({ label }: { label: string }) {
 
   return (
     <group ref={groupRef}>
-      <CelestialBody id="sun" label={label} color="#f5b041" radius={SUN_RADIUS} emissiveIntensity={2.4} />
+      <CelestialBody id="sun" label={label} color="#f5b041" radius={SUN_RADIUS} emissiveIntensity={2.4} look={SUN_LOOK} spin={0.04} />
+      <sprite scale={[SUN_RADIUS * 6, SUN_RADIUS * 6, 1]} raycast={() => null}>
+        <spriteMaterial map={halo} blending={GLOW_BLENDING} transparent depthWrite={false} opacity={0.55} />
+      </sprite>
       <pointLight intensity={1400} distance={0} decay={2} color="#fff4e0" />
     </group>
   );

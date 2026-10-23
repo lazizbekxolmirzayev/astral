@@ -12,6 +12,7 @@ export async function connectMongo(): Promise<typeof mongoose> {
   cache.promise ??= mongoose.connect(uri, {
     dbName: process.env.MONGODB_DB,
     bufferCommands: false,
+    serverSelectionTimeoutMS: 5000,
   });
   try {
     cache.conn = await cache.promise;

@@ -3,7 +3,8 @@ import { auth } from '@/auth';
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user) return NextResponse.json({ user: null }, { status: 401 });
+  // 200 with a null user: "not signed in" is an expected state, not an error the browser console should log.
+  if (!session?.user) return NextResponse.json({ user: null });
   return NextResponse.json({
     user: {
       id: session.user.id,

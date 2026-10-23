@@ -64,6 +64,11 @@ export function Planets({ bodyNames }: { bodyNames: Record<string, string> }) {
             label={bodyNames[planet.id] ?? planet.name}
             color={planet.color}
             radius={planet.radius}
+            look={planet.look}
+            atmosphere={planet.atmosphere}
+            ring={planet.ring}
+            spin={planet.spin}
+            labelGap={planet.radius * 0.5 + 0.25}
             position={start}
             registerMesh={registrars[index]!}
           />

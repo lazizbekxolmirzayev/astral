@@ -8,7 +8,10 @@ describe('sandbox presets', () => {
     const initial = cloneState(sandbox.state);
 
     expect(sandbox.state.ids.length).toBeGreaterThanOrEqual(0);
-    expect(sandbox.advance(1 / 60, 1)).toBeGreaterThan(0);
+    // Slow-time presets (impact, black hole) need a few frames to accumulate one step.
+    let steps = 0;
+    for (let frame = 0; frame < 30 && steps === 0; frame++) steps += sandbox.advance(1 / 60, 1);
+    expect(steps).toBeGreaterThan(0);
     expect(sandbox.snapshot().elapsedDays).toBeGreaterThan(0);
 
     sandbox.reset();

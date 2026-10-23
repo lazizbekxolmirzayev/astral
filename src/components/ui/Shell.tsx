@@ -1,7 +1,10 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { UniverseViewport } from '../3d/UniverseViewport';
+import { AccountMenu } from './AccountMenu';
 import { DiagnosticsPanel } from './DiagnosticsPanel';
+import { ObjectList } from './ObjectList';
+import { InspectorPanel } from './InspectorPanel';
 import { SettingsPanel } from './SettingsPanel';
 import { TimeControls } from './TimeControls';
 
@@ -24,12 +27,19 @@ export function Shell() {
         <Link href="/gallery" className="text-xs text-foreground/60 transition-colors hover:text-accent-cyan">
           {t('sharing.nav')}
         </Link>
+        <Link href="/lab" className="text-xs text-foreground/60 transition-colors hover:text-accent-cyan">
+          {t('lab.nav')}
+        </Link>
+        <Link href="/catalog" className="text-xs text-foreground/60 transition-colors hover:text-accent-cyan">
+          {t('catalog.nav')}
+        </Link>
         <Link href="/sandbox" className="text-xs text-foreground/60 transition-colors hover:text-accent-cyan">
           {t('sandbox.nav')}
         </Link>
         <Link href="/saved" className="ml-auto text-xs text-foreground/60 transition-colors hover:text-accent-cyan">
           {t('saved.nav')}
         </Link>
+        <AccountMenu />
       </header>
 
       <div className="flex min-h-0 flex-1">
@@ -37,7 +47,7 @@ export function Shell() {
           <h2 className="px-4 py-3 text-xs uppercase tracking-widest text-foreground/60">
             {t('sidebar.title')}
           </h2>
-          <p className="px-4 text-sm text-foreground/40">{t('sidebar.empty')}</p>
+          <ObjectList />
 
           {/* Scrolls on its own so a long body table cannot push Settings off
               screen; Settings stays pinned at the bottom. */}
@@ -65,31 +75,7 @@ export function Shell() {
           </section>
         </main>
 
-        <aside className="w-[24%] min-w-[208px] max-w-72 shrink-0 border-l border-panel-border">
-          <h2 className="flex items-center gap-2 px-4 py-3 text-xs uppercase tracking-widest text-foreground/60">
-            {t('inspector.title')}
-            <span className="ml-auto rounded-full border border-panel-border px-2 py-0.5 font-mono text-[10px] normal-case tracking-normal text-star-gold">
-              {t('common.comingSoon')}
-            </span>
-          </h2>
-          <dl className="space-y-2 px-4 text-sm">
-            <div className="flex justify-between gap-2">
-              <dt className="text-foreground/50">{t('inspector.property')}</dt>
-              <dd className="font-mono text-foreground/40">—</dd>
-            </div>
-            <div className="flex justify-between gap-2">
-              <dt className="text-foreground/50">{t('inspector.value')}</dt>
-              <dd className="font-mono text-foreground/40">—</dd>
-            </div>
-            <div className="flex justify-between gap-2">
-              <dt className="text-foreground/50">{t('inspector.provenance')}</dt>
-              <dd className="font-mono text-foreground/40">—</dd>
-            </div>
-          </dl>
-          <p className="mt-3 px-4 text-sm text-foreground/40">
-            {t('inspector.noSelection')}
-          </p>
-        </aside>
+        <InspectorPanel />
       </div>
     </div>
   );

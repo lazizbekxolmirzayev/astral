@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { MongoClient } from 'mongodb';
 
-const shareToken = 'a'.repeat(64);
+const shareToken = 'abcDEF012345_-abcDEF01';
 let mongo;
 
 test.beforeAll(async () => {

@@ -8,7 +8,7 @@ import { Vector3 } from 'three';
 import type CameraControlsImpl from 'camera-controls';
 import { focusView } from '@/lib/cameraFocus';
 import { useSelectionStore } from '@/stores/selectionStore';
-import { bodyRadiusById, DEFAULT_CAMERA_POSITION, DEFAULT_CAMERA_TARGET } from './layout';
+import { bodyRadiusById, VIEWS } from './layout';
 
 type PanAction = 'forward' | 'back' | 'left' | 'right';
 
@@ -41,6 +41,8 @@ export function CameraRig() {
   const scene = useThree((state) => state.scene);
   const selectedId = useSelectionStore((state) => state.selectedId);
   const viewResetNonce = useSelectionStore((state) => state.viewResetNonce);
+  const scale = useSelectionStore((state) => state.scale);
+  const view = VIEWS[scale];
   const pressed = useRef(new Set<PanAction>());
   const reducedMotion = useReducedMotion();
 
@@ -48,21 +50,22 @@ export function CameraRig() {
   useEffect(() => {
     if (!controls || !selectedId) return;
     const body = scene.getObjectByName(selectedId);
-    const radius = bodyRadiusById[selectedId];
+    const radius = bodyRadiusById[selectedId] ?? (typeof body?.userData.focusRadius === 'number' ? body.userData.focusRadius : undefined);
     if (!body || radius === undefined) return;
     const center = body.getWorldPosition(scratch);
-    const view = focusView(
+    const framing = focusView(
       { x: center.x, y: center.y, z: center.z },
       radius,
       controls.getPosition(cameraPosition),
+      bodyRadiusById[selectedId] === undefined ? { min: radius * 5, max: radius * 30 } : undefined,
     );
     void controls.setLookAt(
-      view.position.x,
-      view.position.y,
-      view.position.z,
-      view.target.x,
-      view.target.y,
-      view.target.z,
+      framing.position.x,
+      framing.position.y,
+      framing.position.z,
+      framing.target.x,
+      framing.target.y,
+      framing.target.z,
       true,
     );
   }, [controls, scene, selectedId]);
@@ -71,15 +74,15 @@ export function CameraRig() {
   useEffect(() => {
     if (!controls) return;
     void controls.setLookAt(
-      DEFAULT_CAMERA_POSITION[0],
-      DEFAULT_CAMERA_POSITION[1],
-      DEFAULT_CAMERA_POSITION[2],
-      DEFAULT_CAMERA_TARGET[0],
-      DEFAULT_CAMERA_TARGET[1],
-      DEFAULT_CAMERA_TARGET[2],
+      view.position[0],
+      view.position[1],
+      view.position[2],
+      view.target[0],
+      view.target[1],
+      view.target[2],
       true,
     );
-  }, [controls, viewResetNonce]);
+  }, [controls, viewResetNonce, view]);
 
   useEffect(() => {
     function editableTarget(event: KeyboardEvent) {
@@ -131,5 +134,5 @@ export function CameraRig() {
     }
   });
 
-  return <CameraControls makeDefault minDistance={2} maxDistance={220} />;
+  return <CameraControls makeDefault minDistance={view.minDistance} maxDistance={view.maxDistance} />;
 }
