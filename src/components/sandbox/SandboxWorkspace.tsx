@@ -1,89 +1,16 @@
 'use client';
 
-import { Pause, Play, RotateCcw } from 'lucide-react';
+import { Maximize2, Pause, Play, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getCatalogEntry } from '@/data/catalog/entries';
 import { CustomBodyEditor } from './CustomBodyEditor';
+import { createSandboxView, formatDistanceAu } from './sandboxView';
+import { orbitReadout, type OrbitReadout } from '@/physics/orbitReadout';
 import { catalogScenario, createSandboxSimulation, customScenario, type CustomBodySpec, SANDBOX_PRESETS, SANDBOX_SPEEDS, type SandboxPreset, type SandboxSpeed } from '@/lib/sandboxSimulation';
-import type { NBodyState } from '@/physics/gravity';
 import type { SandboxPresetInfo, SandboxSnapshot } from '@/lib/sandboxSimulation';
-
-const BODY_COLORS: Record<string, string> = {
-  sun: '#ffd166',
-  mercury: '#a99a8b',
-  venus: '#e8bd70',
-  earth: '#58a6ff',
-  mars: '#e27655',
-  jupiter: '#d2ad83',
-  saturn: '#e2cc8a',
-  uranus: '#82d3d9',
-  neptune: '#637bea',
-  asteroid: '#dbdbdb',
-  'test-particle': '#56dbcc',
-  'black-hole': '#050509',
-  star: '#ffd166',
-  planet: '#58a6ff',
-};
-
-function drawSandbox(canvas: HTMLCanvasElement, state: NBodyState, centerId?: string) {
-  const rect = canvas.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const width = Math.max(1, Math.floor(rect.width * dpr));
-  const height = Math.max(1, Math.floor(rect.height * dpr));
-  if (canvas.width !== width || canvas.height !== height) {
-    canvas.width = width;
-    canvas.height = height;
-  }
-  const context = canvas.getContext('2d');
-  if (!context) return;
-  context.setTransform(dpr, 0, 0, dpr, 0, 0);
-  context.fillStyle = '#070a12';
-  context.fillRect(0, 0, rect.width, rect.height);
-  context.strokeStyle = 'rgba(145, 170, 210, 0.10)';
-  context.lineWidth = 1;
-  context.beginPath();
-  context.moveTo(rect.width / 2, 0);
-  context.lineTo(rect.width / 2, rect.height);
-  context.moveTo(0, rect.height / 2);
-  context.lineTo(rect.width, rect.height / 2);
-  context.stroke();
-  if (state.ids.length === 0) return;
-
-  const centerIndex = Math.max(0, centerId ? state.ids.indexOf(centerId) : 0);
-  const centerX = state.positions[centerIndex * 3] as number;
-  const centerY = state.positions[centerIndex * 3 + 1] as number;
-  let extent = 0;
-  for (let index = 0; index < state.ids.length; index += 1) {
-    const dx = (state.positions[index * 3] as number) - centerX;
-    const dy = (state.positions[index * 3 + 1] as number) - centerY;
-    extent = Math.max(extent, Math.hypot(dx, dy));
-  }
-  const scale = Math.min(rect.width, rect.height) * 0.42 / Math.max(extent, 1e-6);
-  const originX = rect.width / 2;
-  const originY = rect.height / 2;
-
-  for (let index = 0; index < state.ids.length; index += 1) {
-    const id = state.ids[index] as string;
-    const x = originX + ((state.positions[index * 3] as number) - centerX) * scale;
-    const y = originY - ((state.positions[index * 3 + 1] as number) - centerY) * scale;
-    const radius = id === 'sun' || id === 'star' || id === 'black-hole' ? 6 : id === 'asteroid' ? 2 : 3.5;
-    context.beginPath();
-    context.arc(x, y, radius, 0, Math.PI * 2);
-    context.fillStyle = BODY_COLORS[id] ?? '#d7e2f1';
-    context.fill();
-    if (id === 'black-hole') {
-      context.strokeStyle = '#9b78ff';
-      context.lineWidth = 2;
-      context.stroke();
-    }
-    context.fillStyle = '#d4d9e5';
-    context.font = '11px ui-monospace, monospace';
-    context.fillText(id, x + radius + 4, y + 4);
-  }
-}
 
 function formatDrift(value: number) {
   return `${value.toExponential(3)}%`;
@@ -99,8 +26,19 @@ export function SandboxWorkspace({ preset, onPresetChange, override }: {
   const [engine] = useState(() => createSandboxSimulation(preset, override));
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [playing, setPlaying] = useState(true);
-  const [speed, setSpeed] = useState<SandboxSpeed>(1);
+  const [speed, setSpeed] = useState<SandboxSpeed>(() => (!override && (preset === 'stable-system' || preset === 'star-replacement') ? 100 : 1));
   const [snapshot, setSnapshot] = useState<SandboxSnapshot>(() => engine.snapshot());
+  const [view] = useState(() => createSandboxView());
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [readout, setReadout] = useState<OrbitReadout | null>(null);
+  const [showTrails, setShowTrails] = useState(true);
+  const [showVectors, setShowVectors] = useState(false);
+  const driftHistory = useRef<number[]>([]);
+  const [drift, setDrift] = useState<number[]>([]);
+
+  useEffect(() => {
+    view.setOptions({ selectedId, showTrails, showVectors });
+  }, [view, selectedId, showTrails, showVectors]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -109,29 +47,77 @@ export function SandboxWorkspace({ preset, onPresetChange, override }: {
     let animationFrame = 0;
     let previousFrame = 0;
     let lastPublish = 0;
+    let lastSampled = -1;
+    view.sample(engine.state, engine.info.centerId);
 
     function frame(now: number) {
       if (previousFrame > 0 && playing) {
         const delta = Math.min((now - previousFrame) / 1000, 0.1);
         engine.advance(delta, speed);
+        const elapsed = engine.snapshot().elapsedDays;
+        if (elapsed !== lastSampled) {
+          view.sample(engine.state, engine.info.centerId);
+          lastSampled = elapsed;
+        }
       }
       previousFrame = now;
-      drawSandbox(targetCanvas, engine.state, engine.info.centerId);
+      view.draw(targetCanvas, engine.state, engine.info.centerId, '');
       if (now - lastPublish >= 250) {
-        setSnapshot(engine.snapshot());
+        const snap = engine.snapshot();
+        setSnapshot(snap);
+        if (snap.energyAvailable && playing) {
+          driftHistory.current = [...driftHistory.current.slice(-59), snap.energyDriftPercent];
+          setDrift(driftHistory.current);
+        }
+        const centerIndex = Math.max(0, engine.info.centerId ? engine.state.ids.indexOf(engine.info.centerId) : 0);
+        const index = view.selectedId ? engine.state.ids.indexOf(view.selectedId) : -1;
+        setReadout(index >= 0 ? orbitReadout(engine.state, index, centerIndex) : null);
         lastPublish = now;
       }
       animationFrame = requestAnimationFrame(frame);
     }
 
+    function onWheel(event: WheelEvent) {
+      event.preventDefault();
+      view.zoomAt(targetCanvas, event.clientX, event.clientY, event.deltaY < 0 ? 1.15 : 1 / 1.15);
+    }
+    targetCanvas.addEventListener('wheel', onWheel, { passive: false });
     animationFrame = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(animationFrame);
-  }, [engine, playing, speed]);
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      targetCanvas.removeEventListener('wheel', onWheel);
+    };
+  }, [engine, view, playing, speed]);
+
+  function onPointerDown(event: React.PointerEvent<HTMLCanvasElement>) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    view.dragStart(event.clientX, event.clientY);
+  }
+  function onPointerMove(event: React.PointerEvent<HTMLCanvasElement>) {
+    view.dragMove(event.clientX, event.clientY);
+  }
+  function onPointerUp(event: React.PointerEvent<HTMLCanvasElement>) {
+    const moved = view.dragEnd();
+    if (!moved && canvasRef.current) {
+      const id = view.pick(canvasRef.current, engine.state, engine.info.centerId, event.clientX, event.clientY);
+      setSelectedId(id);
+      if (!id) setReadout(null);
+    }
+  }
 
   function reset() {
     engine.reset();
+    view.clearTrails();
+    view.fit();
+    driftHistory.current = [];
+    setDrift([]);
+    view.sample(engine.state, engine.info.centerId);
     setPlaying(false);
     setSnapshot(engine.snapshot());
+  }
+
+  function fitView() {
+    view.fit();
   }
 
   const validity = engine.info.blackHole?.validity;
@@ -161,7 +147,22 @@ export function SandboxWorkspace({ preset, onPresetChange, override }: {
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_19rem]">
         <section className="relative min-h-[22rem] overflow-hidden rounded-lg border border-panel-border bg-[#070a12]">
-          <canvas ref={canvasRef} data-sandbox-canvas aria-label={t('viewLabel')} className="absolute inset-0 h-full w-full" />
+          <canvas
+            ref={canvasRef}
+            data-sandbox-canvas
+            aria-label={t('viewLabel')}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onDoubleClick={fitView}
+            className="absolute inset-0 h-full w-full cursor-grab touch-none active:cursor-grabbing"
+          />
+          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 text-[11px]">
+            <button type="button" onClick={fitView} className="inline-flex items-center gap-1 rounded border border-panel-border bg-background/80 px-2 py-1 hover:border-accent-cyan/60"><Maximize2 size={12} aria-hidden />{t('view.fit')}</button>
+            <button type="button" aria-pressed={showTrails} onClick={() => setShowTrails((v) => !v)} className={`rounded border px-2 py-1 ${showTrails ? 'border-accent-cyan/60 bg-accent-cyan/15 text-accent-cyan' : 'border-panel-border bg-background/80'}`}>{t('view.trails')}</button>
+            <button type="button" aria-pressed={showVectors} onClick={() => setShowVectors((v) => !v)} className={`rounded border px-2 py-1 ${showVectors ? 'border-accent-cyan/60 bg-accent-cyan/15 text-accent-cyan' : 'border-panel-border bg-background/80'}`}>{t('view.vectors')}</button>
+          </div>
+          <p className="pointer-events-none absolute bottom-2 right-3 text-[10px] text-foreground/40">{t('view.hint')}</p>
           <span className="pointer-events-none absolute right-3 top-3 rounded border border-panel-border bg-background/80 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/65">{t('notToScale')}</span>
           {engine.state.ids.length === 0 ? <p className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-foreground/55">{t('emptySpace')}</p> : null}
         </section>
@@ -203,6 +204,39 @@ export function SandboxWorkspace({ preset, onPresetChange, override }: {
             <dt className="text-foreground/55">{t('angularMomentumDrift')}</dt><dd className="text-right font-mono">{snapshot.energyAvailable ? formatDrift(snapshot.angularMomentumDriftPercent) : t('notAvailable')}</dd>
             <dt className="text-foreground/55">{t('bodyCount')}</dt><dd className="text-right font-mono">{engine.state.ids.length}</dd>
           </dl>
+
+          {selectedId ? (
+            <div className="border-t border-panel-border pt-3 text-xs" aria-live="polite">
+              <h3 className="font-semibold text-accent-cyan">{t('orbit.title', { name: selectedId })}</h3>
+              {readout ? (
+                <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5">
+                  <dt className="text-foreground/55">{t('orbit.distance')}</dt><dd className="text-right font-mono">{formatDistanceAu(readout.distanceAu)}</dd>
+                  <dt className="text-foreground/55">{t('orbit.speed')}</dt><dd className="text-right font-mono">{readout.speedKmS.toPrecision(4)} km/s</dd>
+                  <dt className="text-foreground/55">{t('orbit.status')}</dt><dd className={`text-right font-mono ${readout.bound ? 'text-accent-cyan' : 'text-star-gold'}`}>{readout.bound ? t('orbit.bound') : t('orbit.unbound')}</dd>
+                  <dt className="text-foreground/55">{t('orbit.eccentricity')}</dt><dd className="text-right font-mono">{readout.eccentricity.toPrecision(4)}</dd>
+                  {readout.semiMajorAxisAu !== null ? <><dt className="text-foreground/55">{t('orbit.semiMajor')}</dt><dd className="text-right font-mono">{formatDistanceAu(readout.semiMajorAxisAu)}</dd></> : null}
+                  {readout.periodDays !== null ? <><dt className="text-foreground/55">{t('orbit.period')}</dt><dd className="text-right font-mono">{readout.periodDays >= 730 ? `${(readout.periodDays / 365.25).toPrecision(4)} ${t('orbit.years')}` : `${readout.periodDays.toPrecision(4)} d`}</dd></> : null}
+                  <dt className="text-foreground/55">{t('orbit.periapsis')}</dt><dd className="text-right font-mono">{formatDistanceAu(readout.periapsisAu)}</dd>
+                  {readout.apoapsisAu !== null ? <><dt className="text-foreground/55">{t('orbit.apoapsis')}</dt><dd className="text-right font-mono">{formatDistanceAu(readout.apoapsisAu)}</dd></> : null}
+                </dl>
+              ) : <p className="mt-1 text-foreground/55">{t('orbit.centre')}</p>}
+              <p className="mt-2 text-[10px] leading-relaxed text-foreground/40">{t('orbit.note')}</p>
+            </div>
+          ) : <p className="border-t border-panel-border pt-3 text-xs text-foreground/45">{t('orbit.pickHint')}</p>}
+
+          {drift.length > 1 ? (
+            <div className="border-t border-panel-border pt-3 text-xs">
+              <h3 className="font-semibold">{t('driftChart')}</h3>
+              <svg viewBox="0 0 120 30" className="mt-1 h-8 w-full" role="img" aria-label={t('driftChart')}>
+                {(() => {
+                  const peak = Math.max(...drift.map((d) => Math.abs(d)), 1e-12);
+                  const points = drift.map((d, i) => `${(i / (drift.length - 1)) * 120},${28 - (Math.abs(d) / peak) * 26}`).join(' ');
+                  return <polyline points={points} fill="none" stroke="#00f0ff" strokeWidth="1.2" />;
+                })()}
+              </svg>
+              <p className="mt-0.5 font-mono text-[10px] text-foreground/45">max |Δ| = {Math.max(...drift.map((d) => Math.abs(d))).toExponential(2)}%</p>
+            </div>
+          ) : null}
 
           {engine.info.impact ? (
             <div className="border-t border-panel-border pt-3 text-xs">

@@ -238,7 +238,31 @@
       "add": "Jism qo'shish",
       "invalid": "Nom, musbat massa va raqamli qiymatlarni kiriting.",
       "remove": "{name} ni o'chirish"
-    }
+    },
+    "view": {
+      "fit": "Sig‘dirish",
+      "trails": "Izlar",
+      "vectors": "Tezlik",
+      "hint": "G‘ildirak: masshtab · Tortish: siljitish · Bosish: tanlash · Ikki marta bosish: sig‘dirish"
+    },
+    "orbit": {
+      "title": "{name}: markazga nisbatan orbita",
+      "distance": "Masofa",
+      "speed": "Tezlik",
+      "status": "Holat",
+      "bound": "bog‘langan",
+      "unbound": "bog‘lanmagan",
+      "eccentricity": "Ekssentrisitet",
+      "semiMajor": "Katta yarim o‘q",
+      "period": "Davr",
+      "years": "yil",
+      "periapsis": "Periapsis",
+      "apoapsis": "Apoapsis",
+      "centre": "Bu markaziy jism (sanoq sistemasi).",
+      "note": "Ikki jism masalasining oniy (oskulyatsion) elementlari; boshqa jismlar bo‘lsa haqiqiy orbita undan chetlashadi.",
+      "pickHint": "Orbita elementlarini ko‘rish uchun jismni bosing."
+    },
+    "driftChart": "Energiya dreyfi vaqt bo‘yicha (nisbiy)"
   },
   "viewport": {
     "title": "Koinot ko'rinishi",
@@ -407,5 +431,100 @@
     "universe": "Mahalliy koinot",
     "galaxyNote": "1 birlik = 500 yorug'lik yili. Ro'yxatdagi obyektlarning yo'nalishi va masofasi haqiqiy; spiral shoxlar ko'rgazmali, o'lchangan xarita emas.",
     "universeNote": "Yo'nalishlar haqiqiy; masofalar siqilgan, galaktikalar o'lchami esa hammasi sig'ishi uchun kattalashtirilgan. Masshtabga mos emas."
+  },
+  "nav": {
+    "universe": "Koinot",
+    "gallery": "Galereya",
+    "lab": "Laboratoriyalar",
+    "catalog": "Katalog",
+    "sandbox": "Sandbox",
+    "saved": "Saqlanganlar"
+  },
+  "gallery": {
+    "eyebrow": "Galereya",
+    "title": "Hoziroq ishga tushirish mumkin bo‘lgan tajribalar",
+    "subtitle": "Tayyor stsenariyni tanlang — u darhol simulyatorda ochiladi. Barcha qiymatlar katalogdan olingan va taxmin sifatida belgilangan; bular bashorat emas.",
+    "featuredTitle": "Tayyor tajribalar",
+    "featuredHint": "Doim mavjud, akkaunt shart emas.",
+    "filterLabel": "Filtr",
+    "run": "Ishga tushirish",
+    "communityTitle": "Hamjamiyat tajribalari",
+    "communityEmpty": "Hali hech kim tajriba e’lon qilmagan. Sandboxda saqlab, ulashing.",
+    "communityOffline": "Hamjamiyat tajribalari hozir mavjud emas (baza ulanmagan). Yuqoridagi tayyor tajribalar odatdagidek ishlaydi.",
+    "filters": {
+      "all": "Hammasi",
+      "basics": "Asoslar",
+      "stars": "Yulduzlar",
+      "planets": "Sayyoralar",
+      "impacts": "Urilishlar",
+      "blackholes": "Qora tuynuklar"
+    },
+    "items": {
+      "stable-system": {
+        "title": "Barqaror Quyosh tizimi",
+        "body": "Quyosh va sayyoralar haqiqiy boshlang‘ich shartlardan. Energiya va impuls momenti o‘zgarmasligini kuzating."
+      },
+      "two-body": {
+        "title": "Ikki jism masalasi",
+        "body": "Umumiy massa markazi atrofida aylanuvchi ikki jism. Integratorning eng toza sinovi."
+      },
+      "star-replacement": {
+        "title": "Quyoshni almashtirish",
+        "body": "Quyoshni boshqa yulduzga almashtiring: qaysi sayyoralar orbitada qoladi, qaysilari uchib ketadi."
+      },
+      "asteroid-impact": {
+        "title": "To‘qnashuv yo‘lidagi asteroid",
+        "body": "Yerga asteroid yuboring: urilish tezligi, TNT ekvivalentidagi energiya, havoda portlash yoki krater."
+      },
+      "black-hole": {
+        "title": "Qora tuynuk yonidan o‘tish",
+        "body": "Nyuton qora tuynugi yonida sinov zarrasi (relyativistik effektlarsiz yaqinlashuv): orbita, qulash yoki qochish."
+      },
+      "chelyabinsk-2013": {
+        "body": "Rossiya ustida 19 m jismning havoda portlashi, taxminan 500 kt. Hisoblangan energiyani e’lon qilingan qiymat bilan solishtiring."
+      },
+      "tunguska-1908": {
+        "body": "Sibirda o‘rmonni yiqitgan portlash. Hajmi va tezligi juda noaniq, shunday ko‘rsatiladi."
+      },
+      "chicxulub": {
+        "body": "Bo‘r davri oxiridagi zarba. Energiya faqat tartib darajasida; boshqalar bilan solishtiring."
+      },
+      "apophis": {
+        "body": "2029-yilda xavfsiz o‘tadigan Yerga yaqin asteroid. Orbita katalog qiymatlaridan; to‘qnashuv prognoz qilinmagan."
+      },
+      "halley": {
+        "body": "Juda cho‘zinchoq orbita (e≈0,97). Perigeliy va afeliy orasida tezlik keskin o‘zgaradi."
+      },
+      "sirius-a": {
+        "body": "Markazga ~2 Quyosh massali A yulduzini qo‘ying. Qaysi sayyoralar saqlanadi, davrlar qanday o‘zgaradi?"
+      },
+      "betelgeuse": {
+        "body": "Quyosh o‘rniga qizil o‘ta gigant. Massasi noaniq; sandbox yulduz ichidagi sayyoralar haqida ogohlantiradi."
+      },
+      "proxima-centauri": {
+        "body": "0,12 Quyosh massali qizil mitti sayyoralarni ushlab turishga yetarli tortishishga ega emas."
+      },
+      "cygnus-x-1": {
+        "body": "Taxminan 21 Quyosh massali yulduz massasidagi qora tuynuk. Sinov zarralari orbitalari, Nyuton yaqinlashuvi."
+      },
+      "sagittarius-a-star": {
+        "body": "Somon yo‘lining markaziy qora tuynugi, taxminan 4 mln Quyosh massasi. Orbitalar tez va tor."
+      },
+      "m87-star": {
+        "body": "6,5 mlrd Quyosh massali qora tuynuk. Dvigatel uchun o‘ta katta tortishish parametri."
+      },
+      "proxima-b": {
+        "body": "11 kunlik orbitadagi sayyora. Faqat minimal massa ma’lum."
+      },
+      "51-pegasi-b": {
+        "body": "Birinchi issiq Yupiter: 0,05 AU masofada 4 kunda aylanadigan gigant."
+      },
+      "trappist-1e": {
+        "body": "O‘ta sovuq mitti yulduz atrofidagi toshli sayyora. Yili 6 kun."
+      },
+      "55-cancri-e": {
+        "body": "Yili bir sutkadan qisqa lava dunyosi. Juda tez va tor orbita."
+      }
+    }
   }
 }

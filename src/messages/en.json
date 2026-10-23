@@ -238,7 +238,31 @@
       "add": "Add body",
       "invalid": "Enter a name, a positive mass and numeric values.",
       "remove": "Remove {name}"
-    }
+    },
+    "view": {
+      "fit": "Fit",
+      "trails": "Trails",
+      "vectors": "Velocity",
+      "hint": "Scroll: zoom · Drag: pan · Click: select · Double-click: fit"
+    },
+    "orbit": {
+      "title": "{name}: orbit relative to the centre",
+      "distance": "Distance",
+      "speed": "Speed",
+      "status": "Status",
+      "bound": "bound",
+      "unbound": "unbound",
+      "eccentricity": "Eccentricity",
+      "semiMajor": "Semi-major axis",
+      "period": "Period",
+      "years": "yr",
+      "periapsis": "Periapsis",
+      "apoapsis": "Apoapsis",
+      "centre": "This is the central body (the reference frame).",
+      "note": "Instantaneous two-body (osculating) elements; with other bodies present the real orbit drifts from this.",
+      "pickHint": "Click a body to see its orbital elements."
+    },
+    "driftChart": "Energy drift over time (relative)"
   },
   "viewport": {
     "title": "Universe view",
@@ -407,5 +431,100 @@
     "universe": "Local universe",
     "galaxyNote": "1 unit = 500 light-years. Directions and distances of listed objects are real; the spiral arms are illustrative, not a measured map.",
     "universeNote": "Directions are real; distances are compressed and galaxy sizes exaggerated so everything fits. Not to scale."
+  },
+  "nav": {
+    "universe": "Universe",
+    "gallery": "Gallery",
+    "lab": "Labs",
+    "catalog": "Catalog",
+    "sandbox": "Sandbox",
+    "saved": "Saved"
+  },
+  "gallery": {
+    "eyebrow": "Gallery",
+    "title": "Experiments you can run right now",
+    "subtitle": "Pick a ready-made scenario and it opens in the simulator immediately. Every value comes from the catalog and is labelled as an estimate; nothing here is a prediction.",
+    "featuredTitle": "Ready-made experiments",
+    "featuredHint": "Always available, no account needed.",
+    "filterLabel": "Filter",
+    "run": "Run",
+    "communityTitle": "Community experiments",
+    "communityEmpty": "Nobody has published an experiment yet. Save one in the sandbox and share it.",
+    "communityOffline": "Community experiments are unavailable right now (database not connected). The ready-made ones above work normally.",
+    "filters": {
+      "all": "All",
+      "basics": "Basics",
+      "stars": "Stars",
+      "planets": "Planets",
+      "impacts": "Impacts",
+      "blackholes": "Black holes"
+    },
+    "items": {
+      "stable-system": {
+        "title": "Stable Solar System",
+        "body": "Sun and planets from real initial conditions. Watch energy and angular momentum stay constant."
+      },
+      "two-body": {
+        "title": "Two-body problem",
+        "body": "Two bodies orbiting a common centre of mass. The cleanest test of the integrator."
+      },
+      "star-replacement": {
+        "title": "Replace the Sun",
+        "body": "Swap the Sun for another star and see which planets keep their orbits and which fly away."
+      },
+      "asteroid-impact": {
+        "title": "Asteroid on a collision course",
+        "body": "Launch an asteroid at Earth and read impact speed, energy in TNT and airburst/crater outcome."
+      },
+      "black-hole": {
+        "title": "Black-hole flyby",
+        "body": "A test particle near a Newtonian black hole (approximation, no relativity). Orbit, plunge or escape."
+      },
+      "chelyabinsk-2013": {
+        "body": "19 m airburst over Russia, about 500 kt. Compare the energy the simulator computes with the published figure."
+      },
+      "tunguska-1908": {
+        "body": "Siberian airburst that flattened forest. Size and speed are highly uncertain, shown as such."
+      },
+      "chicxulub": {
+        "body": "The end-Cretaceous impact. Energy is order-of-magnitude only; see how large that is next to the others."
+      },
+      "apophis": {
+        "body": "Near-Earth asteroid with a safe 2029 flyby. Orbit from catalog values; no collision is predicted."
+      },
+      "halley": {
+        "body": "Highly eccentric comet (e≈0.97). Speed changes enormously between perihelion and aphelion."
+      },
+      "sirius-a": {
+        "body": "Put a 2-solar-mass A star at the centre. Which planets survive, and how do the periods change?"
+      },
+      "betelgeuse": {
+        "body": "Replace the Sun with a red supergiant. Its mass is uncertain; the sandbox warns about planets inside it."
+      },
+      "proxima-centauri": {
+        "body": "A 0.12 solar-mass red dwarf has too little gravity to hold the Solar System planets."
+      },
+      "cygnus-x-1": {
+        "body": "Stellar-mass black hole of about 21 solar masses. Test particle orbits, Newtonian approximation."
+      },
+      "sagittarius-a-star": {
+        "body": "The Milky Way’s central black hole, about 4 million solar masses. Orbits are fast and tight."
+      },
+      "m87-star": {
+        "body": "A 6.5-billion-solar-mass black hole. An extreme gravitational parameter for the engine."
+      },
+      "proxima-b": {
+        "body": "Planet in an 11-day orbit. Minimum mass only; see how fast it moves around its small star."
+      },
+      "51-pegasi-b": {
+        "body": "The first hot Jupiter: a giant planet orbiting in 4 days at 0.05 AU."
+      },
+      "trappist-1e": {
+        "body": "Rocky planet around an ultracool dwarf. A 6-day year at a tiny orbital distance."
+      },
+      "55-cancri-e": {
+        "body": "Lava world orbiting in under a day. A very fast, tight orbit."
+      }
+    }
   }
 }
