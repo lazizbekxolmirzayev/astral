@@ -104,7 +104,7 @@ export const SCALE_LEVELS: readonly ScaleLevel[] = ['system', 'galaxy', 'univers
 /** Camera framing per scale (scene units, artistic). */
 export const VIEWS: Record<ScaleLevel, { position: readonly [number, number, number]; target: readonly [number, number, number]; minDistance: number; maxDistance: number }> = {
   system: { position: DEFAULT_CAMERA_POSITION, target: DEFAULT_CAMERA_TARGET, minDistance: 2, maxDistance: 220 },
-  galaxy: { position: [40, 120, 190], target: [0, 0, 0], minDistance: 0.02, maxDistance: 600 },
+  galaxy: { position: [40, 120, 190], target: [0, 0, 0], minDistance: 0.012, maxDistance: 600 },
   universe: { position: [0, 130, 240], target: [0, 0, 0], minDistance: 0.5, maxDistance: 900 },
 };
 

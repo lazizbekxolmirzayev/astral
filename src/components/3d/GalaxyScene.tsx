@@ -50,13 +50,13 @@ export function GalaxyScene({ names }: { names: Record<string, string> }) {
             radius={marker.radius}
             emissiveIntensity={marker.kind === 'black_hole' ? 0.9 : 1}
             position={marker.position}
-            focusRadius={marker.kind === 'black_hole' ? 0.6 : 0.1}
+            focusRadius={marker.kind === 'black_hole' ? 0.6 : Math.max(marker.radius, 0.006)}
             labelGap={marker.radius * 0.6}
             look={marker.kind === 'black_hole' ? undefined : starLook(marker.color, marker.id.length * 7)}
             spin={marker.kind === 'black_hole' ? 0 : 0.2}
           />
           {marker.kind !== 'black_hole' ? (
-            <sprite position={marker.position} scale={[marker.radius * 8, marker.radius * 8, 1]} raycast={() => null}>
+            <sprite position={marker.position} scale={[marker.radius * 14, marker.radius * 14, 1]} raycast={() => null}>
               <spriteMaterial map={halo} color={marker.color} blending={GLOW_BLENDING} transparent depthWrite={false} opacity={0.55} />
             </sprite>
           ) : null}

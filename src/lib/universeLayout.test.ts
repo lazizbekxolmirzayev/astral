@@ -32,3 +32,16 @@ describe('universe layout', () => {
     expect(universeDistance(0)).toBe(0);
   });
 });
+
+describe('galaxy marker overlap', () => {
+  it('draws stars smaller than the gap to their nearest neighbour, so they never merge', () => {
+    const markers = galaxyMarkers().filter((m) => m.kind !== 'black_hole');
+    for (const a of markers) {
+      for (const b of markers) {
+        if (a.id >= b.id) continue;
+        const gap = Math.hypot(a.position[0] - b.position[0], a.position[1] - b.position[1], a.position[2] - b.position[2]);
+        expect(gap, `${a.id} vs ${b.id}`).toBeGreaterThan(a.radius + b.radius);
+      }
+    }
+  });
+});

@@ -16,6 +16,13 @@ export const LY_PER_GALAXY_UNIT = 500;
 export const MILKY_WAY_RADIUS = 100;
 export const SUN_GALAXY_POSITION: readonly [number, number, number] = [52, 0, 0];
 
+/**
+ * Drawn radius of a star marker in the galaxy view. Nearby stars are only 0.01-0.1
+ * units apart (4-50 ly at 500 ly per unit), so a marker bigger than that would
+ * swallow its neighbours. Far away, a constant-size halo keeps them findable.
+ */
+export const GALAXY_STAR_RADIUS = 0.003;
+
 export type MarkerKind = 'sun' | 'star' | 'black_hole' | 'galaxy';
 
 export type SceneMarker = {
@@ -55,7 +62,7 @@ function direction(entry: CatalogEntry): [number, number, number] | null {
 /** The Sun plus the catalogue's stars and black holes that sit inside the Milky Way. */
 export function galaxyMarkers(entries: readonly CatalogEntry[] = catalogEntries): SceneMarker[] {
   const markers: SceneMarker[] = [
-    { id: 'sun', name: 'Sun', kind: 'sun', position: [...SUN_GALAXY_POSITION], radius: 0.12, color: '#ffd166' },
+    { id: 'sun', name: 'Sun', kind: 'sun', position: [...SUN_GALAXY_POSITION], radius: GALAXY_STAR_RADIUS, color: '#ffd166' },
   ];
   for (const entry of entries) {
     if (entry.type !== 'star' && entry.type !== 'black_hole') continue;
@@ -69,10 +76,21 @@ export function galaxyMarkers(entries: readonly CatalogEntry[] = catalogEntries)
       name: entry.name,
       kind: entry.type === 'black_hole' ? 'black_hole' : 'star',
       position: [SUN_GALAXY_POSITION[0] + offset[0], SUN_GALAXY_POSITION[1] + offset[1], SUN_GALAXY_POSITION[2] + offset[2]],
-      radius: entry.type === 'black_hole' ? 0.9 : 0.1,
+      radius: entry.type === 'black_hole' ? 0.9 : GALAXY_STAR_RADIUS,
       color: entry.type === 'black_hole' ? '#8b6cff' : starColor(entry.temperatureK?.value),
       entry,
     });
+  }
+  // Alpha Centauri A and Proxima are 0.2 ly apart, 0.0004 units: shrink each star
+  // marker below its nearest neighbour's gap so close pairs never merge.
+  for (const marker of markers) {
+    if (marker.kind === 'black_hole') continue;
+    let nearest = Infinity;
+    for (const other of markers) {
+      if (other === marker || other.kind === 'black_hole') continue;
+      nearest = Math.min(nearest, Math.hypot(marker.position[0] - other.position[0], marker.position[1] - other.position[1], marker.position[2] - other.position[2]));
+    }
+    marker.radius = Math.min(marker.radius, nearest * 0.4);
   }
   return markers;
 }

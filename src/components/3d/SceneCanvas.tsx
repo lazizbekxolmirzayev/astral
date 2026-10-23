@@ -55,7 +55,7 @@ export default function SceneCanvas({ onReady, staticView = false }: { onReady?:
       camera={{
         position: [DEFAULT_CAMERA_POSITION[0], DEFAULT_CAMERA_POSITION[1], DEFAULT_CAMERA_POSITION[2]],
         fov: 50,
-        near: 0.1,
+        near: 0.01,
         far: 3000,
       }}
       gl={{ antialias: qualityTier !== 'low', powerPreference: qualityTier === 'low' ? 'default' : 'high-performance' }}
