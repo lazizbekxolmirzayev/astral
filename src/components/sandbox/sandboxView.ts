@@ -36,7 +36,7 @@ export type SandboxView = {
   clearTrails(): void;
   /** Record current positions into trails (call only while time advances). */
   sample(state: NBodyState, centerId: string | undefined): void;
-  draw(canvas: HTMLCanvasElement, state: NBodyState, centerId: string | undefined, hiddenLabel: string): void;
+  draw(canvas: HTMLCanvasElement, state: NBodyState, centerId: string | undefined, hiddenLabel: string, impact?: { targetId: string; startedAt: number; now: number }): void;
   /** Screen-space picking; returns a body id or null. */
   pick(canvas: HTMLCanvasElement, state: NBodyState, centerId: string | undefined, clientX: number, clientY: number): string | null;
   zoomAt(canvas: HTMLCanvasElement, clientX: number, clientY: number, factor: number): void;
@@ -98,7 +98,7 @@ export function createSandboxView(): SandboxView {
       }
     },
 
-    draw(canvas, state, centerId, hiddenLabel) {
+    draw(canvas, state, centerId, hiddenLabel, impact) {
       const rect = canvas.getBoundingClientRect();
       lastCanvasRect = { width: rect.width, height: rect.height };
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -348,6 +348,43 @@ export function createSandboxView(): SandboxView {
           ctx.fillStyle = id === view.selectedId ? '#00f0ff' : 'rgba(212,217,229,0.85)';
           ctx.font = '11px ui-monospace, monospace';
           ctx.fillText(id === 'test-particle' ? hiddenLabel || id : id, x + radius + 5, y + 4);
+        }
+      }
+
+      if (impact) {
+        const targetIndex = state.ids.indexOf(impact.targetId);
+        const elapsed = Math.max(0, impact.now - impact.startedAt);
+        const progress = Math.min(1, elapsed / 2200);
+        if (targetIndex >= 0 && progress < 1) {
+          const tx = (state.positions[targetIndex * 3] as number) - cx;
+          const ty = (state.positions[targetIndex * 3 + 1] as number) - cy;
+          const tz = (state.positions[targetIndex * 3 + 2] as number) - cz;
+          const [x, y] = projectPoint(tx, ty, tz, scale, ox, oy);
+          const alpha = 1 - progress;
+          const waveRadius = 5 + progress * 54;
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const flash = ctx.createRadialGradient(x, y, 0, x, y, 18 + progress * 16);
+          flash.addColorStop(0, `rgba(255,248,205,${0.82 * alpha})`);
+          flash.addColorStop(0.18, `rgba(255,192,92,${0.58 * alpha})`);
+          flash.addColorStop(1, 'rgba(255,85,45,0)');
+          ctx.fillStyle = flash;
+          ctx.beginPath(); ctx.arc(x, y, 18 + progress * 16, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = `rgba(255,190,112,${0.9 * alpha})`;
+          ctx.lineWidth = 2.5 * alpha + 0.4;
+          ctx.beginPath(); ctx.ellipse(x, y, waveRadius, waveRadius * 0.72, 0, 0, Math.PI * 2); ctx.stroke();
+          ctx.strokeStyle = `rgba(255,235,194,${0.65 * alpha})`;
+          ctx.lineWidth = 1.2 * alpha;
+          ctx.beginPath(); ctx.ellipse(x, y, waveRadius * 0.72, waveRadius * 0.5, 0, 0, Math.PI * 2); ctx.stroke();
+          for (let shard = 0; shard < 14; shard += 1) {
+            const angle = shard * 2.399;
+            const distance = 9 + ((shard * 17) % 13) + progress * (28 + (shard % 4) * 8);
+            const sx = x + Math.cos(angle) * distance;
+            const sy = y + Math.sin(angle) * distance * 0.72;
+            ctx.fillStyle = `rgba(255,${168 + (shard % 3) * 24},${105 + (shard % 4) * 18},${alpha * 0.85})`;
+            ctx.beginPath(); ctx.arc(sx, sy, Math.max(0.8, 2.2 * alpha), 0, Math.PI * 2); ctx.fill();
+          }
+          ctx.restore();
         }
       }
 

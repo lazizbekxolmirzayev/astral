@@ -49,6 +49,8 @@ const MAX_STEPS_PER_FRAME = 2000;
 const AU_METRES = 149_597_870_700;
 const SECONDS_PER_DAY = 86_400;
 const SUN_ID = 'sun';
+export const IMPACT_TARGET_IDS = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'] as const;
+export type ImpactTargetId = (typeof IMPACT_TARGET_IDS)[number];
 function findSolarGM(): number {
   const gm = initialConditions.find((body) => body.id === SUN_ID)?.gm;
   if (gm === undefined) throw new Error('Solar initial conditions need the Sun');
@@ -72,7 +74,7 @@ export type SandboxPresetInfo = {
   title?: string;
   /** Defaults used because the record did not provide the value. */
   assumptions?: string[];
-  impact?: { energyJoules: number; tntMegatons: number; airburstRisk: boolean };
+  impact?: { energyJoules: number; tntMegatons: number; airburstRisk: boolean; airburstAssessed: boolean; impactorMassKg: number };
   blackHole?: { massKg: number; radiusM: number; validity: ReturnType<typeof assessNewtonianValidity> };
   note: 'stable' | 'twoBody' | 'impact' | 'starReplacement' | 'blackHole' | 'empty';
 };
@@ -89,33 +91,42 @@ function getBodies(ids: readonly string[]) {
   });
 }
 
-function impactInfo(radiusM: number, densityKgM3: number, impactVelocityMs: number): SandboxPresetInfo {
-  const [sun, earth] = getBodies([SUN_ID, 'earth']);
-  const earthFacts = solarSystem.find((body) => body.id === 'earth');
-  if (!sun || !earth || !earthFacts?.radius) throw new Error('Earth radius is required for the impact scenario');
+function impactInfo(radiusM: number, densityKgM3: number, impactVelocityMs: number, targetId: ImpactTargetId = 'earth'): SandboxPresetInfo {
+  const [target] = getBodies([targetId]);
+  const targetFacts = solarSystem.find((body) => body.id === targetId);
+  if (!target || !targetFacts?.radius) throw new Error(`Radius is required for impact target ${targetId}`);
   const massKg = impactorMassFromRadiusAndDensity(radiusM, densityKgM3);
+  const targetRadiusM = targetFacts.radius.value * 1000;
+  const collisionDistanceAu = (targetRadiusM + radiusM) / AU_METRES;
+  const startDistanceAu = Math.max(collisionDistanceAu * 8, 0.0001);
+  const targetMassKg = target.gm * GM_SI_PER_AU3_DAY2 / NEWTONIAN_GRAVITATIONAL_CONSTANT;
+  const escapeSpeedMs = Math.sqrt(2 * NEWTONIAN_GRAVITATIONAL_CONSTANT * targetMassKg / targetRadiusM);
+  // Back out gravitational acceleration so catalogued surface impact speeds remain
+  // the requested arrival speed when the object starts several radii away.
+  const launchSpeedMs = Math.sqrt(Math.max(0, impactVelocityMs ** 2 - escapeSpeedMs ** 2 * (1 - collisionDistanceAu / startDistanceAu)));
   const asteroid: BodyDefinition = {
     id: 'asteroid',
     gm: NEWTONIAN_GRAVITATIONAL_CONSTANT * massKg / GM_SI_PER_AU3_DAY2,
-    position: [earth.position[0] + 0.0002, earth.position[1], earth.position[2]],
-    velocity: [earth.velocity[0] - impactVelocityMs * SECONDS_PER_DAY / AU_METRES, earth.velocity[1], earth.velocity[2]],
+    position: [target.position[0] + startDistanceAu, target.position[1], target.position[2]],
+    velocity: [target.velocity[0] - launchSpeedMs * SECONDS_PER_DAY / AU_METRES, target.velocity[1], target.velocity[2]],
   };
   const energyJoules = kineticEnergyJoules(massKg, impactVelocityMs);
+  const gasGiant = targetId === 'jupiter' || targetId === 'saturn' || targetId === 'uranus' || targetId === 'neptune';
   const airburst = airburstRiskForTarget({
-    targetHasAtmosphere: true,
-    targetType: 'rocky',
+    targetHasAtmosphere: targetId !== 'mercury',
+    targetType: gasGiant ? 'gas-giant' : 'rocky',
     impactorRadiusM: radiusM,
     impactorDensityKgM3: densityKgM3,
     impactVelocityMs,
-    targetRadiusM: earthFacts.radius.value * 1000,
-    // Convert JPL's Earth GM into mass using the SI gravitational constant.
-    targetMassKg: earth.gm * GM_SI_PER_AU3_DAY2 / NEWTONIAN_GRAVITATIONAL_CONSTANT,
+    targetRadiusM,
+    // Convert JPL's planetary GM into mass using the SI gravitational constant.
+    targetMassKg,
   });
-  // Approach starts 0.0002 AU away; the default 2 days/s would cross it in microseconds.
+  // Start eight target radii away so the approach is visible at ordinary playback speeds.
   return {
-    collision: { bodyA: 'asteroid', bodyB: 'earth', distanceAu: (earthFacts.radius.value * 1000) / AU_METRES },
-    bodies: [sun, earth, asteroid], centerId: SUN_ID, softeningAu: 1e-8, timestepDays: 1e-4, daysPerSecond: 0.002, note: 'impact',
-    impact: { energyJoules, tntMegatons: tntEquivalentMegatons(energyJoules), airburstRisk: airburst.risk },
+    collision: { bodyA: 'asteroid', bodyB: targetId, distanceAu: collisionDistanceAu },
+    bodies: [target, asteroid], centerId: targetId, softeningAu: 1e-8, timestepDays: 1e-4, daysPerSecond: 0.002, note: 'impact',
+    impact: { energyJoules, tntMegatons: tntEquivalentMegatons(energyJoules), airburstRisk: airburst.risk, airburstAssessed: !gasGiant, impactorMassKg: massKg },
   };
 }
 
@@ -169,7 +180,7 @@ function twoBodyInfo(starMassSolar: number, planetMassEarth: number | undefined,
  * is not simulatable (galaxies). Every default that is not in the record is
  * listed in `assumptions` so the UI can show it.
  */
-export function catalogScenario(entry: CatalogEntry, catalog: readonly CatalogEntry[] = catalogEntries): SandboxPresetInfo | null {
+export function catalogScenario(entry: CatalogEntry, catalog: readonly CatalogEntry[] = catalogEntries, impactTargetId: ImpactTargetId = 'earth'): SandboxPresetInfo | null {
   const assumptions: string[] = [];
   let info: SandboxPresetInfo | null = null;
   switch (entry.type) {
@@ -194,7 +205,8 @@ export function catalogScenario(entry: CatalogEntry, catalog: readonly CatalogEn
       if (!entry.densityKgM3) assumptions.push(`density ${density} kg/m³`);
       const velocityKmS = entry.impactVelocityKmS?.value ?? 20;
       if (!entry.impactVelocityKmS) assumptions.push(`impact speed ${velocityKmS} km/s`);
-      info = impactInfo(radiusM, density, velocityKmS * 1000);
+      info = impactInfo(radiusM, density, velocityKmS * 1000, impactTargetId);
+      assumptions.push('target-centred encounter; the Sun and other planets are omitted');
       break;
     }
     case 'exoplanet': {

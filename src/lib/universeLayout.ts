@@ -23,7 +23,7 @@ export const SUN_GALAXY_POSITION: readonly [number, number, number] = [52, 0, 0]
  */
 export const GALAXY_STAR_RADIUS = 0.003;
 
-export type MarkerKind = 'sun' | 'star' | 'black_hole' | 'galaxy';
+export type MarkerKind = 'sun' | 'star' | 'pulsar' | 'black_hole' | 'galaxy';
 
 export type SceneMarker = {
   id: string;
@@ -59,35 +59,36 @@ function direction(entry: CatalogEntry): [number, number, number] | null {
   return galacticUnitVector(lDeg, bDeg) as [number, number, number];
 }
 
-/** The Sun plus the catalogue's stars and black holes that sit inside the Milky Way. */
+/** The Sun, nearby stars and black holes, plus the Milky Way's two visible satellite galaxies. */
 export function galaxyMarkers(entries: readonly CatalogEntry[] = catalogEntries): SceneMarker[] {
   const markers: SceneMarker[] = [
     { id: 'sun', name: 'Sun', kind: 'sun', position: [...SUN_GALAXY_POSITION], radius: GALAXY_STAR_RADIUS, color: '#ffd166' },
   ];
   for (const entry of entries) {
-    if (entry.type !== 'star' && entry.type !== 'black_hole') continue;
+    const satelliteGalaxy = entry.type === 'galaxy' && (entry.id === 'lmc' || entry.id === 'smc');
+    if (entry.type !== 'star' && entry.type !== 'pulsar' && entry.type !== 'black_hole' && !satelliteGalaxy) continue;
     if (entry.id === 'sun') continue;
     const distanceLy = entry.distanceLy?.value;
     const unit = direction(entry);
-    if (distanceLy === undefined || !unit || distanceLy > 60_000) continue; // beyond the Milky Way: universe view
+    if (distanceLy === undefined || !unit || distanceLy > (satelliteGalaxy ? 250_000 : 60_000)) continue; // other distant galaxies belong in universe view
     const offset = toScene(unit, distanceLy / LY_PER_GALAXY_UNIT);
     markers.push({
       id: entry.id,
       name: entry.name,
-      kind: entry.type === 'black_hole' ? 'black_hole' : 'star',
+      kind: satelliteGalaxy ? 'galaxy' : entry.type === 'black_hole' ? 'black_hole' : entry.type === 'pulsar' ? 'pulsar' : 'star',
       position: [SUN_GALAXY_POSITION[0] + offset[0], SUN_GALAXY_POSITION[1] + offset[1], SUN_GALAXY_POSITION[2] + offset[2]],
-      radius: entry.type === 'black_hole' ? 0.9 : GALAXY_STAR_RADIUS,
-      color: entry.type === 'black_hole' ? '#8b6cff' : starColor(entry.temperatureK?.value),
+      radius: satelliteGalaxy ? (entry.id === 'lmc' ? 8 : 5.5) : entry.type === 'black_hole' ? 0.9 : GALAXY_STAR_RADIUS,
+      color: satelliteGalaxy ? (entry.id === 'lmc' ? '#d7a8ff' : '#8fcaff') : entry.type === 'black_hole' ? '#8b6cff' : entry.type === 'pulsar' ? '#65e8ff' : starColor(entry.temperatureK?.value),
       entry,
     });
   }
   // Alpha Centauri A and Proxima are 0.2 ly apart, 0.0004 units: shrink each star
   // marker below its nearest neighbour's gap so close pairs never merge.
   for (const marker of markers) {
-    if (marker.kind === 'black_hole') continue;
+    if (marker.kind === 'black_hole' || marker.kind === 'galaxy') continue;
     let nearest = Infinity;
     for (const other of markers) {
-      if (other === marker || other.kind === 'black_hole') continue;
+      if (other === marker || other.kind === 'black_hole' || other.kind === 'galaxy') continue;
       nearest = Math.min(nearest, Math.hypot(marker.position[0] - other.position[0], marker.position[1] - other.position[1], marker.position[2] - other.position[2]));
     }
     marker.radius = Math.min(marker.radius, nearest * 0.4);
@@ -100,7 +101,7 @@ export function universeDistance(distanceMly: number): number {
   return 22 * Math.pow(Math.max(distanceMly, 0), 0.45);
 }
 
-const GALAXY_RADII: Record<string, number> = { 'milky-way': 11, andromeda: 16, triangulum: 7, lmc: 3.5, whirlpool: 9, sombrero: 8, 'm87-star': 12 };
+const GALAXY_RADII: Record<string, number> = { 'milky-way': 11, andromeda: 16, triangulum: 7, lmc: 3.5, smc: 2.8, whirlpool: 9, sombrero: 8, 'm87-star': 12, m81: 9, m82: 5.5, pinwheel: 10, 'centaurus-a': 7.5, m32: 2.8, m110: 3.8, 'ngc-5195': 3.2, 'ngc-1300': 8.5 };
 
 /** The Milky Way at the centre, then every catalogue galaxy (and M87*) in its real direction. */
 export function universeMarkers(entries: readonly CatalogEntry[] = catalogEntries): SceneMarker[] {

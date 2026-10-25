@@ -24,6 +24,7 @@ import { NebulaBackdrop } from './NebulaBackdrop';
 import { AsteroidBelt } from './AsteroidBelt';
 import { KuiperBelt } from './KuiperBelt';
 import { DwarfPlanets } from './DwarfPlanets';
+import { CatalogSmallBodies } from './CatalogSmallBodies';
 
 /** Advances the engine once per frame and republishes diagnostics at 4 Hz. */
 function SimulationDriver() {
@@ -93,6 +94,7 @@ export default function SceneCanvas({ onReady, staticView = false }: { onReady?:
           <KuiperBelt qualityTier={qualityTier} />
           <Planets bodyNames={bodyNames} atmosphereHaze={qualityTier !== 'low'} />
           <DwarfPlanets names={bodyNames} />
+          <CatalogSmallBodies />
         </>
       ) : null}
       {scale === 'galaxy' ? <GalaxyScene names={sceneNames} /> : null}

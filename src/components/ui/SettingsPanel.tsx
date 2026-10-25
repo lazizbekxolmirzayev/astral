@@ -30,40 +30,42 @@ export function SettingsPanel() {
 
   return (
     <section className="p-4">
-      <h2 className="flex items-center gap-2 text-xs uppercase tracking-widest text-foreground/60">
-        <Languages size={14} aria-hidden />
-        {t('settings.title')}
-      </h2>
+      <div className="rounded-[22px] border border-panel-border bg-[radial-gradient(circle_at_top,_rgba(0,240,255,0.08),transparent_38%),linear-gradient(180deg,rgba(12,17,27,0.94),rgba(9,12,18,0.78))] p-3 shadow-[0_16px_32px_rgba(0,0,0,0.18)]">
+        <h2 className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-foreground/60">
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-accent-cyan/30 bg-accent-cyan/10 text-accent-cyan"><Languages size={12} aria-hidden /></span>
+          {t('settings.title')}
+        </h2>
 
-      <p className="mt-3 text-xs text-foreground/75">{t('settings.language')}</p>
-      <div
-        role="radiogroup"
-        aria-label={t('settings.language')}
-        className="mt-1.5 flex gap-1 rounded-md border border-panel-border p-1"
-      >
-        {locales.map((locale, index) => {
-          const isActive = locale === currentLocale;
-          return (
-            <button
-              key={locale}
-              type="button"
-              {...optionProps(locale, index)}
-              disabled={isPending}
-              className={`flex-1 rounded px-2 py-1 font-mono text-xs uppercase transition-colors ${
-                isActive
-                  ? 'bg-accent-cyan/15 text-accent-cyan'
-                  : 'text-foreground/75 hover:bg-panel-border hover:text-foreground'
-              } ${focusRing()}`}
-            >
-              {localeLabels[locale]}
-            </button>
-          );
-        })}
+        <p className="mt-3 text-xs text-foreground/75">{t('settings.language')}</p>
+        <div
+          role="radiogroup"
+          aria-label={t('settings.language')}
+          className="mt-1.5 flex gap-1 rounded-full border border-panel-border bg-background/40 p-1"
+        >
+          {locales.map((locale, index) => {
+            const isActive = locale === currentLocale;
+            return (
+              <button
+                key={locale}
+                type="button"
+                {...optionProps(locale, index)}
+                disabled={isPending}
+                className={`flex-1 rounded-full px-2 py-1.5 font-mono text-xs uppercase transition-colors ${
+                  isActive
+                    ? 'bg-accent-cyan/15 text-accent-cyan shadow-[0_0_14px_rgba(0,240,255,0.18)]'
+                    : 'text-foreground/75 hover:bg-panel-border hover:text-foreground'
+                } ${focusRing()}`}
+              >
+                {localeLabels[locale]}
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="mt-2 text-[11px] leading-relaxed text-foreground/75">
+          {t('settings.languageHint')}
+        </p>
       </div>
-
-      <p className="mt-2 text-[11px] leading-relaxed text-foreground/75">
-        {t('settings.languageHint')}
-      </p>
     </section>
   );
 }

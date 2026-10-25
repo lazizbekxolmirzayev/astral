@@ -7,6 +7,7 @@ import { CENTRAL_BODY_INDEX, simulation } from '@/lib/simulation';
 import { SUN_LOOK, SUN_RADIUS, projectToScene } from './layout';
 import { createGlowTexture, GLOW_BLENDING } from './proceduralTextures';
 import { CelestialBody } from './CelestialBody';
+import { useFutureStore } from '@/stores/futureStore';
 
 const CORONA_VERTEX = `
 varying vec3 vNormal;
@@ -81,6 +82,7 @@ export function SunCorona() {
  * next-intl context from the DOM tree.
  */
 export function Sun({ label }: { label: string }) {
+  const futureYears = useFutureStore((state) => state.yearsFromNow);
   const groupRef = useRef<Group>(null);
   const halo = useMemo(() => createGlowTexture('#ffd48a', 'rgba(255,140,40,0)'), []);
   const corona = useMemo(() => createGlowTexture('#fff0b0', 'rgba(255,200,120,0)'), []);
@@ -88,6 +90,10 @@ export function Sun({ label }: { label: string }) {
   useFrame(() => {
     const group = groupRef.current;
     if (!group) return;
+    const years = useFutureStore.getState().yearsFromNow;
+    const redGiantBlend = years < 5_000_000_000 ? 0 : Math.min(1, (years - 5_000_000_000) / 2_500_000_000);
+    const visualGrowth = years >= 7_500_000_000 ? 5.2 : 1 + redGiantBlend * 0.45;
+    group.scale.setScalar(visualGrowth);
     const { positions } = simulation.state;
     group.position.set(
       ...projectToScene([
@@ -100,7 +106,7 @@ export function Sun({ label }: { label: string }) {
 
   return (
     <group ref={groupRef}>
-      <CelestialBody id="sun" label={label} color="#f5b041" radius={SUN_RADIUS} emissiveIntensity={2.4} look={SUN_LOOK} spin={0.04} />
+      <CelestialBody id="sun" label={label} color={futureYears >= 5_000_000_000 ? '#ef6b35' : '#f5b041'} radius={SUN_RADIUS} emissiveIntensity={2.4} look={SUN_LOOK} spin={0.04} />
       <SunCorona />
       <sprite scale={[SUN_RADIUS * 8, SUN_RADIUS * 8, 1]} raycast={() => null}>
         <spriteMaterial map={halo} color="#ff9e48" blending={GLOW_BLENDING} transparent depthWrite={false} opacity={0.22} />

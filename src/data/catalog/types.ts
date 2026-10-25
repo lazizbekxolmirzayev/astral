@@ -12,6 +12,7 @@ export type CatalogQuantity = {
 export type CatalogType =
   | 'star'
   | 'black_hole'
+  | 'pulsar'
   | 'exoplanet'
   | 'asteroid'
   | 'comet'
@@ -50,6 +51,7 @@ export type CatalogEntry = {
   semiMajorAxisAu?: CatalogQuantity;
   eccentricity?: CatalogQuantity;
   orbitalPeriodDays?: CatalogQuantity;
+  rotationPeriodMs?: CatalogQuantity;
   impactVelocityKmS?: CatalogQuantity;
   energyMegatons?: CatalogQuantity;
   /** exoplanet only: id of the host star entry. */

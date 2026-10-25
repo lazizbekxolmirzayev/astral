@@ -209,44 +209,67 @@ export function SavedExperiments() {
   }
 
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-4xl flex-col gap-6 px-5 py-8 sm:px-8">
-      <header className="flex items-center justify-between gap-4 border-b border-panel-border pb-5">
-        <div>
-          <Link href="/" className="mb-3 inline-flex items-center gap-2 text-xs text-foreground/60 hover:text-accent-cyan">
-            <ArrowLeft size={14} aria-hidden />
-            {t('back')}
-          </Link>
-          <h1 className="text-xl font-semibold">{t('title')}</h1>
-          <p className="mt-1 text-sm text-foreground/55">{t('subtitle')}</p>
+    <main className="mx-auto flex min-h-full w-full max-w-5xl flex-col gap-6 px-5 py-8 sm:px-8">
+      <header className="relative overflow-hidden rounded-[30px] border border-panel-border bg-[radial-gradient(circle_at_top_left,_rgba(0,240,255,0.18),transparent_22%),linear-gradient(135deg,rgba(14,19,30,0.96),rgba(9,12,18,0.9))] p-5 sm:p-6">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.04)_28%,transparent_58%)]" />
+        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <Link href="/" className="mb-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-foreground/60 hover:text-accent-cyan">
+              <ArrowLeft size={14} aria-hidden />
+              {t('back')}
+            </Link>
+            <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-accent-cyan">Mission archive</p>
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight">{t('title')}</h1>
+            <p className="mt-1 text-sm text-foreground/60">{t('subtitle')}</p>
+          </div>
+          <div className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] text-cyan-200">
+            {items.length} saved
+          </div>
         </div>
       </header>
 
-      <section className="rounded-lg border border-panel-border bg-background/60 p-4 sm:p-5">
-        <h2 className="text-sm font-semibold">{t('saveTitle')}</h2>
-        <p className="mt-1 text-xs text-foreground/50">{t('saveDescription')}</p>
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <label className="sr-only" htmlFor="scenario-name">{t('nameLabel')}</label>
-          <input
-            id="scenario-name"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder={t('namePlaceholder')}
-            maxLength={80}
-            className="min-w-0 flex-1 rounded-md border border-panel-border bg-black/20 px-3 py-2 text-sm outline-none focus:border-accent-cyan/60"
-          />
-          <button
-            type="button"
-            disabled={busy || !name.trim()}
-            onClick={() => void handleSave()}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-accent-cyan/15 px-4 py-2 text-sm text-accent-cyan hover:bg-accent-cyan/25 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Save size={15} aria-hidden />
-            {t('saveAction')}
-          </button>
+      <section className="grid gap-4 md:grid-cols-[1.35fr_0.65fr]">
+        <div className="rounded-[24px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.95),rgba(8,11,18,0.82))] p-4 sm:p-5">
+          <h2 className="text-sm font-semibold">{t('saveTitle')}</h2>
+          <p className="mt-1 text-xs text-foreground/55">{t('saveDescription')}</p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <label className="sr-only" htmlFor="scenario-name">{t('nameLabel')}</label>
+            <input
+              id="scenario-name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder={t('namePlaceholder')}
+              maxLength={80}
+              className="min-w-0 flex-1 rounded-full border border-panel-border bg-background/60 px-3 py-2.5 text-sm text-foreground placeholder:text-foreground/35 outline-none transition focus:border-accent-cyan/60"
+            />
+            <button
+              type="button"
+              disabled={busy || !name.trim()}
+              onClick={() => void handleSave()}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-accent-cyan/40 bg-accent-cyan/12 px-4 py-2.5 text-sm text-accent-cyan transition hover:bg-accent-cyan/20 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Save size={15} aria-hidden />
+              {t('saveAction')}
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-panel-border bg-[radial-gradient(circle_at_top,_rgba(0,240,255,0.08),transparent_30%),linear-gradient(180deg,rgba(12,17,27,0.95),rgba(8,11,18,0.8))] p-4 sm:p-5">
+          <p className="font-mono text-[9px] uppercase tracking-[0.22em] text-foreground/50">Status</p>
+          <div className="mt-3 space-y-3">
+            <div className="rounded-2xl border border-panel-border bg-white/[0.02] p-3">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-foreground/45">Scenarios</div>
+              <div className="mt-1 text-xl font-semibold text-foreground">{items.length}</div>
+            </div>
+            <div className="rounded-2xl border border-panel-border bg-white/[0.02] p-3">
+              <div className="text-[10px] uppercase tracking-[0.18em] text-foreground/45">Loaded</div>
+              <div className="mt-1 text-xl font-semibold text-accent-cyan">{loaded ? loaded.name : '—'}</div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="rounded-lg border border-panel-border bg-background/60 p-4 sm:p-5">
+      <section className="rounded-[24px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.95),rgba(8,11,18,0.82))] p-4 sm:p-5">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold">{t('listTitle')}</h2>
@@ -264,7 +287,7 @@ export function SavedExperiments() {
               type="button"
               disabled={busy}
               onClick={() => fileInput.current?.click()}
-              className="inline-flex items-center gap-2 rounded-md border border-panel-border px-3 py-2 text-xs text-foreground/75 hover:border-accent-cyan/40 hover:text-accent-cyan disabled:opacity-40"
+              className="inline-flex items-center gap-2 rounded-full border border-panel-border bg-white/[0.02] px-3 py-2 text-xs text-foreground/75 transition hover:border-accent-cyan/40 hover:text-accent-cyan disabled:opacity-40"
             >
               <FileUp size={14} aria-hidden />
               {t('importAction')}
@@ -275,11 +298,11 @@ export function SavedExperiments() {
         {loading ? <p className="py-8 text-center text-sm text-foreground/45">{t('loading')}</p> : null}
         {!loading && items.length === 0 ? <p className="py-8 text-center text-sm text-foreground/45">{t('empty')}</p> : null}
         {items.length > 0 ? (
-          <ul className="mt-4 divide-y divide-panel-border">
+          <ul className="mt-4 space-y-3">
             {items.map((scenario) => (
-              <li key={scenario.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
+              <li key={scenario.id} className="flex flex-col gap-3 rounded-[18px] border border-panel-border bg-white/[0.02] p-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="min-w-0">
-                  <h3 className="truncate text-sm font-medium">{scenario.name}</h3>
+                  <h3 className="truncate text-sm font-medium text-foreground">{scenario.name}</h3>
                   <p className="mt-1 text-xs text-foreground/45">
                     {t('scenarioMeta', {
                       count: scenario.objects.length,
@@ -287,30 +310,31 @@ export function SavedExperiments() {
                     })}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-2">
-                  <button type="button" disabled={busy} onClick={() => void handleLoad(scenario.id)} className="rounded border border-panel-border px-3 py-1.5 text-xs hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40">{t('loadAction')}</button>
-                  <button type="button" disabled={busy} onClick={() => openShare(scenario)} className="inline-flex items-center gap-1 rounded border border-panel-border px-2 py-1.5 text-xs hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40"><Share2 size={13} aria-hidden />{shareT('shareAction')}</button>
-                  <button type="button" disabled={busy} onClick={() => handleExport(scenario)} aria-label={t('exportLabel', { name: scenario.name })} title={t('exportAction')} className="rounded border border-panel-border p-1.5 text-foreground/65 hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40"><Download size={14} aria-hidden /></button>
-                  <button type="button" disabled={busy} onClick={() => handleUsdExport(scenario)} aria-label={t('exportUsdLabel', { name: scenario.name })} title={t('exportUsdAction')} className="rounded border border-panel-border px-2 py-1.5 text-[10px] font-medium text-foreground/65 hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40">USD</button>
-                  <button type="button" disabled={busy} onClick={() => void handleDelete(scenario)} aria-label={t('deleteLabel', { name: scenario.name })} title={t('deleteAction')} className="rounded border border-panel-border p-1.5 text-foreground/65 hover:border-red-400/50 hover:text-red-300 disabled:opacity-40"><Trash2 size={14} aria-hidden /></button>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  <button type="button" disabled={busy} onClick={() => void handleLoad(scenario.id)} className="rounded-full border border-panel-border bg-white/[0.02] px-3 py-1.5 text-xs text-foreground transition hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40">{t('loadAction')}</button>
+                  <button type="button" disabled={busy} onClick={() => openShare(scenario)} className="inline-flex items-center gap-1 rounded-full border border-panel-border bg-white/[0.02] px-2.5 py-1.5 text-xs text-foreground transition hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40"><Share2 size={13} aria-hidden />{shareT('shareAction')}</button>
+                  <button type="button" disabled={busy} onClick={() => handleExport(scenario)} aria-label={t('exportLabel', { name: scenario.name })} title={t('exportAction')} className="rounded-full border border-panel-border bg-white/[0.02] p-1.5 text-foreground/65 transition hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40"><Download size={14} aria-hidden /></button>
+                  <button type="button" disabled={busy} onClick={() => handleUsdExport(scenario)} aria-label={t('exportUsdLabel', { name: scenario.name })} title={t('exportUsdAction')} className="rounded-full border border-panel-border bg-white/[0.02] px-2 py-1.5 text-[10px] font-medium text-foreground/65 transition hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40">USD</button>
+                  <button type="button" disabled={busy} onClick={() => void handleDelete(scenario)} aria-label={t('deleteLabel', { name: scenario.name })} title={t('deleteAction')} className="rounded-full border border-panel-border bg-white/[0.02] p-1.5 text-foreground/65 transition hover:border-red-400/50 hover:text-red-300 disabled:opacity-40"><Trash2 size={14} aria-hidden /></button>
                 </div>
               </li>
             ))}
           </ul>
         ) : null}
+
         {sharingScenario ? (
-          <form onSubmit={(event) => void handleCreateShare(event)} className="mt-5 grid gap-3 rounded-md border border-accent-cyan/25 bg-accent-cyan/5 p-4">
+          <form onSubmit={(event) => void handleCreateShare(event)} className="mt-5 grid gap-3 rounded-[20px] border border-accent-cyan/25 bg-accent-cyan/6 p-4">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-sm font-semibold">{shareT('shareTitle')}: {sharingScenario.name}</h3>
               <button type="button" onClick={() => { setSharingScenario(null); setShareUrl(''); }} className="text-xs text-foreground/55 hover:text-foreground">×</button>
             </div>
             <label className="grid gap-1 text-xs text-foreground/65">
               {shareT('shareTitleLabel')}
-              <input value={shareTitle} onChange={(event) => setShareTitle(event.target.value)} maxLength={120} required className="rounded border border-panel-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent-cyan/60" />
+              <input value={shareTitle} onChange={(event) => setShareTitle(event.target.value)} maxLength={120} required className="rounded-2xl border border-panel-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent-cyan/60" />
             </label>
             <label className="grid gap-1 text-xs text-foreground/65">
               {shareT('visibility')}
-              <select value={shareVisibility} onChange={(event) => setShareVisibility(event.target.value as typeof shareVisibility)} className="rounded border border-panel-border bg-background px-3 py-2 text-sm text-foreground">
+              <select value={shareVisibility} onChange={(event) => setShareVisibility(event.target.value as typeof shareVisibility)} className="rounded-2xl border border-panel-border bg-background px-3 py-2 text-sm text-foreground">
                 <option value="private">{shareT('private')}</option>
                 <option value="unlisted">{shareT('unlistedOption')}</option>
                 <option value="public">{shareT('publicOption')}</option>
@@ -318,21 +342,21 @@ export function SavedExperiments() {
             </label>
             <label className="grid gap-1 text-xs text-foreground/65">
               {shareT('description')}
-              <textarea value={shareDescription} onChange={(event) => setShareDescription(event.target.value)} maxLength={1000} rows={3} className="resize-y rounded border border-panel-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent-cyan/60" />
+              <textarea value={shareDescription} onChange={(event) => setShareDescription(event.target.value)} maxLength={1000} rows={3} className="resize-y rounded-2xl border border-panel-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-accent-cyan/60" />
             </label>
-            <button disabled={busy || !shareTitle.trim()} className="justify-self-start rounded-md bg-accent-cyan/15 px-4 py-2 text-xs text-accent-cyan hover:bg-accent-cyan/25 disabled:opacity-40">{shareT('createShare')}</button>
+            <button disabled={busy || !shareTitle.trim()} className="justify-self-start rounded-full bg-accent-cyan/15 px-4 py-2 text-xs text-accent-cyan transition hover:bg-accent-cyan/25 disabled:opacity-40">{shareT('createShare')}</button>
             {shareUrl ? <p className="break-all text-xs text-accent-cyan">{shareT('shareLink')}: {shareUrl}</p> : null}
           </form>
         ) : null}
       </section>
 
       {loaded ? (
-        <section className="rounded-lg border border-accent-cyan/25 bg-accent-cyan/5 p-4 sm:p-5">
+        <section className="rounded-[24px] border border-accent-cyan/25 bg-accent-cyan/6 p-4 sm:p-5">
           <h2 className="text-sm font-semibold">{t('loadedTitle', { name: loaded.name })}</h2>
           <p className="mt-1 text-xs text-foreground/55">{t('loadedDescription')}</p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {loaded.objects.map((object) => (
-              <li key={object.id} className="rounded border border-panel-border/70 px-3 py-2 text-xs">
+              <li key={object.id} className="rounded-2xl border border-panel-border/70 bg-white/[0.02] px-3 py-2 text-xs">
                 <span className="font-medium">{object.name}</span>
                 <span className="ml-2 text-foreground/45">{object.type}</span>
               </li>

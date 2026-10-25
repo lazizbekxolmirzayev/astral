@@ -7,6 +7,7 @@ import { simulation } from '@/lib/simulation';
 import { CelestialBody } from './CelestialBody';
 import { PlanetaryMoons } from './PlanetaryMoons';
 import { planets, projectToScene } from './layout';
+import { useFutureStore } from '@/stores/futureStore';
 
 /** Engine index per drawn planet, resolved once. */
 const indices = planets.map((planet) => simulation.indexFor(planet.id));
@@ -32,6 +33,7 @@ export function scenePositionOf(index: number): [number, number, number] {
  * the R3F reconciler does not inherit the next-intl context.
  */
 export function Planets({ bodyNames, atmosphereHaze = true }: { bodyNames: Record<string, string>; atmosphereHaze?: boolean }) {
+  const futureYears = useFutureStore((state) => state.yearsFromNow);
   const meshRefs = useRef<Array<Mesh | null>>([]);
 
   // Stable callback identities, so a hover re-render never detaches a mesh ref.
@@ -57,6 +59,8 @@ export function Planets({ bodyNames, atmosphereHaze = true }: { bodyNames: Recor
   return (
     <group>
       {planets.map((planet, index) => {
+        // Illustrative red-giant scenario only; Earth's engulfment is uncertain.
+        if (planet.id === 'earth' && futureYears >= 7_500_000_000) return null;
         const start = scenePositionOf(indices[index] as number);
         return (
           <group key={planet.id}>

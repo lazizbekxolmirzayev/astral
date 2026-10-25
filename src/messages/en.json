@@ -13,14 +13,43 @@
     "pause": "Pause",
     "reset": "Reset",
     "speed": "Speed",
-    "timeNote": "1× is scene time, not real time"
+    "timeNote": "1Г— is scene time, not real time"
+  },
+  "future": {
+    "title": "Future time machine",
+    "fromNow": "From now",
+    "milestones": ["Now", "1 thousand years", "100 thousand years", "600 million years", "1 billion years", "5 billion years", "7.5 billion years"],
+    "early": "Planets remain as shown; the Moon continues to recede from Earth.",
+    "brightening": "The Sun gradually brightens; Earth's climate outcome is not calculated here.",
+    "redGiant": "In about 5 billion years, the Sun enters its red giant phase.",
+    "earthRisk": "This scenario shows Earth engulfed; the final outcome is uncertain.",
+    "moonNote": "The Moon is not falling toward Earth: current measurements show it receding by about 3.8 cm per year.",
+    "modelNote": "Illustrative stellar evolution scenario. Billion-year orbits are not calculated here; Earth's fate is uncertain."
+  },
+  "pulsar": {
+    "button": "Pulsar",
+    "open": "Open pulsar view",
+    "title": "Pulsar signal",
+    "caption": "Sonification based on telescope observations. This is not sound recorded travelling through space.",
+    "listen": "Listen",
+    "pause": "Pause",
+    "nasaVideo": "NASA sonification",
+    "hideVideo": "Hide video",
+    "close": "Close pulsar panel",
+    "radioSignal": "Pulse cadence · illustrative",
+    "sonified": "Telescope data sonification",    "active": "Signal playing",
+    "standby": "Standby",
+    "pulseRate": "Pulse rate",
+    "period": "Rotation period",
+    "trace": "Signal trace",
+    "traceNote": "Illustrative pulse rhythm"
   },
   "diagnostics": {
     "title": "Diagnostics",
     "viewAs": "View mode",
     "viewReadout": "Text",
     "viewTable": "Table",
-    "waiting": "Waiting for the first frame…",
+    "waiting": "Waiting for the first frameвЂ¦",
     "tableCaption": "Live values per planet",
     "columnBody": "Body",
     "unitAu": "AU",
@@ -89,7 +118,12 @@
     "jupiter": "Jupiter",
     "saturn": "Saturn",
     "uranus": "Uranus",
-    "neptune": "Neptune"
+    "neptune": "Neptune",
+    "ceres": "Ceres",
+    "pluto": "Pluto",
+    "haumea": "Haumea",
+    "makemake": "Makemake",
+    "eris": "Eris"
   },
   "settings": {
     "title": "Settings",
@@ -114,9 +148,9 @@
     "exportLabel": "Export {name} as JSON",
     "deleteAction": "Delete",
     "deleteLabel": "Delete {name}",
-    "loading": "Loading local experiments…",
+    "loading": "Loading local experimentsвЂ¦",
     "empty": "No saved experiments yet.",
-    "scenarioMeta": "{count} objects · saved {date}",
+    "scenarioMeta": "{count} objects В· saved {date}",
     "loadedTitle": "Loaded: {name}",
     "loadedDescription": "This validated scenario is ready to inspect.",
     "savedNotice": "Saved {name} on this device.",
@@ -144,14 +178,14 @@
     "previous": "Previous",
     "next": "Next",
     "page": "Page {page} of {pages}",
-    "unlisted": "Unlisted · anyone with this link can view",
+    "unlisted": "Unlisted В· anyone with this link can view",
     "public": "Public scenario",
-    "sharedEyebrow": "NEXUS · Shared scenario",
+    "sharedEyebrow": "NEXUS В· Shared scenario",
     "restored": "Restored scenario: {name}",
     "objectCount": "{count} celestial objects",
     "report": "Report",
     "reported": "Reported",
-    "sending": "Sending…",
+    "sending": "SendingвЂ¦",
     "reportFailed": "Report could not be submitted.",
     "shareAction": "Share",
     "shareTitle": "Share experiment",
@@ -175,7 +209,7 @@
     "presetLabel": "Preset",
     "viewLabel": "Sandbox simulation view",
     "notToScale": "Not to scale",
-    "emptySpace": "Empty space · no bodies",
+    "emptySpace": "Empty space В· no bodies",
     "run": "Run",
     "pause": "Pause",
     "reset": "Reset to initial state",
@@ -185,10 +219,14 @@
     "angularMomentumDrift": "Angular momentum drift",
     "notAvailable": "not defined",
     "bodyCount": "Bodies",
+    "impactTargetLabel": "Target planet",
     "impactSummary": "Impact estimate",
     "impactEnergy": "Kinetic energy: {value} J",
     "impactMegatons": "TNT equivalent: {value} Mt",
+    "impactEnergyModelled": "Estimated from the catalogue impact speed before the collision.",
+    "impactEnergyActual": "Recalculated from the simulated impact speed.",
     "airburstFlag": "The impact module heuristic flags possible airburst conditions.",
+    "airburstUnsupported": "The gas giant has no solid-surface model; atmospheric burst effects are not estimated.",
     "noAirburstFlag": "The impact module heuristic does not flag airburst conditions.",
     "validityTitle": "Newtonian validity gauge",
     "schwarzschildDistance": "Particle radius: {value} Schwarzschild radii",
@@ -212,22 +250,22 @@
     "notes": {
       "stable": "JPL Solar System initial conditions, integrated with the app's fixed-step Newtonian engine.",
       "twoBody": "Sun and Earth initial state from JPL; other bodies are omitted for this two-body experiment.",
-      "impact": "Earth and a 500 m radius, 3000 kg/m³ illustrative asteroid. Impact energy and the airburst flag use the impact module. The N-body engine does not resolve body contact, an atmospheric trajectory, or damage.",
+      "impact": "Earth and a 500 m radius, 3000 kg/mВі illustrative asteroid. Impact energy and the airburst flag use the impact module. The N-body engine does not resolve body contact, an atmospheric trajectory, or damage.",
       "starReplacement": "Instantly replaces the Sun's gravitational parameter with half its initial value while preserving all positions and velocities. This is a controlled thought experiment, not stellar evolution.",
       "blackHole": "A 1000 solar-mass non-rotating black hole and a test particle at 12 Schwarzschild radii. Newtonian particle motion is only an approximation; see the validity gauge.",
       "empty": "An empty simulation clock with no bodies. Conservation diagnostics are undefined."
     },
-    "starModelCard": "Model Card · Instantaneous mass substitution. Other bodies keep their positions and velocities. No stellar evolution, mass loss, ejecta, or radiation is modelled.",
-    "blackHoleModelCard": "Model Card · Non-rotating Schwarzschild geometry for radius and gauge; test-particle trajectory remains Newtonian. No relativistic trajectory or light propagation.",
-    "impactModelCard": "Model Card · Spherical uniform-density impactor and Newtonian kinetic energy. Body contact is not resolved. Airburst output is a coarse heuristic, not a probability or damage forecast.",
-    "newtonianModelCard": "Model Card · Point-mass Newtonian gravity with a fixed-step velocity-Verlet integrator. Scene geometry is illustrative and not to scale.",
+    "starModelCard": "Model Card В· Instantaneous mass substitution. Other bodies keep their positions and velocities. No stellar evolution, mass loss, ejecta, or radiation is modelled.",
+    "blackHoleModelCard": "Model Card В· Non-rotating Schwarzschild geometry for radius and gauge; test-particle trajectory remains Newtonian. No relativistic trajectory or light propagation.",
+    "impactModelCard": "Model Card В· Spherical uniform-density impactor and Newtonian kinetic energy. Body contact is not resolved. Airburst output is a coarse heuristic, not a probability or damage forecast.",
+    "newtonianModelCard": "Model Card В· Point-mass Newtonian gravity with a fixed-step velocity-Verlet integrator. Scene geometry is illustrative and not to scale.",
     "catalogLoaded": "From catalogue: {name}",
     "assumptions": "Assumed because the record has no value: {list}.",
     "unverified": "Catalogue values are approximate and unverified.",
     "backToCatalog": "Back to catalogue",
     "catalogNote": "Scenario built from the catalogue record. It uses the same simplified Newtonian engine as the presets; see the model card below for limits.",
     "collisionTitle": "Impact",
-    "collisionBody": "The body reached Earth after {days} d at {speed} km/s. The run is stopped; press reset to repeat.",
+    "collisionBody": "The body reached {target} after {days} d at {speed} km/s. The run is stopped; press reset to repeat.",
     "editor": {
       "title": "Build your own system",
       "firstHint": "Add the central body first (any mass, placed at the centre).",
@@ -245,7 +283,7 @@
       "fit": "Fit",
       "trails": "Trails",
       "vectors": "Velocity",
-      "hint": "Scroll: zoom · Drag: pan · Click: select · Double-click: fit"
+      "hint": "Scroll: zoom В· Drag: pan В· Click: select В· Double-click: fit"
     },
     "orbit": {
       "title": "{name}: orbit relative to the centre",
@@ -269,7 +307,7 @@
   "viewport": {
     "title": "Universe view",
     "notToScale": "Not to scale",
-    "loading": "Loading scene…",
+    "loading": "Loading sceneвЂ¦",
     "webglUnsupported": "Your browser does not support WebGL, so the 3D view cannot render.",
     "sceneError": "The 3D scene stopped with an error.",
     "controlsHint": "Left drag rotates, wheel zooms, right drag pans, WASD or arrow keys fly. Clicking a body glides the camera onto it."
@@ -290,8 +328,8 @@
     "colors": "Colors",
     "fonts": "Fonts",
     "provenanceLabels": "Provenance labels",
-    "sansLabel": "Inter — interface text",
-    "monoLabel": "JetBrains Mono — numbers"
+    "sansLabel": "Inter вЂ” interface text",
+    "monoLabel": "JetBrains Mono вЂ” numbers"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -330,11 +368,15 @@
     "sourceLabel": "Verify at",
     "licenseLabel": "Licence",
     "openInSimulator": "Open in simulator",
+    "openPulsar": "Open pulsar in simulator",
+    "impactTargetLabel": "Planet to hit",
+    "runImpact": "Start impact animation",
     "viewOnly": "View only: there is no simulator model for this type yet.",
     "types": {
       "all": "All types",
       "star": "Stars",
       "black_hole": "Black holes",
+      "pulsar": "Pulsars",
       "exoplanet": "Exoplanets",
       "asteroid": "Asteroids",
       "comet": "Comets",
@@ -344,6 +386,7 @@
     "opensIn": {
       "star": "Opens Star Replacement: the Sun is replaced by this star's mass.",
       "black_hole": "Opens Black Hole: a test particle orbits at 12 Schwarzschild radii.",
+      "pulsar": "Explore the rotating pulsar and radio-signal experience in the galaxy view.",
       "exoplanet": "Opens a two-body system: the planet on a circular orbit around its host.",
       "asteroid": "Opens Impact: this body approaches Earth.",
       "comet": "Opens Impact: this body approaches Earth.",
@@ -368,6 +411,7 @@
       "semiMajorAxisAu": "Semi-major axis",
       "eccentricity": "Eccentricity",
       "orbitalPeriodDays": "Orbital period",
+      "rotationPeriodMs": "Rotation period",
       "impactVelocityKmS": "Impact speed",
       "energyMegatons": "Energy"
     }
@@ -495,7 +539,7 @@
         "body": "Near-Earth asteroid with a safe 2029 flyby. Orbit from catalog values; no collision is predicted."
       },
       "halley": {
-        "body": "Highly eccentric comet (e≈0.97). Speed changes enormously between perihelion and aphelion."
+        "body": "Highly eccentric comet (eв‰€0.97). Speed changes enormously between perihelion and aphelion."
       },
       "sirius-a": {
         "body": "Put a 2-solar-mass A star at the centre. Which planets survive, and how do the periods change?"
@@ -510,7 +554,7 @@
         "body": "Stellar-mass black hole of about 21 solar masses. Test particle orbits, Newtonian approximation."
       },
       "sagittarius-a-star": {
-        "body": "The Milky Way’s central black hole, about 4 million solar masses. Orbits are fast and tight."
+        "body": "The Milky WayвЂ™s central black hole, about 4 million solar masses. Orbits are fast and tight."
       },
       "m87-star": {
         "body": "A 6.5-billion-solar-mass black hole. An extreme gravitational parameter for the engine."
