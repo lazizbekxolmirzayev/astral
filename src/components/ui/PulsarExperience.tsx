@@ -10,6 +10,12 @@ const PULSARS = {
   'crab-pulsar': { name: 'Crab Pulsar', hz: 30.2, periodMs: 33, media: 'https://chandra.si.edu/sound/sounds/audio/crab_chandra_nustar.mp3', kind: 'audio' },
 } as const;
 
+export function getPulsarPlaybackAction({ playing, kind, videoOpen }: { playing: boolean; kind: 'audio' | 'video'; videoOpen: boolean }) {
+  if (playing) return { action: 'pause' as const, openVideo: false };
+  if (kind === 'video') return { action: 'play-video' as const, openVideo: true };
+  return { action: 'play-audio' as const, openVideo: videoOpen };
+}
+
 function PulseTrace({ hz, active }: { hz: number; active: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -57,15 +63,27 @@ export function PulsarExperience() {
   const selected = selectedId && selectedId in PULSARS ? PULSARS[selectedId as keyof typeof PULSARS] : null;
 
   useEffect(() => {
-    if (playing && media.current) void media.current.play().catch(() => setPlaying(false));
-  }, [playing, selected, videoOpen]);
+    if (!media.current) return;
+    if (playing) {
+      void media.current.play().catch(() => setPlaying(false));
+      return;
+    }
+    media.current.pause();
+  }, [playing, selectedId]);
   useEffect(() => { media.current?.pause(); setPlaying(false); setVideoOpen(false); }, [selectedId]);
   if (!selected) return null;
 
   function toggleAudio() {
     if (!selected) return;
-    if (playing) { media.current?.pause(); setPlaying(false); return; }
-    if (selected.kind === 'video') setVideoOpen(true);
+    const action = getPulsarPlaybackAction({ playing, kind: selected.kind, videoOpen });
+    if (action.action === 'pause') {
+      media.current?.pause();
+      setPlaying(false);
+      return;
+    }
+    if (selected.kind === 'video') {
+      setVideoOpen(action.openVideo);
+    }
     setPlaying(true);
   }
 
