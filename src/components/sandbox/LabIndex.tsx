@@ -3,13 +3,15 @@
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { focusRing } from '@/components/ui/FocusRing';
+import { FeaturedThumb } from '@/components/gallery/FeaturedThumb';
+import type { ThumbKind } from '@/data/featured';
 
-const LABS = [
-  { id: 'star-replacement', href: '/sandbox?preset=star-replacement' },
-  { id: 'impact', href: '/sandbox?preset=asteroid-impact' },
-  { id: 'black-hole', href: '/sandbox?preset=black-hole' },
-  { id: 'sandbox', href: '/sandbox?preset=empty-space' },
-] as const;
+const LABS: Array<{ id: string; href: string; thumb: ThumbKind }> = [
+  { id: 'star-replacement', href: '/sandbox?preset=star-replacement', thumb: 'star' },
+  { id: 'impact', href: '/sandbox?preset=asteroid-impact', thumb: 'impact' },
+  { id: 'black-hole', href: '/sandbox?preset=black-hole', thumb: 'blackhole' },
+  { id: 'sandbox', href: '/sandbox?preset=empty-space', thumb: 'orbit' },
+];
 
 export function LabIndex() {
   const t = useTranslations('lab');
@@ -22,13 +24,18 @@ export function LabIndex() {
       </header>
       <ul className="grid gap-4 sm:grid-cols-2">
         {LABS.map((lab) => (
-          <li key={lab.id} className="rounded-lg border border-panel-border p-5">
-            <h2 className="text-base font-semibold">{t(`labs.${lab.id}.title`)}</h2>
-            <p className="mt-2 text-sm text-foreground/65">{t(`labs.${lab.id}.body`)}</p>
-            <p className="mt-2 text-xs text-star-gold">{t(`labs.${lab.id}.limit`)}</p>
-            <div className="mt-4 flex gap-3 text-sm">
-              <Link href={lab.href} className={`rounded bg-accent-cyan/20 px-3 py-1.5 text-accent-cyan ${focusRing()}`}>{t('open')}</Link>
-              <Link href="/catalog" className={`rounded border border-panel-border px-3 py-1.5 ${focusRing()}`}>{t('fromCatalog')}</Link>
+          <li key={lab.id} className="overflow-hidden rounded-xl border border-panel-border bg-background/50 transition-colors hover:border-accent-cyan/45">
+            <div className="aspect-[2/1] overflow-hidden border-b border-panel-border">
+              <FeaturedThumb kind={lab.thumb} seed={`lab-${lab.id}`} />
+            </div>
+            <div className="p-5">
+              <h2 className="text-base font-semibold">{t(`labs.${lab.id}.title`)}</h2>
+              <p className="mt-2 text-sm text-foreground/65">{t(`labs.${lab.id}.body`)}</p>
+              <p className="mt-2 text-xs text-star-gold">{t(`labs.${lab.id}.limit`)}</p>
+              <div className="mt-4 flex gap-3 text-sm">
+                <Link href={lab.href} className={`rounded bg-accent-cyan/20 px-3 py-1.5 text-accent-cyan ${focusRing()}`}>{t('open')}</Link>
+                <Link href="/catalog" className={`rounded border border-panel-border px-3 py-1.5 ${focusRing()}`}>{t('fromCatalog')}</Link>
+              </div>
             </div>
           </li>
         ))}

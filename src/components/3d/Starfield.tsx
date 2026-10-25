@@ -1,6 +1,7 @@
 'use client';
 
 import { BufferAttribute, BufferGeometry, Color, ShaderMaterial } from 'three';
+import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo } from 'react';
 import { mulberry32, randomUnitVector } from '@/lib/random';
 import { GLOW_BLENDING } from './proceduralTextures';
@@ -8,21 +9,29 @@ import { STAR_COUNT, STAR_SHELL_MAX, STAR_SHELL_MIN } from './layout';
 
 const VERTEX = `
 attribute float aSize;
+attribute float aTwinkle;
 attribute vec3 aColor;
 varying vec3 vColor;
+varying float vTwinkle;
+uniform float uTime;
 void main() {
   vColor = aColor;
+  // Slow, independent twinkle so the sky is not a frozen photograph.
+  float phase = mod(uTime * 0.25 + aTwinkle * 6.2831, 6.2831);
+  vTwinkle = 0.55 + 0.45 * sin(phase);
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
-  gl_PointSize = aSize * (300.0 / -mv.z);
+  gl_PointSize = aSize * (300.0 / -mv.z) * vTwinkle;
   gl_Position = projectionMatrix * mv;
 }`;
 
 const FRAGMENT = `
 varying vec3 vColor;
+varying float vTwinkle;
 void main() {
   float d = length(gl_PointCoord - vec2(0.5));
-  float a = smoothstep(0.5, 0.0, d);
-  gl_FragColor = vec4(vColor, a * a);
+  float a = 1.0 - smoothstep(0.04, 0.5, d);
+  float core = exp(-d * d * 34.0);
+  gl_FragColor = vec4(vColor * (0.7 + core * 0.8) * vTwinkle, a * a);
 }`;
 
 /** Star colors from hot blue-white to cool orange; artistic proportions, not a survey. */
@@ -54,6 +63,7 @@ export function Starfield() {
     const positions = new Float32Array(total * 3);
     const sizes = new Float32Array(total);
     const colors = new Float32Array(total * 3);
+    const twinkle = new Float32Array(total);
     const u = normalize(cross(POLE, [1, 0, 0]));
     const v = normalize(cross(POLE, u));
 
@@ -85,17 +95,30 @@ export function Starfield() {
       colors[i * 3 + 2] = tint.b * brightness;
       // A few bright stars; most are faint.
       sizes[i] = inBand ? 0.35 + random() * 0.5 : 0.5 + Math.pow(random(), 6) * 3;
+      twinkle[i] = random();
     }
 
     const next = new BufferGeometry();
     next.setAttribute('position', new BufferAttribute(positions, 3));
     next.setAttribute('aSize', new BufferAttribute(sizes, 1));
     next.setAttribute('aColor', new BufferAttribute(colors, 3));
-    const mat = new ShaderMaterial({ vertexShader: VERTEX, fragmentShader: FRAGMENT, transparent: true, depthWrite: false, blending: GLOW_BLENDING });
+    next.setAttribute('aTwinkle', new BufferAttribute(twinkle, 1));
+    const mat = new ShaderMaterial({
+      vertexShader: VERTEX,
+      fragmentShader: FRAGMENT,
+      transparent: true,
+      depthWrite: false,
+      blending: GLOW_BLENDING,
+      uniforms: { uTime: { value: 0 } },
+    });
     return { geometry: next, material: mat };
   }, []);
 
   useEffect(() => () => { geometry.dispose(); material.dispose(); }, [geometry, material]);
+
+  useFrame(({ clock }) => {
+    material.uniforms.uTime!.value = clock.elapsedTime;
+  });
 
   return <points geometry={geometry} material={material} frustumCulled={false} />;
 }

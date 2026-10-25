@@ -3,6 +3,7 @@
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useTranslations } from 'next-intl';
 import { useMemo } from 'react';
+import { ACESFilmicToneMapping, SRGBColorSpace } from 'three';
 import { capDprForTier, detectQualityTier } from '@/lib/performance';
 import { useSelectionStore } from '@/stores/selectionStore';
 import { publishDiagnostics } from '@/stores/diagnosticsStore';
@@ -16,6 +17,11 @@ import { OrbitLines } from './OrbitLines';
 import { Planets } from './Planets';
 import { Starfield } from './Starfield';
 import { Sun } from './Sun';
+import { SceneEffects } from './SceneEffects';
+import { SceneEnvironment } from './SceneEnvironment';
+import { SceneFog } from './SceneFog';
+import { NebulaBackdrop } from './NebulaBackdrop';
+import { AsteroidBelt } from './AsteroidBelt';
 
 /** Advances the engine once per frame and republishes diagnostics at 4 Hz. */
 function SimulationDriver() {
@@ -58,22 +64,31 @@ export default function SceneCanvas({ onReady, staticView = false }: { onReady?:
         near: 0.01,
         far: 3000,
       }}
-      gl={{ antialias: qualityTier !== 'low', powerPreference: qualityTier === 'low' ? 'default' : 'high-performance' }}
+      gl={{ antialias: qualityTier !== 'low', toneMapping: ACESFilmicToneMapping, powerPreference: qualityTier === 'low' ? 'default' : 'high-performance' }}
       onCreated={({ gl }) => {
         gl.setPixelRatio(Math.min(gl.getPixelRatio(), dprMax));
+        gl.outputColorSpace = SRGBColorSpace;
+        gl.toneMappingExposure = 1.12;
         onReady?.();
       }}
       onPointerMissed={() => select(null)}
     >
+      <NebulaBackdrop />
+      <SceneFog scale={scale} />
       <CameraRig />
       <SimulationDriver />
+      <SceneEnvironment qualityTier={qualityTier} />
+      <SceneEffects qualityTier={qualityTier} />
       {scale === 'system' ? (
         <>
-          <ambientLight intensity={0.14} />
+          {/* The environment probe fills the shadows; this only keeps the night
+              sides from going fully black. */}
+          <ambientLight intensity={0.06} />
           <Starfield />
           <Sun label={t('sun')} />
           <OrbitLines />
-          <Planets bodyNames={bodyNames} />
+          <AsteroidBelt qualityTier={qualityTier} />
+          <Planets bodyNames={bodyNames} atmosphereHaze={qualityTier !== 'low'} />
         </>
       ) : null}
       {scale === 'galaxy' ? <GalaxyScene names={sceneNames} /> : null}

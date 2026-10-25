@@ -1,6 +1,6 @@
 import type { NBodyState } from '@/physics/gravity';
 
-/** Interactive 2D view of an n-body state: trails, zoom, pan, selection. */
+/** Interactive oblique 3D projection of an n-body state: trails, zoom, pan, selection. */
 
 const BODY_COLORS: Record<string, string> = {
   sun: '#ffd166', mercury: '#a99a8b', venus: '#e8bd70', earth: '#58a6ff', mars: '#e27655',
@@ -17,6 +17,12 @@ function colorFor(id: string): string {
 }
 
 const MAX_TRAIL = 520;
+const ORBIT_TILT = 0.72;
+const DEPTH_TILT = 0.42;
+
+function projectPoint(x: number, y: number, z: number, scale: number, ox: number, oy: number): [number, number] {
+  return [ox + x * scale, oy - (y * ORBIT_TILT + z * DEPTH_TILT) * scale];
+}
 
 export type SandboxView = {
   zoom: number;
@@ -86,8 +92,9 @@ export function createSandboxView(): SandboxView {
         const id = state.ids[i] as string;
         let list = trails.get(id);
         if (!list) { list = []; trails.set(id, list); }
-        list.push((state.positions[i * 3] as number) - cx, (state.positions[i * 3 + 1] as number) - cy);
-        if (list.length > MAX_TRAIL * 2) list.splice(0, 2);
+        const cz = state.positions[c * 3 + 2] as number;
+        list.push((state.positions[i * 3] as number) - cx, (state.positions[i * 3 + 1] as number) - cy, (state.positions[i * 3 + 2] as number) - cz);
+        if (list.length > MAX_TRAIL * 3) list.splice(0, 3);
       }
     },
 
@@ -107,24 +114,54 @@ export function createSandboxView(): SandboxView {
       bg.addColorStop(1, '#05070d');
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, rect.width, rect.height);
+      // Soft nebula clouds give the laboratory view depth without obscuring data.
+      for (const cloud of [
+        { x: 0.18, y: 0.24, radius: 0.36, color: 'rgba(79,91,190,0.14)' },
+        { x: 0.78, y: 0.3, radius: 0.31, color: 'rgba(118,55,151,0.12)' },
+        { x: 0.56, y: 0.84, radius: 0.42, color: 'rgba(28,102,151,0.1)' },
+      ]) {
+        const x = rect.width * cloud.x;
+        const y = rect.height * cloud.y;
+        const radius = Math.max(rect.width, rect.height) * cloud.radius;
+        const haze = ctx.createRadialGradient(x, y, 0, x, y, radius);
+        haze.addColorStop(0, cloud.color);
+        haze.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = haze;
+        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+      }
       // Fixed deterministic backdrop stars (do not move with the view).
       let seed = 1234567;
-      for (let i = 0; i < 90; i += 1) {
+      for (let i = 0; i < 180; i += 1) {
         seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
         const sx = (seed / 4294967296) * rect.width;
         seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
         const sy = (seed / 4294967296) * rect.height;
-        ctx.fillStyle = `rgba(255,255,255,${0.15 + ((i * 37) % 10) / 30})`;
-        ctx.fillRect(sx, sy, 1, 1);
+        const size = i % 23 === 0 ? 1.8 : i % 5 === 0 ? 1.2 : 0.7;
+        const alpha = i % 23 === 0 ? 0.78 : 0.18 + ((i * 37) % 10) / 34;
+        ctx.fillStyle = `rgba(220,232,255,${alpha})`;
+        ctx.beginPath();
+        ctx.arc(sx, sy, size, 0, Math.PI * 2);
+        ctx.fill();
+        if (i % 23 === 0) {
+          ctx.strokeStyle = `rgba(190,215,255,${alpha * 0.55})`;
+          ctx.lineWidth = 0.7;
+          ctx.beginPath();
+          ctx.moveTo(sx - size * 2.5, sy);
+          ctx.lineTo(sx + size * 2.5, sy);
+          ctx.moveTo(sx, sy - size * 2.5);
+          ctx.lineTo(sx, sy + size * 2.5);
+          ctx.stroke();
+        }
       }
       if (state.ids.length === 0) return;
 
       const c = Math.max(0, centerId ? state.ids.indexOf(centerId) : 0);
       const cx = state.positions[c * 3] as number;
       const cy = state.positions[c * 3 + 1] as number;
+      const cz = state.positions[c * 3 + 2] as number;
       let extent = 0;
       for (let i = 0; i < state.ids.length; i += 1) {
-        extent = Math.max(extent, Math.hypot((state.positions[i * 3] as number) - cx, (state.positions[i * 3 + 1] as number) - cy));
+        extent = Math.max(extent, Math.hypot((state.positions[i * 3] as number) - cx, (state.positions[i * 3 + 1] as number) - cy, (state.positions[i * 3 + 2] as number) - cz));
       }
       extent = Math.max(extent, 1e-9);
       smoothExtent = smoothExtent === 0 ? extent : smoothExtent + (extent - smoothExtent) * 0.08;
@@ -132,8 +169,6 @@ export function createSandboxView(): SandboxView {
       const scale = (Math.min(rect.width, rect.height) * 0.42 / fitExtent) * view.zoom;
       const ox = rect.width / 2 + view.panX;
       const oy = rect.height / 2 + view.panY;
-      const sx = (x: number) => ox + x * scale;
-      const sy = (y: number) => oy - y * scale;
 
       // Distance rings around the central body.
       const ringStep = niceStep(130 / scale);
@@ -143,7 +178,7 @@ export function createSandboxView(): SandboxView {
         const radius = k * ringStep * scale;
         if (radius > Math.hypot(rect.width, rect.height)) break;
         ctx.beginPath();
-        ctx.arc(ox, oy, radius, 0, Math.PI * 2);
+        ctx.ellipse(ox, oy, radius, radius * ORBIT_TILT, 0, 0, Math.PI * 2);
         ctx.strokeStyle = 'rgba(120,160,220,0.10)';
         ctx.lineWidth = 1;
         ctx.stroke();
@@ -160,7 +195,7 @@ export function createSandboxView(): SandboxView {
           const id = state.ids[i] as string;
           const list = trails.get(id);
           if (!list || list.length < 4) continue;
-          const n = list.length / 2;
+          const n = list.length / 3;
           const chunks = 8;
           const per = Math.ceil(n / chunks);
           const colour = colorFor(id);
@@ -170,8 +205,12 @@ export function createSandboxView(): SandboxView {
             const b = Math.min(n - 1, a + per);
             if (a >= b) break;
             ctx.beginPath();
-            ctx.moveTo(sx(list[a * 2] as number), sy(list[a * 2 + 1] as number));
-            for (let j = a + 1; j <= b; j += 1) ctx.lineTo(sx(list[j * 2] as number), sy(list[j * 2 + 1] as number));
+            const first = projectPoint(list[a * 3] as number, list[a * 3 + 1] as number, list[a * 3 + 2] as number, scale, ox, oy);
+            ctx.moveTo(first[0], first[1]);
+            for (let j = a + 1; j <= b; j += 1) {
+              const point = projectPoint(list[j * 3] as number, list[j * 3 + 1] as number, list[j * 3 + 2] as number, scale, ox, oy);
+              ctx.lineTo(point[0], point[1]);
+            }
             ctx.globalAlpha = 0.08 + 0.7 * ((ch + 1) / chunks);
             ctx.strokeStyle = colour;
             ctx.stroke();
@@ -184,16 +223,57 @@ export function createSandboxView(): SandboxView {
       const gmCenter = Math.max(state.gm[c] as number, 1e-30);
       const gmFloor = 1e-15;
       const labelled: Array<[number, number]> = [];
-      for (let i = 0; i < state.ids.length; i += 1) {
+      const drawOrder = Array.from({ length: state.ids.length }, (_, i) => i).sort(
+        (a, b) => (state.positions[a * 3 + 2] as number) - (state.positions[b * 3 + 2] as number),
+      );
+      for (const i of drawOrder) {
         const id = state.ids[i] as string;
-        const x = sx((state.positions[i * 3] as number) - cx);
-        const y = sy((state.positions[i * 3 + 1] as number) - cy);
+        const px = (state.positions[i * 3] as number) - cx;
+        const py = (state.positions[i * 3 + 1] as number) - cy;
+        const pz = (state.positions[i * 3 + 2] as number) - cz;
+        const [x, y] = projectPoint(px, py, pz, scale, ox, oy);
         if (x < -50 || y < -50 || x > rect.width + 50 || y > rect.height + 50) continue;
         const gm = state.gm[i] as number;
         const t = gm > 0 ? Math.min(1, Math.max(0, (Math.log10(gm / gmFloor)) / Math.max(1e-6, Math.log10(gmCenter / gmFloor)))) : 0;
-        const radius = i === c ? 6 + 4 * t : 2.5 + 3.5 * t;
+        const depthScale = Math.max(0.82, Math.min(1.18, 1 - pz / fitExtent * 0.18));
+        const radius = (i === c ? 6 + 4 * t : 2.5 + 3.5 * t) * depthScale;
         const colour = colorFor(id);
+        if (id === 'saturn') {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(-0.24);
+          const rings = ctx.createLinearGradient(-radius * 4, -radius, radius * 4, radius);
+          rings.addColorStop(0, 'rgba(209,170,112,0.08)');
+          rings.addColorStop(0.32, 'rgba(244,216,166,0.62)');
+          rings.addColorStop(0.52, 'rgba(114,91,68,0.2)');
+          rings.addColorStop(0.72, 'rgba(234,204,155,0.72)');
+          rings.addColorStop(1, 'rgba(209,170,112,0.08)');
+          ctx.fillStyle = rings;
+          ctx.beginPath(); ctx.ellipse(0, 0, radius * 3.9, radius * 1.1, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = 'rgba(255,237,194,0.58)'; ctx.lineWidth = 0.7;
+          ctx.beginPath(); ctx.ellipse(0, 0, radius * 3.6, radius * 0.98, 0, 0, Math.PI * 2); ctx.stroke();
+          ctx.restore();
+        }
         if (id === 'black-hole') {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(-0.16);
+          const disk = ctx.createRadialGradient(0, 0, radius * 0.6, 0, 0, radius * 3.8);
+          disk.addColorStop(0, 'rgba(0,0,0,0)');
+          disk.addColorStop(0.26, 'rgba(0,0,0,0.95)');
+          disk.addColorStop(0.34, 'rgba(255,190,92,0.88)');
+          disk.addColorStop(0.43, 'rgba(255,111,59,0.55)');
+          disk.addColorStop(0.56, 'rgba(116,100,231,0.28)');
+          disk.addColorStop(1, 'rgba(74,90,180,0)');
+          ctx.fillStyle = disk;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, radius * 3.8, radius * 1.05, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = 'rgba(255,231,180,0.72)'; ctx.lineWidth = Math.max(0.8, radius * 0.16);
+          ctx.beginPath(); ctx.ellipse(0, 0, radius * 3.18, radius * 0.54, 0, Math.PI * 1.08, Math.PI * 1.92); ctx.stroke();
+          ctx.strokeStyle = 'rgba(255,123,67,0.52)'; ctx.lineWidth = Math.max(0.8, radius * 0.28);
+          ctx.beginPath(); ctx.ellipse(0, 0, radius * 2.45, radius * 0.34, 0, 0.08, Math.PI - 0.08); ctx.stroke();
+          ctx.restore();
           const halo = ctx.createRadialGradient(x, y, radius * 0.6, x, y, radius * 3.2);
           halo.addColorStop(0, 'rgba(255,179,71,0.75)');
           halo.addColorStop(1, 'rgba(108,92,231,0)');
@@ -210,7 +290,34 @@ export function createSandboxView(): SandboxView {
           ctx.fillStyle = glow;
           ctx.beginPath(); ctx.arc(x, y, radius * 3, 0, Math.PI * 2); ctx.fill();
           ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2);
-          ctx.fillStyle = colour; ctx.fill();
+          const sphere = ctx.createRadialGradient(x - radius * 0.38, y - radius * 0.42, radius * 0.03, x, y, radius * 1.12);
+          sphere.addColorStop(0, 'rgba(255,255,255,0.96)');
+          sphere.addColorStop(0.16, colour);
+          sphere.addColorStop(0.66, colour);
+          sphere.addColorStop(1, '#070a12');
+          ctx.fillStyle = sphere; ctx.fill();
+          if (['jupiter', 'saturn', 'uranus', 'neptune'].includes(id)) {
+            ctx.save();
+            ctx.beginPath(); ctx.arc(x, y, radius * 0.96, 0, Math.PI * 2); ctx.clip();
+            const bandColor = id === 'jupiter' ? 'rgba(255,224,188,0.22)' : id === 'saturn' ? 'rgba(255,237,194,0.18)' : 'rgba(177,238,255,0.2)';
+            for (let band = -2; band <= 2; band += 1) {
+              const by = y + band * radius * 0.34;
+              ctx.fillStyle = band % 2 === 0 ? bandColor : 'rgba(8,20,48,0.2)';
+              ctx.fillRect(x - radius, by, radius * 2, radius * 0.13);
+            }
+            ctx.restore();
+          }
+          const rim = ctx.createRadialGradient(x + radius * 0.15, y, radius * 0.65, x, y, radius * 1.06);
+          rim.addColorStop(0, 'rgba(104,207,255,0)'); rim.addColorStop(0.82, 'rgba(104,207,255,0.02)'); rim.addColorStop(1, 'rgba(166,233,255,0.42)');
+          ctx.fillStyle = rim; ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x - radius * 0.35, y - radius * 0.4, Math.max(0.65, radius * 0.11), 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,0.68)'; ctx.fill();
+          if (id === 'saturn') {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(-0.24);
+            ctx.strokeStyle = 'rgba(255,232,183,0.9)'; ctx.lineWidth = Math.max(0.9, radius * 0.24);
+            ctx.beginPath(); ctx.ellipse(0, 0, radius * 3.25, radius * 0.76, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.restore();
+          }
         }
         if (id === view.selectedId) {
           ctx.beginPath(); ctx.arc(x, y, radius + 6, 0, Math.PI * 2);
@@ -219,11 +326,12 @@ export function createSandboxView(): SandboxView {
         if (view.showVectors && i !== c) {
           const vx = (state.velocities[i * 3] as number) - (state.velocities[c * 3] as number);
           const vy = (state.velocities[i * 3 + 1] as number) - (state.velocities[c * 3 + 1] as number);
-          const speed = Math.hypot(vx, vy);
+          const vz = (state.velocities[i * 3 + 2] as number) - (state.velocities[c * 3 + 2] as number);
+          const speed = Math.hypot(vx, vy, vz);
           if (speed > 0) {
-            const len = Math.min(60, 26 + 0) ;
+            const len = 26;
             const ex = x + (vx / speed) * len;
-            const ey = y - (vy / speed) * len;
+            const ey = y - ((vy * ORBIT_TILT + vz * DEPTH_TILT) / speed) * len;
             ctx.strokeStyle = '#f5b041'; ctx.lineWidth = 1.5;
             ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(ex, ey); ctx.stroke();
             const ang = Math.atan2(ey - y, ex - x);
@@ -261,15 +369,23 @@ export function createSandboxView(): SandboxView {
       const c = Math.max(0, centerId ? state.ids.indexOf(centerId) : 0);
       const cx = state.positions[c * 3] as number;
       const cy = state.positions[c * 3 + 1] as number;
+      const cz = state.positions[c * 3 + 2] as number;
       let extent = 1e-9;
-      for (let i = 0; i < state.ids.length; i += 1) extent = Math.max(extent, Math.hypot((state.positions[i * 3] as number) - cx, (state.positions[i * 3 + 1] as number) - cy));
+      for (let i = 0; i < state.ids.length; i += 1) extent = Math.max(extent, Math.hypot((state.positions[i * 3] as number) - cx, (state.positions[i * 3 + 1] as number) - cy, (state.positions[i * 3 + 2] as number) - cz));
       const fitExtent = Math.max(smoothExtent, extent * 0.999);
       const scale = (Math.min(rect.width, rect.height) * 0.42 / fitExtent) * view.zoom;
       let best: string | null = null;
       let bestD = 16;
       for (let i = 0; i < state.ids.length; i += 1) {
-        const x = rect.width / 2 + view.panX + ((state.positions[i * 3] as number) - cx) * scale;
-        const y = rect.height / 2 + view.panY - ((state.positions[i * 3 + 1] as number) - cy) * scale;
+        const point = projectPoint(
+          (state.positions[i * 3] as number) - cx,
+          (state.positions[i * 3 + 1] as number) - cy,
+          (state.positions[i * 3 + 2] as number) - cz,
+          scale,
+          rect.width / 2 + view.panX,
+          rect.height / 2 + view.panY,
+        );
+        const [x, y] = point;
         const d = Math.hypot(x - px, y - py);
         if (d < bestD) { bestD = d; best = state.ids[i] as string; }
       }

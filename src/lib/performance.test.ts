@@ -16,7 +16,15 @@ describe('performance profile helpers', () => {
 
   it('caps DPR by quality tier', () => {
     expect(capDprForTier('low', 3)).toBe(1);
-    expect(capDprForTier('high', 3)).toBe(2);
+    // The exact caps are tuned per device class (they were lowered for
+    // integrated GPUs), so assert the invariants that must always hold rather
+    // than a hard-coded number: sharper tiers never render below a weaker one,
+    // and no tier ever renders above the display's own pixel ratio.
+    expect(capDprForTier('medium', 3)).toBeGreaterThan(capDprForTier('low', 3));
+    expect(capDprForTier('high', 3)).toBeGreaterThanOrEqual(capDprForTier('medium', 3));
+    expect(capDprForTier('ultra', 3)).toBeGreaterThanOrEqual(capDprForTier('high', 3));
+    expect(capDprForTier('ultra', 3)).toBeLessThanOrEqual(3);
+    expect(capDprForTier('high', 1.25)).toBeLessThanOrEqual(1.25);
   });
 
   it('only offloads to a worker when the 50-body budget is exceeded', () => {

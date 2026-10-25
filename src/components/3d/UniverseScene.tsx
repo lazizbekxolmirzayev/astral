@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
-import { BufferAttribute, BufferGeometry, Color } from 'three';
+import { useEffect, useMemo } from 'react';
+import { BufferAttribute, BufferGeometry, Color, QuadraticBezierCurve3, Vector3 } from 'three';
 import { mulberry32 } from '@/lib/random';
 import { universeMarkers } from '@/lib/universeLayout';
 import { CelestialBody } from './CelestialBody';
 import { GalaxyField } from './GalaxyField';
+import { BlackHoleAccretionDisk } from './BlackHoleAccretionDisk';
 import type { GalaxyShape } from './galaxyBuilder';
 
 type Look = { shape: Omit<GalaxyShape, 'radius' | 'seed'>; tilt: [number, number, number]; count: number };
@@ -41,6 +42,29 @@ function backgroundGalaxies() {
 
 const BACKGROUND_COLOR = new Color('#9fb0d8');
 
+/** Faint, illustrative filaments make the nearby galaxy group read as a 3D structure. */
+function buildCosmicWeb(markers: ReturnType<typeof universeMarkers>) {
+  const byId = new Map(markers.map((marker) => [marker.id, marker]));
+  const links = [['milky-way', 'andromeda'], ['milky-way', 'triangulum'], ['milky-way', 'lmc'], ['andromeda', 'triangulum']] as const;
+  const coordinates: number[] = [];
+  for (const [fromId, toId] of links) {
+    const from = byId.get(fromId);
+    const to = byId.get(toId);
+    if (!from || !to) continue;
+    const start = new Vector3(...from.position);
+    const end = new Vector3(...to.position);
+    const offset = new Vector3(0, start.distanceTo(end) * 0.07, 0);
+    const curve = new QuadraticBezierCurve3(start, start.clone().lerp(end, 0.5).add(offset), end);
+    const samples = curve.getPoints(36);
+    for (let index = 0; index < samples.length - 1; index += 1) {
+      coordinates.push(...samples[index]!.toArray(), ...samples[index + 1]!.toArray());
+    }
+  }
+  const geometry = new BufferGeometry();
+  geometry.setAttribute('position', new BufferAttribute(new Float32Array(coordinates), 3));
+  return geometry;
+}
+
 /**
  * Milky Way at the centre and the catalogue galaxies around it, in their real
  * directions. Distances are compressed (d^0.45) and galaxy sizes exaggerated so
@@ -49,6 +73,12 @@ const BACKGROUND_COLOR = new Color('#9fb0d8');
 export function UniverseScene({ names }: { names: Record<string, string> }) {
   const markers = useMemo(() => universeMarkers(), []);
   const background = useMemo(() => backgroundGalaxies(), []);
+  const cosmicWeb = useMemo(() => buildCosmicWeb(markers), [markers]);
+
+  useEffect(() => () => {
+    background.dispose();
+    cosmicWeb.dispose();
+  }, [background, cosmicWeb]);
 
   return (
     <group>
@@ -56,6 +86,9 @@ export function UniverseScene({ names }: { names: Record<string, string> }) {
       <points geometry={background} frustumCulled={false} raycast={() => null}>
         <pointsMaterial size={1.2} sizeAttenuation color={BACKGROUND_COLOR} transparent opacity={0.45} depthWrite={false} />
       </points>
+      <lineSegments geometry={cosmicWeb} frustumCulled={false} raycast={() => null}>
+        <lineBasicMaterial color="#738dff" transparent opacity={0.16} depthWrite={false} />
+      </lineSegments>
       {markers.map((marker, index) => {
         const look = LOOKS[marker.id];
         return (
@@ -69,6 +102,7 @@ export function UniverseScene({ names }: { names: Record<string, string> }) {
                 coreGlow={marker.kind === 'black_hole' ? 0.5 : 0.55}
               />
             ) : null}
+            {marker.kind === 'black_hole' ? <BlackHoleAccretionDisk radius={Math.max(0.35, marker.radius * 0.065)} seed={marker.id.length * 53} /> : null}
             <CelestialBody
               id={marker.id}
               label={names[marker.id] ?? marker.name}

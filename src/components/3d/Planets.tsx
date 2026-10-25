@@ -30,7 +30,7 @@ export function scenePositionOf(index: number): [number, number, number] {
  * `bodyNames` (id → localized label) is passed from outside the Canvas because
  * the R3F reconciler does not inherit the next-intl context.
  */
-export function Planets({ bodyNames }: { bodyNames: Record<string, string> }) {
+export function Planets({ bodyNames, atmosphereHaze = true }: { bodyNames: Record<string, string>; atmosphereHaze?: boolean }) {
   const meshRefs = useRef<Array<Mesh | null>>([]);
 
   // Stable callback identities, so a hover re-render never detaches a mesh ref.
@@ -66,6 +66,9 @@ export function Planets({ bodyNames }: { bodyNames: Record<string, string> }) {
             radius={planet.radius}
             look={planet.look}
             atmosphere={planet.atmosphere}
+            atmosphereHaze={atmosphereHaze}
+            cloudCover={planet.cloudCover}
+            nightLights={planet.nightLights}
             ring={planet.ring}
             spin={planet.spin}
             labelGap={planet.radius * 0.5 + 0.25}

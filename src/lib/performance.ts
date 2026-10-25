@@ -10,9 +10,9 @@ export type QualityPreset = {
 
 export const QUALITY_PRESETS: Record<QualityTier, QualityPreset> = {
   low: { maxDpr: 1, antialias: false, shadows: false, maximumBodies: 32, targetFps: 30 },
-  medium: { maxDpr: 1.5, antialias: true, shadows: false, maximumBodies: 64, targetFps: 45 },
-  high: { maxDpr: 2, antialias: true, shadows: true, maximumBodies: 128, targetFps: 60 },
-  ultra: { maxDpr: 2, antialias: true, shadows: true, maximumBodies: 512, targetFps: 60 },
+  medium: { maxDpr: 1.25, antialias: true, shadows: false, maximumBodies: 64, targetFps: 45 },
+  high: { maxDpr: 1.5, antialias: true, shadows: true, maximumBodies: 128, targetFps: 60 },
+  ultra: { maxDpr: 1.75, antialias: true, shadows: true, maximumBodies: 512, targetFps: 60 },
 };
 
 export function detectQualityTier(input?: {
@@ -24,10 +24,11 @@ export function detectQualityTier(input?: {
   const deviceMemory = input?.deviceMemory ?? (globalThis.navigator as Navigator & { deviceMemory?: number } | undefined)?.deviceMemory ?? 4;
   const gpu = input?.gpu ?? (globalThis.navigator as Navigator & { gpu?: { vendor?: string; } } | undefined)?.gpu?.vendor ?? '';
 
-  if (/m1|m2|m3|apple|nvidia|amd|intel/.test(gpu.toLowerCase()) && hardwareConcurrency >= 8 && deviceMemory >= 8) {
+  const highEndGpu = /m1|m2|m3|apple|nvidia|geforce|radeon|amd/.test(gpu.toLowerCase());
+  if (highEndGpu && hardwareConcurrency >= 8 && deviceMemory >= 8) {
     return 'ultra';
   }
-  if (hardwareConcurrency >= 6 && deviceMemory >= 6) return 'high';
+  if (highEndGpu && hardwareConcurrency >= 6 && deviceMemory >= 6) return 'high';
   if (hardwareConcurrency >= 4 && deviceMemory >= 4) return 'medium';
   return 'low';
 }
