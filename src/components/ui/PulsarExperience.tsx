@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import { useSelectionStore } from '@/stores/selectionStore';
 
 const PULSARS = {
-  'vela-pulsar': { name: 'Vela Pulsar', hz: 11.2, periodMs: 89, media: 'https://chandra.si.edu/photo/2024/ar/ar_vela_composite.mp4', kind: 'video' },
+  'vela-pulsar': { name: 'Vela Pulsar', hz: 11.2, periodMs: 89, media: 'https://chandra.si.edu/photo/2024/ar/ar_vela_composite.mp4', kind: 'audio' },
   'crab-pulsar': { name: 'Crab Pulsar', hz: 30.2, periodMs: 33, media: 'https://chandra.si.edu/sound/sounds/audio/crab_chandra_nustar.mp3', kind: 'audio' },
 } as const;
 
@@ -23,41 +23,36 @@ function startPulsarSynth(hz: number, periodMs: number) {
   if (!AudioCtor) return null;
 
   const context = new AudioCtor();
-  const startAt = context.currentTime;
-  const oscillator = context.createOscillator();
-  const gainNode = context.createGain();
   const baseFrequency = 180 + hz * 18;
+  const schedulePulse = (startAt: number) => {
+    const oscillator = context.createOscillator();
+    const gainNode = context.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(baseFrequency + (Math.random() - 0.5) * 45, startAt);
+    gainNode.gain.setValueAtTime(0.0001, startAt);
+    gainNode.gain.exponentialRampToValueAtTime(0.14, startAt + 0.012);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.19);
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+    oscillator.start(startAt);
+    oscillator.stop(startAt + 0.2);
+  };
 
-  oscillator.type = 'sine';
-  oscillator.frequency.setValueAtTime(baseFrequency, startAt);
-  gainNode.gain.setValueAtTime(0.0001, startAt);
-  gainNode.gain.exponentialRampToValueAtTime(0.14, startAt + 0.01);
-  gainNode.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.12);
-
-  oscillator.connect(gainNode);
-  gainNode.connect(context.destination);
-
-  oscillator.start(startAt);
-  oscillator.stop(startAt + 0.14);
+  schedulePulse(context.currentTime);
 
   return {
     context,
     interval: window.setInterval(() => {
-      const innerContext = context;
-      const innerStart = innerContext.currentTime;
-      const innerOscillator = innerContext.createOscillator();
-      const innerGain = innerContext.createGain();
-      innerOscillator.type = 'triangle';
-      innerOscillator.frequency.setValueAtTime(baseFrequency + (Math.random() - 0.5) * 40, innerStart);
-      innerGain.gain.setValueAtTime(0.0001, innerStart);
-      innerGain.gain.exponentialRampToValueAtTime(0.12, innerStart + 0.008);
-      innerGain.gain.exponentialRampToValueAtTime(0.0001, innerStart + 0.12);
-      innerOscillator.connect(innerGain);
-      innerGain.connect(innerContext.destination);
-      innerOscillator.start(innerStart);
-      innerOscillator.stop(innerStart + 0.13);
+      schedulePulse(context.currentTime + 0.01);
     }, Math.max(80, periodMs)),
   };
+}
+
+function stopPulsarSynth(synthRef: React.MutableRefObject<{ context: AudioContext; interval: number } | null>) {
+  if (!synthRef.current) return;
+  window.clearInterval(synthRef.current.interval);
+  void synthRef.current.context.close();
+  synthRef.current = null;
 }
 
 function PulseTrace({ hz, active }: { hz: number; active: boolean }) {
@@ -109,11 +104,7 @@ export function PulsarExperience() {
 
   useEffect(() => {
     return () => {
-      if (synthRef.current) {
-        window.clearInterval(synthRef.current.interval);
-        void synthRef.current.context.close();
-        synthRef.current = null;
-      }
+      stopPulsarSynth(synthRef);
     };
   }, []);
 
@@ -129,38 +120,38 @@ export function PulsarExperience() {
   useEffect(() => {
     if (!selected || selected.kind !== 'audio') return;
     if (!playing) {
-      if (synthRef.current) {
-        window.clearInterval(synthRef.current.interval);
-        void synthRef.current.context.close();
-        synthRef.current = null;
-      }
+      stopPulsarSynth(synthRef);
       return;
     }
     if (synthRef.current) return;
     const synth = startPulsarSynth(selected.hz, selected.periodMs);
-    if (synth) synthRef.current = synth;
+    if (synth) {
+      synthRef.current = synth;
+      void synth.context.resume();
+    }
   }, [playing, selected]);
 
   useEffect(() => { media.current?.pause(); setPlaying(false); setVideoOpen(false); }, [selectedId]);
   if (!selected) return null;
 
-  function toggleAudio() {
+  async function toggleAudio() {
     if (!selected) return;
     const action = getPulsarPlaybackAction({ playing, kind: selected.kind, videoOpen });
     if (action.action === 'pause') {
-      if (selected.kind === 'audio') {
-        if (synthRef.current) {
-          window.clearInterval(synthRef.current.interval);
-          void synthRef.current.context.close();
-          synthRef.current = null;
-        }
-      }
+      stopPulsarSynth(synthRef);
       media.current?.pause();
       setPlaying(false);
       return;
     }
     if (selected.kind === 'video') {
       setVideoOpen(action.openVideo);
+    }
+    if (selected.kind === 'audio') {
+      const synth = synthRef.current ?? startPulsarSynth(selected.hz, selected.periodMs);
+      if (synth) {
+        synthRef.current = synth;
+        await synth.context.resume();
+      }
     }
     setPlaying(true);
   }
