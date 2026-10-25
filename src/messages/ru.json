@@ -128,7 +128,9 @@
     "nameRequired": "Введите название сценария.",
     "invalidJson": "Выбранный файл не является корректным JSON.",
     "invalidScenario": "Файл не соответствует формату сценария. Проверьте поля: {fields}.",
-    "unexpectedError": "Не удалось выполнить действие. Попробуйте ещё раз."
+    "unexpectedError": "Не удалось выполнить действие. Попробуйте ещё раз.",
+    "exportUsdAction": "Экспорт OpenUSD",
+    "exportUsdLabel": "Экспортировать {name} в OpenUSD"
   },
   "sharing": {
     "nav": "Публичная галерея",

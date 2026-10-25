@@ -128,7 +128,9 @@
     "nameRequired": "Ssenariy uchun nom kiriting.",
     "invalidJson": "Tanlangan fayl to‘g‘ri JSON formatida emas.",
     "invalidScenario": "Fayl ssenariy formatiga mos emas. Quyidagi maydonlarni tekshiring: {fields}.",
-    "unexpectedError": "Amalni bajarib bo‘lmadi. Qayta urinib ko‘ring."
+    "unexpectedError": "Amalni bajarib bo‘lmadi. Qayta urinib ko‘ring.",
+    "exportUsdAction": "OpenUSD eksport",
+    "exportUsdLabel": "{name} ssenariysini OpenUSD sifatida eksport qilish"
   },
   "sharing": {
     "nav": "Ommaviy galereya",

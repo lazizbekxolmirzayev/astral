@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { apiFetch } from '@/lib/client/api';
 import { solarSystem } from '@/data/solarSystem';
+import { serializeScenarioAsUsd } from '@/lib/usdExport';
 import {
   deleteScenario,
   importScenarioFile,
@@ -123,6 +124,21 @@ export function SavedExperiments() {
       const anchor = document.createElement('a');
       anchor.href = url;
       anchor.download = filenameFor(scenario.name);
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (caught) {
+      setError(messageFor(caught));
+    }
+  }
+
+  function handleUsdExport(scenario: SavedScenario) {
+    setError('');
+    try {
+      const blob = new Blob([serializeScenarioAsUsd(scenario.name, scenario.objects)], { type: 'model/vnd.usd+text' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = filenameFor(scenario.name).replace(/\.json$/u, '.usda');
       anchor.click();
       URL.revokeObjectURL(url);
     } catch (caught) {
@@ -275,6 +291,7 @@ export function SavedExperiments() {
                   <button type="button" disabled={busy} onClick={() => void handleLoad(scenario.id)} className="rounded border border-panel-border px-3 py-1.5 text-xs hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40">{t('loadAction')}</button>
                   <button type="button" disabled={busy} onClick={() => openShare(scenario)} className="inline-flex items-center gap-1 rounded border border-panel-border px-2 py-1.5 text-xs hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40"><Share2 size={13} aria-hidden />{shareT('shareAction')}</button>
                   <button type="button" disabled={busy} onClick={() => handleExport(scenario)} aria-label={t('exportLabel', { name: scenario.name })} title={t('exportAction')} className="rounded border border-panel-border p-1.5 text-foreground/65 hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40"><Download size={14} aria-hidden /></button>
+                  <button type="button" disabled={busy} onClick={() => handleUsdExport(scenario)} aria-label={t('exportUsdLabel', { name: scenario.name })} title={t('exportUsdAction')} className="rounded border border-panel-border px-2 py-1.5 text-[10px] font-medium text-foreground/65 hover:border-accent-cyan/50 hover:text-accent-cyan disabled:opacity-40">USD</button>
                   <button type="button" disabled={busy} onClick={() => void handleDelete(scenario)} aria-label={t('deleteLabel', { name: scenario.name })} title={t('deleteAction')} className="rounded border border-panel-border p-1.5 text-foreground/65 hover:border-red-400/50 hover:text-red-300 disabled:opacity-40"><Trash2 size={14} aria-hidden /></button>
                 </div>
               </li>

@@ -11,6 +11,16 @@ export type GalaxyShape = {
   /** How tightly the arms wind (radians of twist from core to rim). */
   twist?: number;
   thickness?: number;
+  /** Share of the stellar disk concentrated in the central bulge. */
+  bulgeFraction?: number;
+  /** Share of disk stars forming a central bar, for barred spirals. */
+  barStrength?: number;
+  /** Vertical axis ratio for flattened or edge-on systems. */
+  flattening?: number;
+  /** Arm-to-arm variation, used for asymmetric/interacting spirals. */
+  armAsymmetry?: number;
+  /** Extra compact star-forming knots along the arms. */
+  knotFrequency?: number;
   coreColor: string;
   armColor: string;
 };
@@ -31,6 +41,11 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
   const arms = shape.arms ?? 2;
   const twist = shape.twist ?? 3.2;
   const thickness = shape.thickness ?? 0.05;
+  const bulgeFraction = shape.bulgeFraction ?? 0.22;
+  const barStrength = shape.barStrength ?? 0;
+  const flattening = shape.flattening ?? 0.7;
+  const armAsymmetry = shape.armAsymmetry ?? 0;
+  const knotFrequency = shape.knotFrequency ?? 0.24;
 
   for (let i = 0; i < shape.count; i += 1) {
     let x: number;
@@ -38,7 +53,8 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
     let z: number;
     let t: number; // 0 core .. 1 rim, drives color
     if (shape.kind === 'spiral') {
-      const bulge = random() < 0.22;
+      const bar = random() < barStrength;
+      const bulge = !bar && random() < bulgeFraction;
       if (bulge) {
         const r = Math.abs(gaussian()) * shape.radius * 0.22;
         const a = random() * Math.PI * 2;
@@ -47,11 +63,18 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
         z = r * Math.sin(a) * Math.cos(e);
         y = r * Math.sin(e) * 0.8;
         t = r / (shape.radius * 0.6);
+      } else if (bar) {
+        const r = Math.pow(random(), 0.65) * shape.radius * 0.42;
+        x = (random() < 0.5 ? -1 : 1) * r + gaussian() * shape.radius * 0.018;
+        z = gaussian() * shape.radius * 0.075;
+        y = gaussian() * shape.radius * thickness * 0.72;
+        t = r / (shape.radius * 0.55);
       } else {
-        const cluster = random() < 0.24;
+        const cluster = random() < knotFrequency;
         const r = Math.pow(random(), cluster ? 0.78 : 0.62) * shape.radius;
         const armIndex = Math.floor(random() * arms);
-        const base = (armIndex / arms) * Math.PI * 2 + (r / shape.radius) * twist;
+        const armWarp = Math.sin(armIndex * 9.17 + r * 0.13) * armAsymmetry * (r / shape.radius);
+        const base = (armIndex / arms) * Math.PI * 2 + (r / shape.radius) * twist + armWarp;
         const spread = gaussian() * (cluster ? 0.12 : 0.3 - 0.16 * (r / shape.radius));
         const a = base + spread;
         const clump = cluster ? 0.009 : 0.025;
@@ -65,7 +88,7 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
       const a = random() * Math.PI * 2;
       const e = Math.acos(2 * random() - 1);
       x = r * Math.sin(e) * Math.cos(a);
-      y = r * Math.cos(e) * 0.7;
+      y = r * Math.cos(e) * flattening;
       z = r * Math.sin(e) * Math.sin(a);
       t = r / shape.radius;
     } else {

@@ -128,7 +128,9 @@
     "nameRequired": "Enter a name for this scenario.",
     "invalidJson": "The selected file is not valid JSON.",
     "invalidScenario": "The file is not a valid scenario. Check these fields: {fields}.",
-    "unexpectedError": "The operation could not be completed. Please try again."
+    "unexpectedError": "The operation could not be completed. Please try again.",
+    "exportUsdAction": "Export OpenUSD",
+    "exportUsdLabel": "Export {name} as OpenUSD"
   },
   "sharing": {
     "nav": "Public gallery",
