@@ -22,14 +22,23 @@ varying vec2 vUv;
 void main() {
   vec4 c = texture2D(tDiffuse, vUv);
   // Split-toning: lift shadows cool, highlights warm.
-  vec3 shadow = vec3(0.94, 0.97, 1.02);
-  vec3 highlight = vec3(1.06, 1.02, 0.96);
-  vec3 graded = mix(shadow, highlight, pow(c.rgb, vec3(0.9)));
-  // Gentle saturation boost so the nebulae and Sun corona pop.
-  float luma = dot(graded, vec3(0.2126, 0.7152, 0.0722));
-  c.rgb = mix(vec3(luma), graded, 1.12);
-  c.rgb = pow(c.rgb, vec3(1.0 / 1.2));
+  float luma = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
+  float highlightWeight = smoothstep(0.08, 0.9, luma);
+  vec3 shadowTint = vec3(0.94, 0.98, 1.04);
+  vec3 highlightTint = vec3(1.06, 1.02, 0.96);
+  vec3 tint = mix(shadowTint, highlightTint, highlightWeight);
+  vec3 graded = c.rgb * tint;
+  // Keep the source luminance: saturated nebulae pop while space stays dark.
+  float gradedLuma = dot(graded, vec3(0.2126, 0.7152, 0.0722));
+  c.rgb = max(mix(vec3(gradedLuma), graded, 1.12), vec3(0.0));
   gl_FragColor = vec4(c.rgb, c.a);
+}`;
+
+const FULLSCREEN_VERTEX = `
+varying vec2 vUv;
+void main() {
+  vUv = uv;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }`;
 
 export function SceneEffects({ qualityTier }: { qualityTier: QualityTier }) {
@@ -44,7 +53,8 @@ export function SceneEffects({ qualityTier }: { qualityTier: QualityTier }) {
       0.82,
     );
     const grade = new ShaderPass({
-      uniforms: {},
+      uniforms: { tDiffuse: { value: null } },
+      vertexShader: FULLSCREEN_VERTEX,
       fragmentShader: COLOR_GRADE_FRAGMENT,
     });
     pipeline.addPass(render);
