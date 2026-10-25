@@ -16,6 +16,50 @@ export function getPulsarPlaybackAction({ playing, kind, videoOpen }: { playing:
   return { action: 'play-audio' as const, openVideo: videoOpen };
 }
 
+function startPulsarSynth(hz: number, periodMs: number) {
+  if (typeof window === 'undefined') return null;
+
+  const AudioCtor = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!AudioCtor) return null;
+
+  const context = new AudioCtor();
+  const startAt = context.currentTime;
+  const oscillator = context.createOscillator();
+  const gainNode = context.createGain();
+  const baseFrequency = 180 + hz * 18;
+
+  oscillator.type = 'sine';
+  oscillator.frequency.setValueAtTime(baseFrequency, startAt);
+  gainNode.gain.setValueAtTime(0.0001, startAt);
+  gainNode.gain.exponentialRampToValueAtTime(0.14, startAt + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(0.0001, startAt + 0.12);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(context.destination);
+
+  oscillator.start(startAt);
+  oscillator.stop(startAt + 0.14);
+
+  return {
+    context,
+    interval: window.setInterval(() => {
+      const innerContext = context;
+      const innerStart = innerContext.currentTime;
+      const innerOscillator = innerContext.createOscillator();
+      const innerGain = innerContext.createGain();
+      innerOscillator.type = 'triangle';
+      innerOscillator.frequency.setValueAtTime(baseFrequency + (Math.random() - 0.5) * 40, innerStart);
+      innerGain.gain.setValueAtTime(0.0001, innerStart);
+      innerGain.gain.exponentialRampToValueAtTime(0.12, innerStart + 0.008);
+      innerGain.gain.exponentialRampToValueAtTime(0.0001, innerStart + 0.12);
+      innerOscillator.connect(innerGain);
+      innerGain.connect(innerContext.destination);
+      innerOscillator.start(innerStart);
+      innerOscillator.stop(innerStart + 0.13);
+    }, Math.max(80, periodMs)),
+  };
+}
+
 function PulseTrace({ hz, active }: { hz: number; active: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -60,7 +104,18 @@ export function PulsarExperience() {
   const [playing, setPlaying] = useState(false);
   const [videoOpen, setVideoOpen] = useState(false);
   const media = useRef<HTMLVideoElement | HTMLAudioElement>(null);
+  const synthRef = useRef<{ context: AudioContext; interval: number } | null>(null);
   const selected = selectedId && selectedId in PULSARS ? PULSARS[selectedId as keyof typeof PULSARS] : null;
+
+  useEffect(() => {
+    return () => {
+      if (synthRef.current) {
+        window.clearInterval(synthRef.current.interval);
+        void synthRef.current.context.close();
+        synthRef.current = null;
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!media.current) return;
@@ -70,6 +125,22 @@ export function PulsarExperience() {
     }
     media.current.pause();
   }, [playing, selectedId]);
+
+  useEffect(() => {
+    if (!selected || selected.kind !== 'audio') return;
+    if (!playing) {
+      if (synthRef.current) {
+        window.clearInterval(synthRef.current.interval);
+        void synthRef.current.context.close();
+        synthRef.current = null;
+      }
+      return;
+    }
+    if (synthRef.current) return;
+    const synth = startPulsarSynth(selected.hz, selected.periodMs);
+    if (synth) synthRef.current = synth;
+  }, [playing, selected]);
+
   useEffect(() => { media.current?.pause(); setPlaying(false); setVideoOpen(false); }, [selectedId]);
   if (!selected) return null;
 
@@ -77,6 +148,13 @@ export function PulsarExperience() {
     if (!selected) return;
     const action = getPulsarPlaybackAction({ playing, kind: selected.kind, videoOpen });
     if (action.action === 'pause') {
+      if (selected.kind === 'audio') {
+        if (synthRef.current) {
+          window.clearInterval(synthRef.current.interval);
+          void synthRef.current.context.close();
+          synthRef.current = null;
+        }
+      }
       media.current?.pause();
       setPlaying(false);
       return;
@@ -112,7 +190,7 @@ export function PulsarExperience() {
       </div>
       <div className="mt-2 rounded-xl border border-cyan-200/10 bg-[#030a12]/85 p-1.5 shadow-[inset_0_0_22px_rgba(45,160,190,0.07)]"><PulseTrace hz={selected.hz} active={playing} /></div>
       <div className="mt-1 flex justify-between px-1 font-mono text-[8px] uppercase tracking-[0.15em] text-cyan-100/40"><span>{t('radioSignal')}</span><span>{t('sonified')}</span></div>
-      {selected.kind === 'video' ? <video ref={media as React.RefObject<HTMLVideoElement>} title={t('nasaVideo')} src={selected.media} controls preload="metadata" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} className={`mt-2 max-h-[28rem] w-full rounded-xl border border-cyan-100/10 bg-black ${videoOpen ? '' : 'hidden'}`} /> : <audio ref={media as React.RefObject<HTMLAudioElement>} title={t('title')} src={selected.media} controls preload="none" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} className="mt-2 h-9 w-full rounded-lg" />}
+      {selected.kind === 'video' ? <video ref={media as React.RefObject<HTMLVideoElement>} title={t('nasaVideo')} src={selected.media} controls preload="metadata" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} className={`mt-2 max-h-[28rem] w-full rounded-xl border border-cyan-100/10 bg-black ${videoOpen ? '' : 'hidden'}`} /> : <div className="mt-2 rounded-xl border border-cyan-100/10 bg-cyan-400/5 px-3 py-2 font-mono text-[9px] uppercase tracking-[0.18em] text-cyan-100/80">{playing ? 'Synth pulse audio active' : 'Pulse audio ready'}</div>}
     </section>
   );
 }
