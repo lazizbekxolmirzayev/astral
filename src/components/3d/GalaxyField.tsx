@@ -45,6 +45,7 @@ export function GalaxyField({
   tilt = [0, 0, 0],
   coreGlow = 0.7,
   alpha = 0.9,
+  rotationSpeed = 0.0035,
 }: {
   shape: GalaxyShape;
   size?: number;
@@ -53,6 +54,8 @@ export function GalaxyField({
   coreGlow?: number;
   /** Particle opacity; distant galaxies use less so overlapping points do not burn out to white. */
   alpha?: number;
+  /** Slow display spin; zero keeps a galaxy aligned with its fixed catalog markers. */
+  rotationSpeed?: number;
 }) {
   const groupRef = useRef<Group>(null);
   const geometry = useMemo(() => buildGalaxyGeometry(shape), [shape]);
@@ -64,7 +67,7 @@ export function GalaxyField({
   useEffect(() => () => { geometry.dispose(); material.dispose(); glow.dispose(); }, [geometry, material, glow]);
   useFrame(({ clock }, delta) => {
     material.uniforms.uTime!.value = clock.elapsedTime;
-    if (groupRef.current) groupRef.current.rotation.y += delta * 0.0035;
+    if (groupRef.current && rotationSpeed !== 0) groupRef.current.rotation.y += delta * rotationSpeed;
   });
 
   return (

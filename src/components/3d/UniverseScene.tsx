@@ -17,8 +17,17 @@ const LOOKS: Record<string, Look> = {
   andromeda: { shape: { kind: 'spiral', count: 0, arms: 2, twist: 3.4, thickness: 0.03, coreColor: '#ffe6bd', armColor: '#9fb8ff' }, tilt: [1.2, 0.3, 0.1], count: 12000 },
   triangulum: { shape: { kind: 'spiral', count: 0, arms: 3, twist: 3, thickness: 0.04, coreColor: '#ffe0c0', armColor: '#a8c0ff' }, tilt: [0.3, 0, 0.5], count: 5000 },
   lmc: { shape: { kind: 'irregular', count: 0, coreColor: '#ffeacb', armColor: '#bcd0ff' }, tilt: [0.7, 0.4, 0], count: 3500 },
+  smc: { shape: { kind: 'irregular', count: 0, coreColor: '#d7edff', armColor: '#8fcaff' }, tilt: [0.9, -0.25, 0.35], count: 2800 },
   whirlpool: { shape: { kind: 'spiral', count: 0, arms: 2, twist: 5, thickness: 0.03, coreColor: '#ffe9c4', armColor: '#8fb0ff' }, tilt: [0.1, 0, 0.2], count: 9000 },
   sombrero: { shape: { kind: 'spiral', count: 0, arms: 2, twist: 1.2, thickness: 0.025, coreColor: '#fff0d0', armColor: '#e8d8b8' }, tilt: [1.45, 0.2, 0], count: 9000 },
+  m81: { shape: { kind: 'spiral', count: 0, arms: 2, twist: 3.8, thickness: 0.03, coreColor: '#ffe6c1', armColor: '#9bb8ff', waveStrength: 0.85, waveWidth: 0.12 }, tilt: [0.6, 0.2, -0.1], count: 8500 },
+  m82: { shape: { kind: 'elliptical', count: 0, coreColor: '#ffd3a0', armColor: '#ef987a', coreBrightness: 2.1 }, tilt: [1.48, 0.3, 0.1], count: 7000 },
+  pinwheel: { shape: { kind: 'spiral', count: 0, arms: 5, twist: 4.4, thickness: 0.045, coreColor: '#ffe4b8', armColor: '#91c6ff', waveStrength: 0.75, waveWidth: 0.15 }, tilt: [0.22, 0.1, 0.3], count: 10000 },
+  'centaurus-a': { shape: { kind: 'elliptical', count: 0, coreColor: '#ffe0ac', armColor: '#cba986', coreBrightness: 1.9 }, tilt: [1.15, 0.4, 0.25], count: 7500 },
+  m32: { shape: { kind: 'elliptical', count: 0, coreColor: '#fff0d2', armColor: '#d8c6a7' }, tilt: [0.4, 0.2, 0], count: 2500 },
+  m110: { shape: { kind: 'elliptical', count: 0, coreColor: '#f5e2c8', armColor: '#b9a9a1' }, tilt: [0.9, -0.2, 0.1], count: 3200 },
+  'ngc-5195': { shape: { kind: 'elliptical', count: 0, coreColor: '#ffe0bc', armColor: '#d9a8a0' }, tilt: [0.4, 0.2, 0.5], count: 2500 },
+  'ngc-1300': { shape: { kind: 'spiral', count: 0, arms: 2, twist: 2.8, thickness: 0.025, coreColor: '#ffe6c2', armColor: '#a5bcff', waveStrength: 0.82, waveWidth: 0.12 }, tilt: [0.35, 0.2, 0.1], count: 8500 },
   'm87-star': { shape: { kind: 'elliptical', count: 0, coreColor: '#ffe2b0', armColor: '#ffd29a' }, tilt: [0.2, 0.6, 0], count: 10000 },
 };
 

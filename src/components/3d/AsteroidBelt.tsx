@@ -26,6 +26,15 @@ const TOTAL_BY_TIER: Record<QualityTier, number> = {
   ultra: 1200,
 };
 
+/** Jupiter's mean-motion resonances leave underpopulated lanes in the belt. */
+const KIRKWOOD_GAPS = [
+  { au: 2.06, width: 0.025, depth: 0.72 }, // 4:1
+  { au: 2.50, width: 0.045, depth: 0.9 },  // 3:1
+  { au: 2.82, width: 0.035, depth: 0.72 }, // 5:2
+  { au: 2.96, width: 0.03, depth: 0.6 },   // 7:3
+  { au: 3.27, width: 0.045, depth: 0.78 }, // 2:1
+];
+
 /** A lumpy rock: a low-poly solid pushed in and out along its own vertices. */
 function createRockGeometry(shape: number, seed: number) {
   const geometry =
@@ -94,7 +103,19 @@ export function AsteroidBelt({ qualityTier }: { qualityTier: QualityTier }) {
     const total = count * SHAPE_COUNT;
     const rocks: Placement[] = [];
     for (let i = 0; i < total; i += 1) {
-      const distanceAu = BELT_MIN_AU + Math.pow(random(), 0.8) * (BELT_MAX_AU - BELT_MIN_AU);
+      const population = random();
+      const normalOffset = () => (random() + random() + random() + random() - 2) / 2;
+      const sampledAu = population < 0.42
+        ? 2.78 + normalOffset() * 0.34
+        : population < 0.8
+          ? 3.18 + normalOffset() * 0.25
+          : BELT_MIN_AU + random() * (BELT_MAX_AU - BELT_MIN_AU);
+      const distanceAu = Math.min(BELT_MAX_AU, Math.max(BELT_MIN_AU, sampledAu));
+      const gapDensity = KIRKWOOD_GAPS.reduce((density, gap) => {
+        const normalized = (distanceAu - gap.au) / gap.width;
+        return density * (1 - gap.depth * Math.exp(-0.5 * normalized * normalized));
+      }, 1);
+      if (random() > gapDensity) continue;
       const angle = random() * Math.PI * 2;
       const radius = sceneRadiusFor(distanceAu);
       // A flattened torus: mostly in the ecliptic plane, a little scatter above

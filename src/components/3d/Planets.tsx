@@ -5,6 +5,7 @@ import { useMemo, useRef } from 'react';
 import type { Mesh } from 'three';
 import { simulation } from '@/lib/simulation';
 import { CelestialBody } from './CelestialBody';
+import { PlanetaryMoons } from './PlanetaryMoons';
 import { planets, projectToScene } from './layout';
 
 /** Engine index per drawn planet, resolved once. */
@@ -58,8 +59,8 @@ export function Planets({ bodyNames, atmosphereHaze = true }: { bodyNames: Recor
       {planets.map((planet, index) => {
         const start = scenePositionOf(indices[index] as number);
         return (
+          <group key={planet.id}>
           <CelestialBody
-            key={planet.id}
             id={planet.id}
             label={bodyNames[planet.id] ?? planet.name}
             color={planet.color}
@@ -75,8 +76,12 @@ export function Planets({ bodyNames, atmosphereHaze = true }: { bodyNames: Recor
             position={start}
             registerMesh={registrars[index]!}
           />
+          {planet.id in MOON_SYSTEM_IDS ? <PlanetaryMoons planetId={planet.id as keyof typeof MOON_SYSTEM_IDS} /> : null}
+          </group>
         );
       })}
     </group>
   );
 }
+
+const MOON_SYSTEM_IDS = { earth: true, jupiter: true, saturn: true, uranus: true, neptune: true } as const;

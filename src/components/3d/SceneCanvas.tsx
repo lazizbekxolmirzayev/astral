@@ -22,6 +22,8 @@ import { SceneEnvironment } from './SceneEnvironment';
 import { SceneFog } from './SceneFog';
 import { NebulaBackdrop } from './NebulaBackdrop';
 import { AsteroidBelt } from './AsteroidBelt';
+import { KuiperBelt } from './KuiperBelt';
+import { DwarfPlanets } from './DwarfPlanets';
 
 /** Advances the engine once per frame and republishes diagnostics at 4 Hz. */
 function SimulationDriver() {
@@ -50,7 +52,7 @@ export default function SceneCanvas({ onReady, staticView = false }: { onReady?:
   const qualityTier = useMemo(() => detectQualityTier(), []);
   const dprMax = useMemo(() => capDprForTier(qualityTier), [qualityTier]);
   const bodyNames = useMemo(
-    () => Object.fromEntries(planets.map((planet) => [planet.id, t(planet.id)])),
+    () => Object.fromEntries([...planets.map((planet) => planet.id), 'ceres', 'pluto', 'haumea', 'makemake', 'eris'].map((id) => [id, t(id)])),
     [t],
   );
 
@@ -88,7 +90,9 @@ export default function SceneCanvas({ onReady, staticView = false }: { onReady?:
           <Sun label={t('sun')} />
           <OrbitLines />
           <AsteroidBelt qualityTier={qualityTier} />
+          <KuiperBelt qualityTier={qualityTier} />
           <Planets bodyNames={bodyNames} atmosphereHaze={qualityTier !== 'low'} />
+          <DwarfPlanets names={bodyNames} />
         </>
       ) : null}
       {scale === 'galaxy' ? <GalaxyScene names={sceneNames} /> : null}

@@ -44,7 +44,7 @@ export function PlanetaryMoons({ planetId }: { planetId: keyof typeof MOON_SYSTE
   const moonRefs = useRef<Array<Mesh | null>>([]);
   const moons = MOON_SYSTEMS[planetId];
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     const group = groupRef.current;
     if (!group) return;
     const bodyIndex = parentIndex.current * 3;
@@ -57,7 +57,7 @@ export function PlanetaryMoons({ planetId }: { planetId: keyof typeof MOON_SYSTE
     moons.forEach((moon, index) => {
       const mesh = moonRefs.current[index];
       if (!mesh) return;
-      const angle = clock.elapsedTime * moon.speed + moon.phase;
+      const angle = simulation.elapsedDays * moon.speed + moon.phase;
       mesh.position.set(
         moon.orbit * Math.cos(angle),
         moon.orbit * Math.sin(angle) * Math.sin(moon.inclination),
@@ -77,7 +77,7 @@ export function PlanetaryMoons({ planetId }: { planetId: keyof typeof MOON_SYSTE
             <sphereGeometry args={[moon.radius, 24, 16]} />
             <meshStandardMaterial color={moon.color} roughness={0.92} metalness={0} />
           </mesh>
-          <mesh rotation={[Math.PI / 2 + moon.inclination, 0, 0]} raycast={() => null}>
+          <mesh rotation={[Math.PI / 2 - moon.inclination, 0, 0]} raycast={() => null}>
             <torusGeometry args={[moon.orbit, 0.006, 3, 80]} />
             <meshBasicMaterial color={moon.color} transparent opacity={0.12} depthWrite={false} />
           </mesh>

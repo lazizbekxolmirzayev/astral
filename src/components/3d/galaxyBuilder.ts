@@ -19,6 +19,16 @@ export type GalaxyShape = {
   coreBrightness?: number;
   /** Dust lanes: darker spiral arcs that absorb light. */
   dust?: number;
+  /** Density wave: how strongly particles cluster onto the arm centreline. */
+  waveStrength?: number;
+  /** Density wave: half-width of the arm centreline clustering. */
+  waveWidth?: number;
+  /** Relative star density for each arm, allowing two dominant arms. */
+  armWeights?: readonly number[];
+  /** Short local spur passing through the Sun marker. */
+  localSpur?: boolean;
+  /** Fraction of particles assigned to the central bulge. */
+  bulgeFraction?: number;
 };
 
 /**
@@ -29,6 +39,10 @@ export type GalaxyShape = {
  * small set of procedural rules (arm pitch, thickness falloff, dust absorption)
  * rather than hand-placed, so a different seed or arm count produces a coherent
  * new galaxy instead of noise.
+ *
+ * Density waves: spiral arms are not just a colour change — particles cluster
+ * along the arm centreline with a sinusoidal density profile, so the arms have
+ * real structure and brightness falloff instead of a flat smear.
  */
 export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
   const random = mulberry32(shape.seed);
@@ -44,6 +58,12 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
   const bulgeRadius = shape.bulgeRadius ?? 0.22;
   const coreBrightness = shape.coreBrightness ?? 1.6;
   const dust = shape.dust ?? 0.18;
+  // Density wave: how strongly particles cluster onto the arm centreline.
+  const waveStrength = shape.waveStrength ?? 0.7;
+  const waveWidth = shape.waveWidth ?? 0.18;
+  const bulgeFraction = shape.bulgeFraction ?? 0.22;
+  const armWeights = shape.armWeights;
+  const armWeightTotal = armWeights?.reduce((sum, weight) => sum + weight, 0) ?? arms;
 
   for (let i = 0; i < shape.count; i += 1) {
     let x: number;
@@ -51,8 +71,10 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
     let z: number;
     let t: number; // 0 core .. 1 rim, drives color
     let dustFactor = 1;
+    let densityFactor = 1;
     if (shape.kind === 'spiral') {
-      const inBulge = random() < 0.22;
+      const inBulge = random() < bulgeFraction;
+      const inSpur = !inBulge && shape.localSpur && random() < 0.1;
       if (inBulge) {
         const r = Math.abs(gaussian()) * shape.radius * bulgeRadius;
         const a = random() * Math.PI * 2;
@@ -61,11 +83,31 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
         z = r * Math.sin(a) * Math.cos(e);
         y = r * Math.sin(e) * 0.8;
         t = r / (shape.radius * bulgeRadius);
+      } else if (inSpur) {
+        const radiusFraction = 0.43 + random() * 0.19;
+        const r = radiusFraction * shape.radius;
+        const a = (radiusFraction - 0.52) * 3.2 + gaussian() * 0.028;
+        x = r * Math.cos(a) + gaussian() * shape.radius * 0.008;
+        z = r * Math.sin(a) + gaussian() * shape.radius * 0.008;
+        y = gaussian() * shape.radius * thickness * 0.55;
+        t = radiusFraction;
       } else {
         const r = Math.pow(random(), 0.65) * shape.radius;
-        const armIndex = Math.floor(random() * arms);
+        let armIndex = Math.floor(random() * arms);
+        if (armWeights && armWeights.length >= arms && armWeightTotal > 0) {
+          let weightedIndex = random() * armWeightTotal;
+          for (let candidate = 0; candidate < arms; candidate += 1) {
+            weightedIndex -= armWeights[candidate] ?? 0;
+            if (weightedIndex <= 0) {
+              armIndex = candidate;
+              break;
+            }
+          }
+        }
         const base = (armIndex / arms) * Math.PI * 2 + (r / shape.radius) * twist;
-        const spread = gaussian() * (0.28 - 0.14 * (r / shape.radius));
+        // Density wave: sinusoidal clustering onto the arm centreline.
+        const wave = Math.sin((r / shape.radius) * 18 + armIndex * (Math.PI * 2 / arms)) * waveStrength;
+        const spread = gaussian() * (0.28 - 0.14 * (r / shape.radius)) + wave * waveWidth;
         const a = base + spread;
         x = r * Math.cos(a) + gaussian() * shape.radius * 0.015;
         z = r * Math.sin(a) + gaussian() * shape.radius * 0.015;
@@ -75,6 +117,8 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
         if (random() < dust) {
           dustFactor = 0.35 + random() * 0.25;
         }
+        // Arms are brighter near their centreline.
+        densityFactor = 0.55 + 0.45 * Math.max(0, 1 - Math.abs(spread) / (waveWidth * 2));
       }
     } else if (shape.kind === 'elliptical') {
       const r = Math.pow(random(), 1.6) * shape.radius;
@@ -99,7 +143,7 @@ export function buildGalaxyGeometry(shape: GalaxyShape): BufferGeometry {
     positions[i * 3 + 2] = z;
     const mix = Math.min(1, Math.max(0, t));
     const c = core.clone().lerp(arm, mix);
-    const brightness = dustFactor * (0.5 + random() * 0.5) * (1.15 - 0.45 * mix);
+    const brightness = dustFactor * densityFactor * (0.5 + random() * 0.5) * (1.15 - 0.45 * mix);
     // The core burns brighter than the arms so the centre reads as a galactic nucleus.
     if (mix < bulgeRadius) {
       c.lerp(new Color('#ffffff'), (1 - mix / bulgeRadius) * 0.5);
