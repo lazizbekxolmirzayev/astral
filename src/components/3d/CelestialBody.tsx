@@ -57,7 +57,7 @@ type CelestialBodyProps = {
   cloudCover?: number;
   /** Warm city lights, shown only on the night side. */
   nightLights?: boolean;
-  ring?: { inner: number; outer: number; color: string; tilt: number };
+  ring?: { inner: number; outer: number; color: string; tilt: number; detailed?: boolean };
   /** Spin in radians per second. */
   spin?: number;
   /** Clickable and labelled but not drawn (a hit target over a galaxy). */
@@ -143,7 +143,7 @@ export function CelestialBody({
     () => (look && cloudCover && drawn ? createCloudTexture(look.seed, cloudCover) : null),
     [look, cloudCover, drawn],
   );
-  const ringTexture = useMemo(() => (ring ? createRingTexture(ring.color, look?.seed ?? 1) : null), [ring, look]);
+  const ringTexture = useMemo(() => (ring ? createRingTexture(ring.color, look?.seed ?? 1, ring.detailed) : null), [ring, look]);
   const ringGeometry = useMemo(
     () => (ring ? createRingGeometry(radius * ring.inner, radius * ring.outer) : null),
     [ring, radius],

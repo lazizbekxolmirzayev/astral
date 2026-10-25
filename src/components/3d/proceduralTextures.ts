@@ -30,6 +30,8 @@ export type TextureLook = {
   seaLevel?: number;
   /** Overlay cloud cover 0..1 (white, soft). */
   clouds?: number;
+  /** A long-lived oval atmosphere storm, positioned in equirectangular radians. */
+  storm?: { longitude: number; latitude: number; radius: number; color: string };
 };
 
 // 384×192 keeps the surface detail crisp at normal viewing distances while
@@ -72,6 +74,8 @@ function paintSurface(look: TextureLook): SurfacePaint {
   const scale = look.scale ?? 2.5;
   const turbulence = look.turbulence ?? 0.35;
   const seaLevel = look.seaLevel ?? 0.52;
+  const stormColor = look.storm ? new Color(look.storm.color) : null;
+  const stormRim = look.storm ? new Color('#edb58b') : null;
 
   for (let py = 0; py < HEIGHT; py += 1) {
     const v = py / (HEIGHT - 1);
@@ -94,6 +98,21 @@ function paintSurface(look: TextureLook): SurfacePaint {
           0.5 +
           0.5 * Math.sin((y + warp + (detail - 0.5) * 0.035) * 14 + fbm3(x * 2, y * 8, z * 2, look.seed + 3) * 3);
         color = sample(colors, stripe);
+        if (look.storm && stormColor && stormRim) {
+          let longitudeDelta = Math.abs(theta - look.storm.longitude);
+          longitudeDelta = Math.min(longitudeDelta, Math.PI * 2 - longitudeDelta);
+          const latitudeDelta = phi - look.storm.latitude;
+          const stormDistance = Math.sqrt(
+            Math.pow((longitudeDelta * Math.cos(phi)) / 1.65, 2) + latitudeDelta * latitudeDelta,
+          );
+          const stormRadius = look.storm.radius;
+          const stormMix = Math.max(0, Math.min(1, (stormRadius * 1.12 - stormDistance) / (stormRadius * 0.24)));
+          if (stormMix > 0) {
+            const normalized = stormDistance / stormRadius;
+            const rimMix = Math.max(0, 1 - Math.abs(normalized - 0.72) / 0.2) * 0.5;
+            color.lerp(stormColor.clone().lerp(stormRim, rimMix), stormMix);
+          }
+        }
         // Gas giant bands are nearly flat but have storm relief, and their ices
         // are cloudy rather than mirror-smooth.
         elevation = stripe * 0.35 + detail * 0.25;
@@ -371,7 +390,7 @@ export function createCloudTexture(seed: number, cover: number, size = 512): Can
 }
 
 /** Radial stripes for a ring seen from above; `u` runs inner edge to outer edge. */
-export function createRingTexture(base: string, seed: number): CanvasTexture {
+export function createRingTexture(base: string, seed: number, detailed = false): CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 4;
@@ -382,7 +401,14 @@ export function createRingTexture(base: string, seed: number): CanvasTexture {
       const u = x / 511;
       const gap = fbm3(u * 24, 0.5, 0.5, seed, 3);
       let alpha = 0.15 + 0.75 * gap;
-      if (u > 0.62 && u < 0.67) alpha *= 0.1; // an empty division, like Cassini's
+      if (detailed) {
+        if (u > 0.06 && u < 0.25) alpha *= 0.42; // diffuse C ring
+        if (u > 0.25 && u < 0.60) alpha *= 1.08; // dense B ring
+        if (u > 0.61 && u < 0.67) alpha *= 0.035; // Cassini Division
+        if (u > 0.67 && u < 0.9) alpha *= 0.82; // A ring
+        if (u > 0.875 && u < 0.885) alpha *= 0.12; // Encke gap
+        if (u > 0.965 && u < 0.985) alpha = 0.55 + 0.25 * gap; // narrow F ring
+      } else if (u > 0.62 && u < 0.67) alpha *= 0.1;
       if (u < 0.08 || u > 0.95) alpha *= 0.4;
       const shade = 0.75 + 0.25 * fbm3(u * 60, 2, 2, seed + 5, 2);
       context.fillStyle = `rgba(${Math.round(color.r * 255 * shade)},${Math.round(color.g * 255 * shade)},${Math.round(color.b * 255 * shade)},${alpha})`;

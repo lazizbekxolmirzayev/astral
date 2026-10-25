@@ -18,6 +18,9 @@ const MILKY_WAY: GalaxyShape = {
   thickness: 0.035,
   coreColor: '#ffe3a6',
   armColor: '#8fb0ff',
+  bulgeRadius: 0.2,
+  coreBrightness: 2.2,
+  dust: 0.22,
 };
 
 /** Artistic star-forming regions threaded along the Milky Way's spiral arms. */
