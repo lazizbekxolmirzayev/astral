@@ -6,7 +6,9 @@ import { galaxyMarkers, MILKY_WAY_RADIUS } from '@/lib/universeLayout';
 import { CelestialBody } from './CelestialBody';
 import { GalaxyCore } from './GalaxyCore';
 import { GalaxyField } from './GalaxyField';
+import { NebulaCloud } from './NebulaCloud';
 import { BlackHoleAccretionDisk } from './BlackHoleAccretionDisk';
+import { PulsarBeams } from './PulsarBeams';
 import { createGlowTexture, createNebulaTexture, GLOW_BLENDING } from './proceduralTextures';
 import type { GalaxyShape } from './galaxyBuilder';
 
@@ -117,9 +119,15 @@ export function GalaxyScene({ names }: { names: Record<string, string> }) {
       <GalaxyField shape={MILKY_WAY} size={1.15} coreGlow={0.8} rotationSpeed={0} />
       <mesh geometry={dustGeometry} material={dustMaterial} frustumCulled={false} raycast={() => null} />
       {DUST_CLOUDS.map((cloud, index) => (
-        <sprite key={`dust-${index}`} position={cloud.position} scale={[cloud.scale * 1.6, cloud.scale, 1]} rotation={[0, 0, cloud.rotation]} raycast={() => null}>
-          <spriteMaterial map={nebulae[cloud.palette]} color={index % 3 === 0 ? '#9fcaff' : index % 3 === 1 ? '#e3a2ff' : '#ffd09f'} blending={GLOW_BLENDING} transparent depthWrite={false} opacity={cloud.opacity} />
-        </sprite>
+        <NebulaCloud
+          key={`nebula-${index}`}
+          position={cloud.position}
+          scale={cloud.scale * 1.6}
+          palette={NEBULA_PALETTES[cloud.palette]}
+          seed={99 + index * 47}
+          drift={0.02 + (index % 3) * 0.008}
+          opacity={cloud.opacity}
+        />
       ))}
       {markers.map((marker) => (
         <group key={marker.id}>
@@ -135,11 +143,12 @@ export function GalaxyScene({ names }: { names: Record<string, string> }) {
             radius={marker.kind === 'galaxy' ? 0.16 : marker.radius}
             emissiveIntensity={marker.kind === 'black_hole' ? 0 : 1}
             position={marker.position}
-            focusRadius={marker.kind === 'black_hole' ? 0.6 : Math.max(marker.radius, 0.006)}
-            labelGap={marker.kind === 'galaxy' ? marker.radius : marker.radius * 0.6}
+            focusRadius={marker.kind === 'black_hole' ? 0.6 : marker.kind === 'pulsar' ? 2.8 : Math.max(marker.radius, 0.006)}
+            labelGap={marker.kind === 'pulsar' ? 4.8 : marker.kind === 'galaxy' ? marker.radius : marker.radius * 0.6}
             spin={marker.kind === 'black_hole' ? 0 : 0.2}
           />
           {marker.kind === 'black_hole' ? <BlackHoleAccretionDisk position={marker.position} radius={marker.radius} seed={marker.id.length * 37} /> : null}
+          {marker.kind === 'pulsar' ? <PulsarBeams position={marker.position} seed={marker.id.length * 29} /> : null}
           {marker.kind === 'star' || marker.kind === 'sun' ? (
             <sprite position={marker.position} scale={[marker.radius * 14, marker.radius * 14, 1]} raycast={() => null}>
               <spriteMaterial map={halo} color={marker.color} blending={GLOW_BLENDING} transparent depthWrite={false} opacity={0.55} />
