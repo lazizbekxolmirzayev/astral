@@ -35,6 +35,10 @@ function Notice({ children }: { children: React.ReactNode }) {
   );
 }
 
+export function getViewportControlPanelClassName() {
+  return 'pointer-events-auto absolute left-3 top-3 z-20 rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-2 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm';
+}
+
 export function UniverseViewport() {
   const t = useTranslations();
   const pulsarText = useTranslations('pulsar');
@@ -79,7 +83,7 @@ export function UniverseViewport() {
           {scale === 'galaxy' ? <PulsarExperience /> : null}
           <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_top_left,_rgba(0,240,255,0.08),transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(108,92,231,0.08),transparent_28%)]" />
 
-          <div className="pointer-events-none absolute left-3 top-3 z-20 rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-2 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+          <div className={getViewportControlPanelClassName()}>
             <div className="mb-2 flex items-center justify-between gap-3">
               <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">System</span>
               <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-emerald-200">Live</span>
