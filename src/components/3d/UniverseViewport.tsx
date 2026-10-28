@@ -36,7 +36,7 @@ function Notice({ children }: { children: React.ReactNode }) {
 }
 
 export function getViewportControlPanelClassName() {
-  return 'pointer-events-auto absolute left-3 top-3 z-20 rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-2 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm';
+  return 'pointer-events-auto absolute left-2 right-2 top-2 z-20 rounded-[18px] md:left-3 md:right-auto md:top-3 border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-2 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm';
 }
 
 export function UniverseViewport() {
@@ -84,11 +84,11 @@ export function UniverseViewport() {
           <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_top_left,_rgba(0,240,255,0.08),transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(108,92,231,0.08),transparent_28%)]" />
 
           <div className={getViewportControlPanelClassName()}>
-            <div className="mb-2 flex items-center justify-between gap-3">
+            <div className="mb-2 hidden items-center justify-between gap-3 md:flex">
               <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">System</span>
               <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-emerald-200">Live</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
             <div role="radiogroup" aria-label={t('scale.label')} className="flex gap-1 rounded-full border border-panel-border bg-background/70 p-1">
               {SCALE_LEVELS.map((level) => (
                 <button
@@ -97,7 +97,7 @@ export function UniverseViewport() {
                   role="radio"
                   aria-checked={scale === level}
                   onClick={() => setScale(level)}
-                  className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] transition-all ${scale === level ? 'bg-accent-cyan/20 text-accent-cyan shadow-[0_0_18px_rgba(0,240,255,0.12)]' : 'text-foreground/60 hover:text-foreground'}`}
+                  className={`whitespace-nowrap rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.06em] transition-all md:px-2.5 md:tracking-[0.16em] ${scale === level ? 'bg-accent-cyan/20 text-accent-cyan shadow-[0_0_18px_rgba(0,240,255,0.12)]' : 'text-foreground/60 hover:text-foreground'}`}
                 >
                   {t(`scale.${level}`)}
                 </button>
@@ -115,12 +115,12 @@ export function UniverseViewport() {
           </div>
 
           {scale !== 'system' ? (
-            <p className="pointer-events-none absolute left-3 top-[5.9rem] z-20 max-w-[22rem] rounded-2xl border border-panel-border bg-background/75 px-2.5 py-1.5 font-mono text-[10px] leading-relaxed text-star-gold backdrop-blur-sm">
+            <p className="pointer-events-none absolute left-3 right-3 top-[6.5rem] z-20 md:right-auto md:top-[5.9rem] md:max-w-[22rem] rounded-2xl border border-panel-border bg-background/75 px-2.5 py-1.5 font-mono text-[10px] leading-relaxed text-star-gold backdrop-blur-sm">
               {t(`scale.${scale}Note`)}
             </p>
           ) : null}
 
-          <div className="pointer-events-none absolute right-3 top-3 z-20 w-[15.5rem] rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute right-3 top-3 z-20 hidden w-[15.5rem] md:block rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Target</span>
               <span className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.18em] text-foreground/50">
@@ -137,7 +137,7 @@ export function UniverseViewport() {
             </div>
           </div>
 
-          <div className="pointer-events-none absolute bottom-3 left-3 z-20 max-w-[22rem] rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.76))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute bottom-3 left-3 z-20 hidden max-w-[22rem] md:block rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.76))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
             <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Flight deck</div>
             <p className="font-mono text-[10px] leading-relaxed text-foreground/60">
               {t('viewport.controlsHint')}

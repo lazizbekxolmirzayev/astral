@@ -38,7 +38,7 @@ function sourceHref(source: string | undefined): string | null {
 }
 
 /** Shows the selected body's catalogue values, each with its provenance label. */
-export function InspectorPanel() {
+export function InspectorPanel({ mobileOpen = false }: { mobileOpen?: boolean } = {}) {
   const t = useTranslations('inspector');
   const bodies = useTranslations('bodies');
   const selectedId = useSelectionStore((state) => state.selectedId);
@@ -48,7 +48,7 @@ export function InspectorPanel() {
   const body = catalogEntry ? undefined : selectedId ? solarSystem.find((candidate) => candidate.id === selectedId) : undefined;
 
   return (
-    <aside aria-labelledby="inspector-title" className="w-[24%] min-w-[208px] max-w-72 shrink-0 overflow-y-auto border-l border-panel-border bg-[linear-gradient(180deg,rgba(9,12,18,0.96),rgba(12,18,28,0.82))]">
+    <aside aria-labelledby="inspector-title" className={`${mobileOpen ? 'block' : 'hidden'} fixed inset-x-0 bottom-0 z-40 max-h-[75dvh] overflow-y-auto border-t border-panel-border bg-background shadow-2xl md:static md:block md:max-h-none md:w-[24%] md:min-w-[208px] md:max-w-72 md:shrink-0 md:border-l md:border-t-0 md:shadow-none bg-[linear-gradient(180deg,rgba(9,12,18,0.96),rgba(12,18,28,0.82))]`}>
       <div className="border-b border-panel-border bg-[radial-gradient(circle_at_top,_rgba(0,240,255,0.12),transparent_34%)] px-4 py-3">
         <div className="flex items-center gap-2">
           <h2 id="inspector-title" className="text-[10px] uppercase tracking-[0.22em] text-foreground/60">

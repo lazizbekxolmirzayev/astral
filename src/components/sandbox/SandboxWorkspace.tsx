@@ -148,7 +148,7 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
     : null;
 
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-5 px-5 py-7 text-foreground sm:px-8">
+    <main className="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-4 px-3 py-4 text-foreground sm:gap-5 sm:px-8 sm:py-7">
       <header className="relative overflow-hidden rounded-[26px] border border-panel-border bg-[radial-gradient(circle_at_top_left,_rgba(0,240,255,0.12),transparent_25%),linear-gradient(135deg,rgba(10,14,22,0.96),rgba(14,20,30,0.88))] p-5 shadow-[0_20px_60px_rgba(4,8,16,0.6)]">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -left-10 top-4 h-28 w-28 rounded-full border border-accent-cyan/15" />
@@ -199,7 +199,7 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
             <button type="button" aria-pressed={showVectors} onClick={() => setShowVectors((v) => !v)} className={`pointer-events-auto rounded-full border px-2.5 py-1.5 ${showVectors ? 'border-accent-cyan/60 bg-accent-cyan/15 text-accent-cyan' : 'border-panel-border bg-background/75 text-foreground/75'}`}>{t('view.vectors')}</button>
           </div>
 
-          <div className="pointer-events-none absolute right-3 top-3 z-10 rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.78))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute right-3 top-3 z-10 hidden rounded-[18px] md:block border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.78))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
             <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Status</div>
             <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-emerald-300">
               <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" aria-hidden="true" />
@@ -207,12 +207,12 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
             </div>
           </div>
 
-          <div className="pointer-events-none absolute bottom-3 left-3 z-10 max-w-[22rem] rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.74))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute bottom-3 left-3 z-10 hidden max-w-[22rem] md:block rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.74))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
             <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Flight deck</div>
             <p className="mt-1 font-mono text-[10px] leading-relaxed text-foreground/60">{t('view.hint')}</p>
           </div>
 
-          <span className="pointer-events-none absolute right-3 top-20 z-10 rounded-full border border-panel-border bg-background/75 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/65">{t('notToScale')}</span>
+          <span className="pointer-events-none absolute bottom-3 right-3 z-10 rounded-full md:bottom-auto md:top-20 border border-panel-border bg-background/75 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/65">{t('notToScale')}</span>
           {engine.state.ids.length === 0 ? <p className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-foreground/55">{t('emptySpace')}</p> : null}
         </section>
 

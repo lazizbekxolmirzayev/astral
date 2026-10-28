@@ -13,12 +13,20 @@
     "pause": "Pauza",
     "reset": "Noldan boshlash",
     "speed": "Tezlik",
-    "timeNote": "1Г— вЂ” bu haqiqiy vaqt emas, sahna vaqti"
+    "timeNote": "1× — bu haqiqiy vaqt emas, sahna vaqti"
   },
   "future": {
     "title": "Kelajak vaqt mashinasi",
     "fromNow": "Hozirdan keyin",
-    "milestones": ["Hozir", "1 ming yil", "100 ming yil", "600 mln yil", "1 mlrd yil", "5 mlrd yil", "7,5 mlrd yil"],
+    "milestones": [
+      "Hozir",
+      "1 ming yil",
+      "100 ming yil",
+      "600 mln yil",
+      "1 mlrd yil",
+      "5 mlrd yil",
+      "7,5 mlrd yil"
+    ],
     "early": "Sayyoralar hozirgi ko'rinishda; Oy Yerdan uzoqlashishda davom etadi.",
     "brightening": "Quyosh asta-sekin yorqinlashadi; Yer iqlimining aniq taqdiri bu modelda hisoblanmaydi.",
     "redGiant": "Taxminan 5 mlrd yilda Quyosh qizil gigant bosqichiga o'tadi.",
@@ -37,7 +45,8 @@
     "hideVideo": "Videoni yopish",
     "close": "Pulsar panelini yopish",
     "radioSignal": "Puls davri · ko'rgazmali",
-    "sonified": "Teleskop ma'lumotidan",    "active": "Signal ijroda",
+    "sonified": "Teleskop ma'lumotidan",
+    "active": "Signal ijroda",
     "standby": "Kutishda",
     "pulseRate": "Impuls chastotasi",
     "period": "Aylanish davri",
@@ -49,7 +58,7 @@
     "viewAs": "Ko'rinish turi",
     "viewReadout": "Matn",
     "viewTable": "Jadval",
-    "waiting": "Birinchi kadr kutilmoqdaвЂ¦",
+    "waiting": "Birinchi kadr kutilmoqda…",
     "tableCaption": "Sayyoralar bo'yicha jonli qiymatlar",
     "columnBody": "Jism",
     "unitAu": "a.b.",
@@ -69,7 +78,7 @@
     "warningUnbound": "qochish tezligidan oshdi: {measured} > {limit} {unit}",
     "warningDistance": "modellash chegarasidan uzoqroq: {measured} > {limit} {unit}",
     "kick": "Tanlangan sayyorani tezlashtirish",
-    "kickHint": "Tezligi {factor}Г— ortadi; ogarish va jarayon keyingi kadrdan ko'rinadi",
+    "kickHint": "Tezligi {factor}× ortadi; ogarish va jarayon keyingi kadrdan ko'rinadi",
     "kickNeedsBody": "Avval sayyorani bosing",
     "devOnly": "Bu tugma faqat development yig'mada"
   },
@@ -136,33 +145,33 @@
     "title": "Saqlangan tajribalar",
     "subtitle": "Ssenariylar shu qurilma brauzerida saqlanadi.",
     "saveTitle": "Ssenariyni saqlash",
-    "saveDescription": "Joriy Quyosh tizimi maвЂ™lumotlarini lokal tajriba sifatida saqlang.",
+    "saveDescription": "Joriy Quyosh tizimi ma’lumotlarini lokal tajriba sifatida saqlang.",
     "nameLabel": "Ssenariy nomi",
     "namePlaceholder": "Mening tajribam",
     "saveAction": "Lokal saqlash",
     "listTitle": "Ushbu qurilmada",
-    "listDescription": "Lokal ssenariyni yuklang, eksport qiling, import qiling yoki oвЂchiring.",
+    "listDescription": "Lokal ssenariyni yuklang, eksport qiling, import qiling yoki o‘chiring.",
     "importAction": "JSON import",
     "loadAction": "Yuklash",
     "exportAction": "JSON eksport",
     "exportLabel": "{name} ssenariysini JSON sifatida eksport qilish",
-    "deleteAction": "OвЂchirish",
-    "deleteLabel": "{name} ssenariysini oвЂchirish",
-    "loading": "Lokal tajribalar yuklanmoqdaвЂ¦",
-    "empty": "Hali saqlangan tajribalar yoвЂq.",
+    "deleteAction": "O‘chirish",
+    "deleteLabel": "{name} ssenariysini o‘chirish",
+    "loading": "Lokal tajribalar yuklanmoqda…",
+    "empty": "Hali saqlangan tajribalar yo‘q.",
     "scenarioMeta": "{count} ta obyekt В· saqlandi: {date}",
     "loadedTitle": "Yuklandi: {name}",
-    "loadedDescription": "Tekshirilgan ssenariyni koвЂrib chiqish mumkin.",
+    "loadedDescription": "Tekshirilgan ssenariyni ko‘rib chiqish mumkin.",
     "savedNotice": "{name} ushbu qurilmada saqlandi.",
     "loadedNotice": "{name} yuklandi.",
-    "deletedNotice": "{name} oвЂchirildi.",
+    "deletedNotice": "{name} o‘chirildi.",
     "importedNotice": "{name} import qilindi.",
-    "missingScenario": "Lokal ssenariy topilmadi. RoвЂyxatni yangilab, qayta urinib koвЂring.",
-    "storageUnavailable": "Bu brauzer lokal ssenariylarni saqlashni qoвЂllamaydi.",
+    "missingScenario": "Lokal ssenariy topilmadi. Ro‘yxatni yangilab, qayta urinib ko‘ring.",
+    "storageUnavailable": "Bu brauzer lokal ssenariylarni saqlashni qo‘llamaydi.",
     "nameRequired": "Ssenariy uchun nom kiriting.",
-    "invalidJson": "Tanlangan fayl toвЂgвЂri JSON formatida emas.",
+    "invalidJson": "Tanlangan fayl to‘g‘ri JSON formatida emas.",
     "invalidScenario": "Fayl ssenariy formatiga mos emas. Quyidagi maydonlarni tekshiring: {fields}.",
-    "unexpectedError": "Amalni bajarib boвЂlmadi. Qayta urinib koвЂring.",
+    "unexpectedError": "Amalni bajarib bo‘lmadi. Qayta urinib ko‘ring.",
     "exportUsdAction": "OpenUSD eksport",
     "exportUsdLabel": "{name} ssenariysini OpenUSD sifatida eksport qilish"
   },
@@ -185,7 +194,7 @@
     "objectCount": "Osmon jismlari: {count}",
     "report": "Shikoyat qilish",
     "reported": "Yuborildi",
-    "sending": "YuborilmoqdaвЂ¦",
+    "sending": "Yuborilmoqda…",
     "reportFailed": "Shikoyat yuborilmadi.",
     "shareAction": "Ulashish",
     "shareTitle": "Tajribani ulashish",
@@ -205,60 +214,60 @@
   "sandbox": {
     "nav": "Sinov maydoni",
     "title": "Fizika sinov maydoni",
-    "subtitle": "Mustaqil Nyuton tajribalarini ishga tushiring. Har bir holat boshlangвЂich qiymatlarni aynan tiklaydi.",
+    "subtitle": "Mustaqil Nyuton tajribalarini ishga tushiring. Har bir holat boshlang‘ich qiymatlarni aynan tiklaydi.",
     "presetLabel": "Tayyor holat",
     "viewLabel": "Sinov maydoni simulyatsiyasi",
     "notToScale": "Masshtabga mos emas",
-    "emptySpace": "BoвЂsh fazo В· jismlar yoвЂq",
+    "emptySpace": "Bo‘sh fazo · jismlar yo‘q",
     "run": "Ishga tushirish",
-    "pause": "ToвЂxtatish",
-    "reset": "BoshlangвЂich holatga qaytarish",
+    "pause": "To‘xtatish",
+    "reset": "Boshlang‘ich holatga qaytarish",
     "speed": "Simulyatsiya tezligi",
     "elapsed": "Simulyatsiya vaqti",
-    "energyDrift": "Energiya ogвЂishi",
-    "angularMomentumDrift": "Burchak impulsi ogвЂishi",
+    "energyDrift": "Energiya og‘ishi",
+    "angularMomentumDrift": "Burchak impulsi og‘ishi",
     "notAvailable": "aniqlanmagan",
     "bodyCount": "Jismlar",
     "impactTargetLabel": "Nishon sayyora",
-    "impactSummary": "ToвЂqnashuv bahosi",
+    "impactSummary": "To‘qnashuv bahosi",
     "impactEnergy": "Kinetik energiya: {value} J",
     "impactMegatons": "TNT ekvivalenti: {value} Mt",
     "impactEnergyModelled": "Urilishdan oldin katalogdagi tezlik asosida hisoblangan baho.",
-    "impactEnergyActual": "Simulyatsiyadagi urilish tezligi boвЂyicha qayta hisoblandi.",
+    "impactEnergyActual": "Simulyatsiyadagi urilish tezligi bo‘yicha qayta hisoblandi.",
     "airburstFlag": "Modul evristikasi atmosferada portlash ehtimoli shartlarini belgiladi.",
-    "airburstUnsupported": "Gaz gigantida qattiq sirt modeli yoвЂq; atmosfera portlashi baholanmaydi.",
+    "airburstUnsupported": "Gaz gigantida qattiq sirt modeli yo‘q; atmosfera portlashi baholanmaydi.",
     "noAirburstFlag": "Modul evristikasi atmosferada portlash shartlarini belgilamadi.",
-    "validityTitle": "Nyuton modeli yaroqlilik koвЂrsatkichi",
+    "validityTitle": "Nyuton modeli yaroqlilik ko‘rsatkichi",
     "schwarzschildDistance": "Zarra masofasi: Shvarschild radiusidan {value} baravar",
     "validity": {
       "valid": "Uzoq maydon: model Nyuton yaqinlashuvini yaroqli deb belgilaydi.",
       "caution": "Ehtiyot: bu masofada Nyuton yaqinlashuvining cheklovlari ortadi.",
-      "invalid": "Nyuton yaqinlashuvi uchun koвЂrsatilgan yaroqli masofadan tashqarida."
+      "invalid": "Nyuton yaqinlashuvi uchun ko‘rsatilgan yaroqli masofadan tashqarida."
     },
     "stability": "Barqarorlik ogohlantirishlari",
-    "noWarnings": "Barqarorlik boвЂyicha ogohlantirish yoвЂq.",
-    "warningUnbound": "{body} bogвЂlanmagan: tezlik {measured} > qochish tezligi {limit} {unit}.",
+    "noWarnings": "Barqarorlik bo‘yicha ogohlantirish yo‘q.",
+    "warningUnbound": "{body} bog‘lanmagan: tezlik {measured} > qochish tezligi {limit} {unit}.",
     "warningDistance": "{body} modellashtirilgan masofadan tashqarida: {measured} > {limit} {unit}.",
     "presets": {
       "stable-system": "Barqaror sayyoralar tizimi",
-      "two-body": "Ikki jism oвЂzaro taвЂ™siri",
-      "asteroid-impact": "Asteroid toвЂqnashuvi",
+      "two-body": "Ikki jism o‘zaro ta’siri",
+      "asteroid-impact": "Asteroid to‘qnashuvi",
       "star-replacement": "Yulduzni almashtirish",
       "black-hole": "Qora tuynuk yaqinidagi sayyora",
-      "empty-space": "BoвЂsh fazo"
+      "empty-space": "Bo‘sh fazo"
     },
     "notes": {
-      "stable": "JPL Quyosh tizimi boshlangвЂich holatlari oвЂzgarmas qadamli Nyuton dvigatelida hisoblanadi.",
-      "twoBody": "JPLвЂ™dan olingan Quyosh va Yer holati; qolgan jismlar bu ikki jism tajribasiga kiritilmagan.",
-      "impact": "Yer va radiusi 500 m, zichligi 3000 kg/mВі deb olingan namuna asteroid. ToвЂqnashuv energiyasi va atmosferada portlash koвЂrsatkichi moduldan olinadi. N-jism dvigateli jismlarning tegishini, atmosfera trayektoriyasini yoki zararni hisoblamaydi.",
-      "starReplacement": "Quyoshning gravitatsion parametrini darhol boshlangвЂich qiymatining yarmiga oвЂzgartiradi, boshqa jismlarning oвЂrni va tezligi saqlanadi. Bu fikriy tajriba, yulduz evolyutsiyasi modeli emas.",
-      "blackHole": "1000 Quyosh massasiga teng aylanmaydigan qora tuynuk va Shvarschild radiusidan 12 baravar masofadagi sinov zarrasi. Trayektoriya Nyuton yaqinlashuvi; yaroqlilik koвЂrsatkichini koвЂring.",
+      "stable": "JPL Quyosh tizimi boshlang‘ich holatlari o‘zgarmas qadamli Nyuton dvigatelida hisoblanadi.",
+      "twoBody": "JPL’dan olingan Quyosh va Yer holati; qolgan jismlar bu ikki jism tajribasiga kiritilmagan.",
+      "impact": "Yer va radiusi 500 m, zichligi 3000 kg/m³ deb olingan namuna asteroid. To‘qnashuv energiyasi va atmosferada portlash ko‘rsatkichi moduldan olinadi. N-jism dvigateli jismlarning tegishini, atmosfera trayektoriyasini yoki zararni hisoblamaydi.",
+      "starReplacement": "Quyoshning gravitatsion parametrini darhol boshlang‘ich qiymatining yarmiga o‘zgartiradi, boshqa jismlarning o‘rni va tezligi saqlanadi. Bu fikriy tajriba, yulduz evolyutsiyasi modeli emas.",
+      "blackHole": "1000 Quyosh massasiga teng aylanmaydigan qora tuynuk va Shvarschild radiusidan 12 baravar masofadagi sinov zarrasi. Trayektoriya Nyuton yaqinlashuvi; yaroqlilik ko‘rsatkichini ko‘ring.",
       "empty": "Jismlarsiz simulyatsiya soati. Saqlanish diagnostikasi aniqlanmaydi."
     },
-    "starModelCard": "Model kartasi В· Massa bir zumda almashtiriladi. Boshqa jismlarning oвЂrni va tezligi saqlanadi. Yulduz evolyutsiyasi, massa yoвЂqotishi, otilmalar va nurlanish modellashtirilmaydi.",
-    "blackHoleModelCard": "Model kartasi В· Radius va koвЂrsatkich Shvarschild geometriyasiga asoslangan; sinov zarrachasi trayektoriyasi Nyutoncha. Relativistik harakat va yorugвЂlik tarqalishi hisoblanmaydi.",
-    "impactModelCard": "Model kartasi В· Impaktor shar shaklida va bir xil zichlikda deb olinadi. Jismlarning toвЂqnashishi hisoblanmaydi. Atmosferada portlash natijasi qoвЂpol evristika, bashorat emas.",
-    "newtonianModelCard": "Model kartasi В· Nuqtaviy Nyuton gravitatsiyasi va oвЂzgarmas qadamli Verlet integratori. Tasvir masshtabga mos emas.",
+    "starModelCard": "Model kartasi · Massa bir zumda almashtiriladi. Boshqa jismlarning o‘rni va tezligi saqlanadi. Yulduz evolyutsiyasi, massa yo‘qotishi, otilmalar va nurlanish modellashtirilmaydi.",
+    "blackHoleModelCard": "Model kartasi · Radius va ko‘rsatkich Shvarschild geometriyasiga asoslangan; sinov zarrachasi trayektoriyasi Nyutoncha. Relativistik harakat va yorug‘lik tarqalishi hisoblanmaydi.",
+    "impactModelCard": "Model kartasi · Impaktor shar shaklida va bir xil zichlikda deb olinadi. Jismlarning to‘qnashishi hisoblanmaydi. Atmosferada portlash natijasi qo‘pol evristika, bashorat emas.",
+    "newtonianModelCard": "Model kartasi · Nuqtaviy Nyuton gravitatsiyasi va o‘zgarmas qadamli Verlet integratori. Tasvir masshtabga mos emas.",
     "catalogLoaded": "Katalogdan: {name}",
     "assumptions": "Yozuvda qiymat yo'qligi uchun qabul qilindi: {list}.",
     "unverified": "Katalog qiymatlari taxminiy va tekshirilmagan.",
@@ -280,37 +289,37 @@
       "remove": "{name} ni o'chirish"
     },
     "view": {
-      "fit": "SigвЂdirish",
+      "fit": "Sig‘dirish",
       "trails": "Izlar",
       "vectors": "Tezlik",
-      "hint": "GвЂildirak: masshtab В· Tortish: siljitish В· Bosish: tanlash В· Ikki marta bosish: sigвЂdirish"
+      "hint": "G‘ildirak: masshtab · Tortish: siljitish · Bosish: tanlash · Ikki marta bosish: sig‘dirish"
     },
     "orbit": {
       "title": "{name}: markazga nisbatan orbita",
       "distance": "Masofa",
       "speed": "Tezlik",
       "status": "Holat",
-      "bound": "bogвЂlangan",
-      "unbound": "bogвЂlanmagan",
+      "bound": "bog‘langan",
+      "unbound": "bog‘lanmagan",
       "eccentricity": "Ekssentrisitet",
-      "semiMajor": "Katta yarim oвЂq",
+      "semiMajor": "Katta yarim o‘q",
       "period": "Davr",
       "years": "yil",
       "periapsis": "Periapsis",
       "apoapsis": "Apoapsis",
       "centre": "Bu markaziy jism (sanoq sistemasi).",
-      "note": "Ikki jism masalasining oniy (oskulyatsion) elementlari; boshqa jismlar boвЂlsa haqiqiy orbita undan chetlashadi.",
-      "pickHint": "Orbita elementlarini koвЂrish uchun jismni bosing."
+      "note": "Ikki jism masalasining oniy (oskulyatsion) elementlari; boshqa jismlar bo‘lsa haqiqiy orbita undan chetlashadi.",
+      "pickHint": "Orbita elementlarini ko‘rish uchun jismni bosing."
     },
-    "driftChart": "Energiya dreyfi vaqt boвЂyicha (nisbiy)"
+    "driftChart": "Energiya dreyfi vaqt bo‘yicha (nisbiy)"
   },
   "viewport": {
     "title": "Koinot ko'rinishi",
     "notToScale": "Masshtabga rioya qilinmagan",
-    "loading": "Sahna yuklanmoqdaвЂ¦",
+    "loading": "Sahna yuklanmoqda…",
     "webglUnsupported": "Brauzeringiz WebGL'ni qo'llab-quvvatlamaydi, shuning uchun 3D ko'rinish chizilmaydi.",
     "sceneError": "3D sahna xato bilan to'xtadi.",
-    "controlsHint": "Chap tugma вЂ” aylantirish, g'ildirak вЂ” masshtab, o'ng tugma вЂ” surish, WASD yoki strelkalar вЂ” parvoz. Obyektga bosilsa, kamera unga qaraydi."
+    "controlsHint": "Chap tugma — aylantirish, g'ildirak — masshtab, o'ng tugma — surish, WASD yoki strelkalar — parvoz. Obyektga bosilsa, kamera unga qaraydi."
   },
   "common": {
     "comingSoon": "Tez orada"
@@ -328,8 +337,8 @@
     "colors": "Ranglar",
     "fonts": "Shriftlar",
     "provenanceLabels": "Kelib chiqish yorliqlari",
-    "sansLabel": "Inter вЂ” interfeys matni",
-    "monoLabel": "JetBrains Mono вЂ” raqamlar"
+    "sansLabel": "Inter — interfeys matni",
+    "monoLabel": "JetBrains Mono — raqamlar"
   },
   "auth": {
     "loginTitle": "Kirish",
@@ -488,14 +497,14 @@
   },
   "gallery": {
     "eyebrow": "Galereya",
-    "title": "Hoziroq ishga tushirish mumkin boвЂlgan tajribalar",
-    "subtitle": "Tayyor stsenariyni tanlang вЂ” u darhol simulyatorda ochiladi. Barcha qiymatlar katalogdan olingan va taxmin sifatida belgilangan; bular bashorat emas.",
+    "title": "Hoziroq ishga tushirish mumkin bo‘lgan tajribalar",
+    "subtitle": "Tayyor stsenariyni tanlang — u darhol simulyatorda ochiladi. Barcha qiymatlar katalogdan olingan va taxmin sifatida belgilangan; bular bashorat emas.",
     "featuredTitle": "Tayyor tajribalar",
     "featuredHint": "Doim mavjud, akkaunt shart emas.",
     "filterLabel": "Filtr",
     "run": "Ishga tushirish",
     "communityTitle": "Hamjamiyat tajribalari",
-    "communityEmpty": "Hali hech kim tajriba eвЂ™lon qilmagan. Sandboxda saqlab, ulashing.",
+    "communityEmpty": "Hali hech kim tajriba e’lon qilmagan. Sandboxda saqlab, ulashing.",
     "communityOffline": "Hamjamiyat tajribalari hozir mavjud emas (baza ulanmagan). Yuqoridagi tayyor tajribalar odatdagidek ishlaydi.",
     "filters": {
       "all": "Hammasi",
@@ -508,7 +517,7 @@
     "items": {
       "stable-system": {
         "title": "Barqaror Quyosh tizimi",
-        "body": "Quyosh va sayyoralar haqiqiy boshlangвЂich shartlardan. Energiya va impuls momenti oвЂzgarmasligini kuzating."
+        "body": "Quyosh va sayyoralar haqiqiy boshlang‘ich shartlardan. Energiya va impuls momenti o‘zgarmasligini kuzating."
       },
       "two-body": {
         "title": "Ikki jism masalasi",
@@ -519,33 +528,33 @@
         "body": "Quyoshni boshqa yulduzga almashtiring: qaysi sayyoralar orbitada qoladi, qaysilari uchib ketadi."
       },
       "asteroid-impact": {
-        "title": "ToвЂqnashuv yoвЂlidagi asteroid",
+        "title": "To‘qnashuv yo‘lidagi asteroid",
         "body": "Yerga asteroid yuboring: urilish tezligi, TNT ekvivalentidagi energiya, havoda portlash yoki krater."
       },
       "black-hole": {
-        "title": "Qora tuynuk yonidan oвЂtish",
+        "title": "Qora tuynuk yonidan o‘tish",
         "body": "Nyuton qora tuynugi yonida sinov zarrasi (relyativistik effektlarsiz yaqinlashuv): orbita, qulash yoki qochish."
       },
       "chelyabinsk-2013": {
-        "body": "Rossiya ustida 19 m jismning havoda portlashi, taxminan 500 kt. Hisoblangan energiyani eвЂ™lon qilingan qiymat bilan solishtiring."
+        "body": "Rossiya ustida 19 m jismning havoda portlashi, taxminan 500 kt. Hisoblangan energiyani e’lon qilingan qiymat bilan solishtiring."
       },
       "tunguska-1908": {
-        "body": "Sibirda oвЂrmonni yiqitgan portlash. Hajmi va tezligi juda noaniq, shunday koвЂrsatiladi."
+        "body": "Sibirda o‘rmonni yiqitgan portlash. Hajmi va tezligi juda noaniq, shunday ko‘rsatiladi."
       },
       "chicxulub": {
-        "body": "BoвЂr davri oxiridagi zarba. Energiya faqat tartib darajasida; boshqalar bilan solishtiring."
+        "body": "Bo‘r davri oxiridagi zarba. Energiya faqat tartib darajasida; boshqalar bilan solishtiring."
       },
       "apophis": {
-        "body": "2029-yilda xavfsiz oвЂtadigan Yerga yaqin asteroid. Orbita katalog qiymatlaridan; toвЂqnashuv prognoz qilinmagan."
+        "body": "2029-yilda xavfsiz o‘tadigan Yerga yaqin asteroid. Orbita katalog qiymatlaridan; to‘qnashuv prognoz qilinmagan."
       },
       "halley": {
-        "body": "Juda choвЂzinchoq orbita (eв‰€0,97). Perigeliy va afeliy orasida tezlik keskin oвЂzgaradi."
+        "body": "Juda cho‘zinchoq orbita (e≈0,97). Perigeliy va afeliy orasida tezlik keskin o‘zgaradi."
       },
       "sirius-a": {
-        "body": "Markazga ~2 Quyosh massali A yulduzini qoвЂying. Qaysi sayyoralar saqlanadi, davrlar qanday oвЂzgaradi?"
+        "body": "Markazga ~2 Quyosh massali A yulduzini qo‘ying. Qaysi sayyoralar saqlanadi, davrlar qanday o‘zgaradi?"
       },
       "betelgeuse": {
-        "body": "Quyosh oвЂrniga qizil oвЂta gigant. Massasi noaniq; sandbox yulduz ichidagi sayyoralar haqida ogohlantiradi."
+        "body": "Quyosh o‘rniga qizil o‘ta gigant. Massasi noaniq; sandbox yulduz ichidagi sayyoralar haqida ogohlantiradi."
       },
       "proxima-centauri": {
         "body": "0,12 Quyosh massali qizil mitti sayyoralarni ushlab turishga yetarli tortishishga ega emas."
@@ -554,19 +563,19 @@
         "body": "Taxminan 21 Quyosh massali yulduz massasidagi qora tuynuk. Sinov zarralari orbitalari, Nyuton yaqinlashuvi."
       },
       "sagittarius-a-star": {
-        "body": "Somon yoвЂlining markaziy qora tuynugi, taxminan 4 mln Quyosh massasi. Orbitalar tez va tor."
+        "body": "Somon yo‘lining markaziy qora tuynugi, taxminan 4 mln Quyosh massasi. Orbitalar tez va tor."
       },
       "m87-star": {
-        "body": "6,5 mlrd Quyosh massali qora tuynuk. Dvigatel uchun oвЂta katta tortishish parametri."
+        "body": "6,5 mlrd Quyosh massali qora tuynuk. Dvigatel uchun o‘ta katta tortishish parametri."
       },
       "proxima-b": {
-        "body": "11 kunlik orbitadagi sayyora. Faqat minimal massa maвЂ™lum."
+        "body": "11 kunlik orbitadagi sayyora. Faqat minimal massa ma’lum."
       },
       "51-pegasi-b": {
         "body": "Birinchi issiq Yupiter: 0,05 AU masofada 4 kunda aylanadigan gigant."
       },
       "trappist-1e": {
-        "body": "OвЂta sovuq mitti yulduz atrofidagi toshli sayyora. Yili 6 kun."
+        "body": "O‘ta sovuq mitti yulduz atrofidagi toshli sayyora. Yili 6 kun."
       },
       "55-cancri-e": {
         "body": "Yili bir sutkadan qisqa lava dunyosi. Juda tez va tor orbita."
