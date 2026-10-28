@@ -58,6 +58,8 @@ export function CameraRig() {
       radius,
       controls.getPosition(cameraPosition),
       bodyRadiusById[selectedId] === undefined ? { min: radius * 5, max: radius * 30 } : undefined,
+      // Look down at ~24° so rings open up and orbits read as ellipses, not lines.
+      0.42,
     );
     void controls.setLookAt(
       framing.position.x,

@@ -47,3 +47,17 @@ describe('focusView', () => {
     expect(twice.position.z).toBeCloseTo(once.position.z, 9);
   });
 });
+
+describe('focusView minimum elevation', () => {
+  it('lifts an edge-on approach to the requested elevation and keeps the distance', () => {
+    const view = focusView({ x: 0, y: 0, z: 0 }, 1, { x: 100, y: 0, z: 0 }, undefined, 0.4);
+    const d = Math.hypot(view.position.x, view.position.y, view.position.z);
+    expect(view.position.y / d).toBeCloseTo(Math.sin(0.4), 6);
+    expect(view.position.x).toBeGreaterThan(0);
+  });
+  it('leaves steeper approaches alone', () => {
+    const view = focusView({ x: 0, y: 0, z: 0 }, 1, { x: 0, y: 100, z: 0 }, undefined, 0.4);
+    expect(view.position.x).toBeCloseTo(0, 9);
+    expect(view.position.y).toBeGreaterThan(0);
+  });
+});

@@ -14,7 +14,14 @@ const MAX_FRAMING_DISTANCE = 26;
  *
  * PROVENANCE: artistic — the distance is a framing choice, not a real one.
  */
-export function focusView(bodyCenter: Point3, bodyRadius: number, from: Point3, limits?: { min: number; max: number }): FocusView {
+export function focusView(
+  bodyCenter: Point3,
+  bodyRadius: number,
+  from: Point3,
+  limits?: { min: number; max: number },
+  /** Keep the camera at least this far (radians) above/below the XZ plane, so rings and orbits never frame edge-on. */
+  minElevation = 0,
+): FocusView {
   const minDistance = limits?.min ?? MIN_FRAMING_DISTANCE;
   const maxDistance = limits?.max ?? MAX_FRAMING_DISTANCE;
   const distance = Math.min(Math.max(bodyRadius * FRAMING_RADII, minDistance), maxDistance);
@@ -30,6 +37,16 @@ export function focusView(bodyCenter: Point3, bodyRadius: number, from: Point3, 
   dx /= length;
   dy /= length;
   dz /= length;
+
+  const minSin = Math.sin(Math.min(Math.max(minElevation, 0), Math.PI / 2));
+  if (Math.abs(dy) < minSin) {
+    const horizontal = Math.hypot(dx, dz);
+    const newDy = (dy < 0 ? -1 : 1) * minSin;
+    const k = horizontal > 1e-9 ? Math.sqrt(Math.max(0, 1 - newDy * newDy)) / horizontal : 0;
+    dx = horizontal > 1e-9 ? dx * k : Math.sqrt(1 - newDy * newDy);
+    dz = horizontal > 1e-9 ? dz * k : 0;
+    dy = newDy;
+  }
 
   return {
     position: {
