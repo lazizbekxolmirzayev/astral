@@ -366,6 +366,7 @@ export function customScenario(specs: readonly CustomBodySpec[]): SandboxPresetI
   const totalGm = bodies.reduce((sum, body) => sum + body.gm, 0);
   const first = bodies[0];
   let shortest = Infinity;
+  let passage = Infinity;
   let minDistance = Infinity;
   for (const body of bodies) {
     if (!first || body === first) continue;
@@ -373,14 +374,31 @@ export function customScenario(specs: readonly CustomBodySpec[]): SandboxPresetI
     if (r > 0) {
       shortest = Math.min(shortest, 2 * Math.PI * Math.sqrt(r ** 3 / totalGm));
       minDistance = Math.min(minDistance, r);
+      // An eccentric orbit moves fastest at periapsis: size the step from the
+      // periapsis passage time (2π·rp/vp), not from the current radius.
+      const mu = first.gm + body.gm;
+      const rx = body.position[0] - first.position[0];
+      const ry = body.position[1] - first.position[1];
+      const vx = body.velocity[0] - first.velocity[0];
+      const vy = body.velocity[1] - first.velocity[1];
+      const h = Math.abs(rx * vy - ry * vx);
+      const v2 = vx * vx + vy * vy;
+      const rv = rx * vx + ry * vy;
+      const k = v2 - mu / r;
+      const ecc = Math.hypot(k * rx - rv * vx, k * ry - rv * vy) / mu;
+      const periapsis = (h * h) / (mu * (1 + ecc));
+      if (periapsis > 0 && Number.isFinite(periapsis)) {
+        passage = Math.min(passage, 2 * Math.PI * Math.sqrt(periapsis ** 3 / (mu * (1 + Math.min(ecc, 1e6)))));
+      }
     }
   }
   if (!Number.isFinite(shortest)) shortest = 1;
+  if (!Number.isFinite(passage)) passage = shortest;
   return {
     bodies,
     centerId: first?.id,
     softeningAu: Number.isFinite(minDistance) ? minDistance * 1e-6 : DEFAULT_SOFTENING_AU,
-    timestepDays: clampStep(shortest / 400),
+    timestepDays: clampStep(Math.min(shortest / 400, passage / 1500)),
     daysPerSecond: shortest / 5,
     note: 'empty',
     kind: 'custom',
