@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { UniverseViewport } from '../3d/UniverseViewport';
@@ -19,11 +19,31 @@ import { TimeControls } from './TimeControls';
  */
 export function Shell() {
   const t = useTranslations();
+  const [immersive, setImmersive] = useState(false);
   const [panel, setPanel] = useState<'none' | 'objects' | 'inspector'>('none');
+
+  useEffect(() => {
+    function onFullscreenChange() {
+      if (!document.fullscreenElement) setImmersive(false);
+    }
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', onFullscreenChange);
+  }, []);
+
+  function toggleImmersive() {
+    if (immersive) {
+      setImmersive(false);
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => undefined);
+      return;
+    }
+    setImmersive(true);
+    // Real fullscreen where the browser allows it (not iPhone); otherwise the CSS layout below is the fullscreen.
+    void document.documentElement.requestFullscreen?.().catch(() => undefined);
+  }
 
   return (
     <div className="flex h-full min-h-0 flex-col bg-[radial-gradient(circle_at_top,_rgba(0,240,255,0.08),_transparent_25%),linear-gradient(180deg,#0b0e14_0%,#090d14_100%)]">
-      <header className="relative shrink-0 border-b border-panel-border bg-[linear-gradient(90deg,rgba(10,14,22,0.96),rgba(12,17,28,0.88),rgba(8,11,18,0.96))] px-3 py-2 backdrop-blur-sm md:px-4 md:py-3">
+      <header className={`${immersive ? 'hidden' : ''} relative shrink-0 border-b border-panel-border bg-[linear-gradient(90deg,rgba(10,14,22,0.96),rgba(12,17,28,0.88),rgba(8,11,18,0.96))] px-3 py-2 backdrop-blur-sm md:px-4 md:py-3`}>
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute -left-8 top-2 h-20 w-20 rounded-full border border-accent-cyan/20" />
           <div className="absolute left-16 top-2 h-20 w-20 rounded-full border border-accent-cyan/10" style={{ transform: 'rotate(18deg)' }} />
@@ -67,7 +87,7 @@ export function Shell() {
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <aside className={`${panel === 'objects' ? 'flex' : 'hidden'} fixed inset-x-0 bottom-0 z-40 max-h-[75dvh] flex-col overflow-y-auto border-t border-panel-border bg-background shadow-2xl md:static md:flex md:max-h-none md:w-[22%] md:min-w-[176px] md:max-w-64 md:shrink-0 md:overflow-visible md:border-r md:border-t-0 md:shadow-none bg-[linear-gradient(180deg,rgba(10,14,22,0.9),rgba(12,17,25,0.78))]`}>
+        <aside className={`${immersive ? '!hidden ' : ''}${panel === 'objects' ? 'flex' : 'hidden'} fixed inset-x-0 bottom-0 z-40 max-h-[75dvh] flex-col overflow-y-auto border-t border-panel-border bg-background shadow-2xl md:static md:flex md:max-h-none md:w-[22%] md:min-w-[176px] md:max-w-64 md:shrink-0 md:overflow-visible md:border-r md:border-t-0 md:shadow-none bg-[linear-gradient(180deg,rgba(10,14,22,0.9),rgba(12,17,25,0.78))]`}>
           <h2 className="px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-foreground/60">
             {t('sidebar.title')}
           </h2>
@@ -85,11 +105,11 @@ export function Shell() {
         <main className="flex min-w-0 flex-1 flex-col bg-[radial-gradient(circle_at_top,_rgba(0,240,255,0.04),transparent_30%)]">
           <section
             aria-label={t('viewport.title')}
-            className="flex min-h-0 flex-1 flex-col"
+            className={immersive ? 'fixed inset-0 z-50 flex flex-col bg-background' : 'flex min-h-0 flex-1 flex-col'}
           >
-            <UniverseViewport />
+            <UniverseViewport immersive={immersive} onToggleImmersive={toggleImmersive} />
           </section>
-          <div className="flex gap-2 border-t border-panel-border px-3 py-2 md:hidden">
+          <div className={`${immersive ? 'hidden' : 'flex'} gap-2 border-t border-panel-border px-3 py-2 md:hidden`}>
             {(['objects', 'inspector'] as const).map((id) => (
               <button
                 key={id}
@@ -104,14 +124,14 @@ export function Shell() {
           </div>
           <section
             aria-label={t('toolbar.title')}
-            className="max-h-[32dvh] shrink-0 overflow-y-auto border-t border-panel-border bg-[linear-gradient(180deg,rgba(8,11,18,0.9),rgba(12,17,25,0.96))] px-4 py-2"
+            className={`${immersive ? 'hidden ' : ''}max-h-[32dvh] shrink-0 overflow-y-auto border-t border-panel-border bg-[linear-gradient(180deg,rgba(8,11,18,0.9),rgba(12,17,25,0.96))] px-4 py-2`}
           >
             <TimeControls />
           </section>
         </main>
 
-        <InspectorPanel mobileOpen={panel === 'inspector'} />
-        {panel !== 'none' ? <button type="button" aria-label="Close" onClick={() => setPanel('none')} className="fixed inset-0 z-30 bg-black/50 md:hidden" /> : null}
+        {immersive ? null : <InspectorPanel mobileOpen={panel === 'inspector'} />}
+        {panel !== 'none' && !immersive ? <button type="button" aria-label="Close" onClick={() => setPanel('none')} className="fixed inset-0 z-30 bg-black/50 md:hidden" /> : null}
       </div>
     </div>
   );

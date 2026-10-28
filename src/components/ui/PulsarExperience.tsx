@@ -176,7 +176,7 @@ function PulsarPanel({ selectedId }: { selectedId: string }) {
   }
 
   return (
-    <section className="pointer-events-auto absolute bottom-3 left-1/2 z-30 w-[min(52rem,calc(100%-1.5rem))] -translate-x-1/2 overflow-hidden rounded-[24px] border border-cyan-200/25 bg-[radial-gradient(ellipse_at_top_right,rgba(54,191,255,0.16),transparent_34%),linear-gradient(145deg,rgba(7,18,30,0.98),rgba(5,9,18,0.97))] p-3 shadow-[0_24px_90px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-2xl sm:p-4" aria-label={t('title')}>
+    <section className="pointer-events-auto absolute bottom-14 left-1/2 md:bottom-3 z-30 w-[min(52rem,calc(100%-1.5rem))] -translate-x-1/2 overflow-hidden rounded-[24px] border border-cyan-200/25 bg-[radial-gradient(ellipse_at_top_right,rgba(54,191,255,0.16),transparent_34%),linear-gradient(145deg,rgba(7,18,30,0.98),rgba(5,9,18,0.97))] p-3 shadow-[0_24px_90px_rgba(0,0,0,0.72),inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-2xl sm:p-4" aria-label={t('title')}>
       <div className="flex items-center gap-2.5">
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-cyan-200/20 bg-cyan-200/10 shadow-[0_0_22px_rgba(62,219,255,0.15)]"><Radio size={15} className="text-cyan-100" aria-hidden /></span>
         <div className="min-w-0 flex-1">

@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { AlertTriangle, Box, Radio } from 'lucide-react';
+import { AlertTriangle, Box, Info, Maximize2, Minimize2, Radio } from 'lucide-react';
 import { isWebGLAvailable } from '@/lib/webgl';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { useSelectionStore } from '@/stores/selectionStore';
@@ -39,8 +39,9 @@ export function getViewportControlPanelClassName() {
   return 'pointer-events-auto absolute left-2 right-2 top-2 z-20 rounded-[18px] md:left-3 md:right-auto md:top-3 border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-2 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm';
 }
 
-export function UniverseViewport() {
+export function UniverseViewport({ immersive = false, onToggleImmersive }: { immersive?: boolean; onToggleImmersive?: () => void } = {}) {
   const t = useTranslations();
+  const [noteOpen, setNoteOpen] = useState(false);
   const pulsarText = useTranslations('pulsar');
   // null = not probed yet; the probe needs a DOM, so it cannot run on the server.
   const webglOk = useSyncExternalStore(nothingToSubscribeTo, getWebglSnapshot, () => null);
@@ -115,9 +116,15 @@ export function UniverseViewport() {
           </div>
 
           {scale !== 'system' ? (
-            <p className="pointer-events-none absolute left-3 right-3 top-[6.5rem] z-20 md:right-auto md:top-[5.9rem] md:max-w-[22rem] rounded-2xl border border-panel-border bg-background/75 px-2.5 py-1.5 font-mono text-[10px] leading-relaxed text-star-gold backdrop-blur-sm">
+            <p className={`${noteOpen ? 'block' : 'hidden'} md:block pointer-events-none absolute bottom-14 left-3 right-3 z-20 md:bottom-auto md:right-auto md:top-[5.9rem] md:max-w-[22rem] rounded-2xl border border-panel-border bg-background/75 px-2.5 py-1.5 font-mono text-[10px] leading-relaxed text-star-gold backdrop-blur-sm`}>
               {t(`scale.${scale}Note`)}
             </p>
+          ) : null}
+          {scale !== 'system' ? (
+            <button type="button" onClick={() => setNoteOpen((v) => !v)} aria-pressed={noteOpen} aria-label={t('viewport.scaleInfo')} className="pointer-events-auto absolute bottom-3 left-3 z-40 grid h-9 w-9 place-items-center rounded-full border border-panel-border bg-background/80 text-star-gold backdrop-blur md:hidden"><Info size={16} aria-hidden /></button>
+          ) : null}
+          {onToggleImmersive ? (
+            <button type="button" onClick={onToggleImmersive} aria-label={immersive ? t('viewport.exitFullscreen') : t('viewport.fullscreen')} title={immersive ? t('viewport.exitFullscreen') : t('viewport.fullscreen')} className="pointer-events-auto absolute bottom-3 right-3 z-40 grid h-9 w-9 place-items-center rounded-full border border-panel-border bg-background/80 text-cyan-100 backdrop-blur hover:border-accent-cyan/60">{immersive ? <Minimize2 size={16} aria-hidden /> : <Maximize2 size={16} aria-hidden />}</button>
           ) : null}
 
           <div className="pointer-events-none absolute right-3 top-3 z-20 hidden w-[15.5rem] md:block rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">

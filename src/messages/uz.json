@@ -325,7 +325,10 @@
     "loading": "Sahna yuklanmoqda…",
     "webglUnsupported": "Brauzeringiz WebGL'ni qo'llab-quvvatlamaydi, shuning uchun 3D ko'rinish chizilmaydi.",
     "sceneError": "3D sahna xato bilan to'xtadi.",
-    "controlsHint": "Chap tugma — aylantirish, g'ildirak — masshtab, o'ng tugma — surish, WASD yoki strelkalar — parvoz. Obyektga bosilsa, kamera unga qaraydi."
+    "controlsHint": "Chap tugma — aylantirish, g'ildirak — masshtab, o'ng tugma — surish, WASD yoki strelkalar — parvoz. Obyektga bosilsa, kamera unga qaraydi.",
+    "fullscreen": "To‘liq ekran",
+    "exitFullscreen": "To‘liq ekrandan chiqish",
+    "scaleInfo": "Masshtab haqida"
   },
   "common": {
     "comingSoon": "Tez orada"
