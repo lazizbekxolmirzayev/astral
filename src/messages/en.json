@@ -51,7 +51,8 @@
     "pulseRate": "Pulse rate",
     "period": "Rotation period",
     "trace": "Signal trace",
-    "traceNote": "Illustrative pulse rhythm"
+    "traceNote": "Illustrative pulse rhythm",
+    "volume": "Volume"
   },
   "diagnostics": {
     "title": "Diagnostics",

@@ -2,7 +2,8 @@
 
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
-import { BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, type Group, type Mesh, type MeshBasicMaterial } from 'three';
+import { BufferGeometry, Float32BufferAttribute, Line, LineBasicMaterial, Object3D, Vector3, type Group, type Mesh, type MeshBasicMaterial, type SpriteMaterial } from 'three';
+import { createGlowTexture, GLOW_BLENDING } from './proceduralTextures';
 
 function makeFieldLine(radius: number, phase: number) {
   const points: number[] = [];
@@ -37,8 +38,34 @@ export function PulsarBeams({ position, seed }: { position: [number, number, num
 
   useEffect(() => () => fieldLines.forEach((line) => { line.geometry.dispose(); line.material.dispose(); }), [fieldLines]);
 
-  useFrame(({ clock }) => {
+  const glowTexture = useMemo(() => createGlowTexture('#e8fdff', 'rgba(60,200,255,0)'), []);
+  useEffect(() => () => glowTexture.dispose(), [glowTexture]);
+  const flash = useRef<SpriteMaterial>(null);
+  const tipA = useRef<Object3D>(null);
+  const tipB = useRef<Object3D>(null);
+  const rings = useRef<Array<Mesh | null>>([]);
+  const scratch = useMemo(() => ({ tip: new Vector3(), origin: new Vector3(), toCamera: new Vector3() }), []);
+
+  useFrame(({ clock, camera }) => {
     const time = clock.elapsedTime;
+    // Lighthouse effect: the star flares when a beam sweeps toward the viewer.
+    if (beams.current && flash.current && tipA.current && tipB.current) {
+      beams.current.getWorldPosition(scratch.origin);
+      scratch.toCamera.copy(camera.position).sub(scratch.origin).normalize();
+      let best = 0;
+      for (const tip of [tipA.current, tipB.current]) {
+        tip.getWorldPosition(scratch.tip);
+        scratch.tip.sub(scratch.origin).normalize();
+        best = Math.max(best, Math.max(0, scratch.tip.dot(scratch.toCamera)));
+      }
+      flash.current.opacity = 0.18 + Math.pow(best, 10) * 0.82;
+    }
+    rings.current.forEach((ring, index) => {
+      if (!ring) return;
+      const t = ((time * 0.35 + index / 3) % 1);
+      ring.scale.setScalar(0.5 + t * 3.2);
+      (ring.material as MeshBasicMaterial).opacity = (1 - t) * 0.22;
+    });
     const spin = time * (0.8 + (seed % 7) * 0.08);
     if (beams.current) beams.current.rotation.y = spin;
     if (field.current) field.current.rotation.y = -spin * 0.65;
@@ -73,15 +100,30 @@ export function PulsarBeams({ position, seed }: { position: [number, number, num
       <group ref={field} rotation={[0, 0, 0.44]}>
         {fieldLines.map((line, index) => <primitive key={index} object={line} />)}
       </group>
+      <sprite scale={[1.1, 1.1, 1]} raycast={() => null}>
+        <spriteMaterial ref={flash} map={glowTexture} color="#bff6ff" transparent opacity={0.2} depthWrite={false} blending={GLOW_BLENDING} toneMapped={false} />
+      </sprite>
+      {[0, 1, 2].map((index) => (
+        <mesh key={index} ref={(mesh) => { rings.current[index] = mesh; }} rotation={[Math.PI / 2, 0, 0]} raycast={() => null}>
+          <torusGeometry args={[1, 0.012, 8, 96]} />
+          <meshBasicMaterial color="#7fdcff" transparent opacity={0.15} depthWrite={false} blending={GLOW_BLENDING} toneMapped={false} />
+        </mesh>
+      ))}
       <group ref={beams} rotation={[0, 0, 0.44]}>
-        <mesh rotation={[0, 0, 0.42]} raycast={() => null}>
-          <coneGeometry args={[0.19, 5.2, 24, 1, true]} />
-          <meshBasicMaterial ref={(material) => { beamMaterials.current[0] = material; }} color="#59e7ff" transparent opacity={0.14} depthWrite={false} side={2} blending={2} toneMapped={false} />
-        </mesh>
-        <mesh rotation={[Math.PI, 0, -0.42]} raycast={() => null}>
-          <coneGeometry args={[0.19, 5.2, 24, 1, true]} />
-          <meshBasicMaterial ref={(material) => { beamMaterials.current[1] = material; }} color="#9487ff" transparent opacity={0.12} depthWrite={false} side={2} blending={2} toneMapped={false} />
-        </mesh>
+        <object3D ref={tipA} position={[-0.408, 0.913, 0]} />
+        <object3D ref={tipB} position={[0.408, -0.913, 0]} />
+        {[1, 0.62, 0.34].map((width, layer) => (
+          <group key={layer}>
+            <mesh rotation={[0, 0, 0.42]} raycast={() => null}>
+              <coneGeometry args={[0.19 * width, 5.2, 24, 1, true]} />
+              <meshBasicMaterial ref={(material) => { if (layer === 0) beamMaterials.current[0] = material; }} color={layer === 2 ? '#e8fdff' : '#59e7ff'} transparent opacity={0.05 + layer * 0.05} depthWrite={false} side={2} blending={2} toneMapped={false} />
+            </mesh>
+            <mesh rotation={[Math.PI, 0, -0.42]} raycast={() => null}>
+              <coneGeometry args={[0.19 * width, 5.2, 24, 1, true]} />
+              <meshBasicMaterial ref={(material) => { if (layer === 0) beamMaterials.current[1] = material; }} color={layer === 2 ? '#e6e0ff' : '#9487ff'} transparent opacity={0.04 + layer * 0.05} depthWrite={false} side={2} blending={2} toneMapped={false} />
+            </mesh>
+          </group>
+        ))}
       </group>
     </group>
   );

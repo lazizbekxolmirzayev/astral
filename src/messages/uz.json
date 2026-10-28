@@ -51,7 +51,8 @@
     "pulseRate": "Impuls chastotasi",
     "period": "Aylanish davri",
     "trace": "Signal chizig'i",
-    "traceNote": "Ko'rgazmali impuls ritmi"
+    "traceNote": "Ko'rgazmali impuls ritmi",
+    "volume": "Ovoz balandligi"
   },
   "diagnostics": {
     "title": "Diagnostika",
