@@ -7,17 +7,19 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getCatalogEntry } from '@/data/catalog/entries';
 import { CustomBodyEditor } from './CustomBodyEditor';
-import { createSandboxView, formatDistanceAu } from './sandboxView';
+import { createSandboxView, formatDistanceAu, ORBIT_TILT } from './sandboxView';
 import { orbitReadout, type OrbitReadout } from '@/physics/orbitReadout';
 import { kineticEnergyJoules, tntEquivalentMegatons } from '@/physics/impact';
-import { catalogScenario, createSandboxSimulation, customScenario, IMPACT_TARGET_IDS, type ImpactTargetId, type CustomBodySpec, SANDBOX_PRESETS, SANDBOX_SPEEDS, type SandboxPreset, type SandboxSpeed } from '@/lib/sandboxSimulation';
+import { catalogScenario, circularSpeedKmS, createSandboxSimulation, customScenario, IMPACT_TARGET_IDS, type ImpactTargetId, type CustomBodySpec, SANDBOX_PRESETS, SANDBOX_SPEEDS, type SandboxPreset, type SandboxSpeed } from '@/lib/sandboxSimulation';
 import type { SandboxPresetInfo, SandboxSnapshot } from '@/lib/sandboxSimulation';
 
 function formatDrift(value: number) {
   return `${value.toExponential(3)}%`;
 }
 
-export function SandboxWorkspace({ preset, onPresetChange, override, impactTargetId, onImpactTargetChange }: {
+export function SandboxWorkspace({ preset, onPresetChange, override, impactTargetId, onImpactTargetChange, onLaunch }: {
+  /** When set, dragging on empty space launches a new body (empty-space editing mode). */
+  onLaunch?: (launch: { xAu: number; yAu: number; dxPx: number; dyPx: number; massSolar: number }) => void;
   preset: SandboxPreset;
   onPresetChange: (preset: SandboxPreset) => void;
   /** A scenario built from a catalogue record; replaces the preset's own setup. */
@@ -33,6 +35,7 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
   const [speed, setSpeed] = useState<SandboxSpeed>(() => (!override && (preset === 'stable-system' || preset === 'star-replacement') ? 100 : 1));
   const [snapshot, setSnapshot] = useState<SandboxSnapshot>(() => engine.snapshot());
   const [view] = useState(() => createSandboxView());
+  const [launchMass, setLaunchMass] = useState(3.003e-6);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [readout, setReadout] = useState<OrbitReadout | null>(null);
   const [showTrails, setShowTrails] = useState(true);
@@ -42,8 +45,8 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
   const [drift, setDrift] = useState<number[]>([]);
 
   useEffect(() => {
-    view.setOptions({ selectedId, showTrails, showVectors });
-  }, [view, selectedId, showTrails, showVectors]);
+    view.setOptions({ selectedId, showTrails, showVectors, minExtent: onLaunch ? 1.6 : 0 });
+  }, [view, selectedId, showTrails, showVectors, onLaunch]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -109,12 +112,22 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
 
   function onPointerDown(event: React.PointerEvent<HTMLCanvasElement>) {
     event.currentTarget.setPointerCapture(event.pointerId);
-    view.dragStart(event.clientX, event.clientY);
+    if (onLaunch) view.launchBegin(event.currentTarget, event.clientX, event.clientY);
+    else view.dragStart(event.clientX, event.clientY);
   }
   function onPointerMove(event: React.PointerEvent<HTMLCanvasElement>) {
-    view.dragMove(event.clientX, event.clientY);
+    if (onLaunch) view.launchMove(event.currentTarget, event.clientX, event.clientY);
+    else view.dragMove(event.clientX, event.clientY);
   }
   function onPointerUp(event: React.PointerEvent<HTMLCanvasElement>) {
+    if (onLaunch) {
+      const done = view.launchEnd(event.currentTarget, event.clientX, event.clientY);
+      if (done) {
+        const at = view.worldAt(event.currentTarget, engine.state, engine.info.centerId, done.startClientX, done.startClientY);
+        if (at) onLaunch({ xAu: at.xAu, yAu: at.yAu, dxPx: done.dx, dyPx: done.dy, massSolar: launchMass });
+      }
+      return;
+    }
     const moved = view.dragEnd();
     if (!moved && canvasRef.current) {
       const id = view.pick(canvasRef.current, engine.state, engine.info.centerId, event.clientX, event.clientY);
@@ -219,6 +232,14 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
             <p className="mt-1 font-mono text-[10px] leading-relaxed text-foreground/60">{t('view.hint')}</p>
           </div>
 
+          {onLaunch ? (
+            <div className="absolute inset-x-3 bottom-14 z-10 flex flex-wrap items-center gap-1.5 text-[11px] md:bottom-20 md:right-auto md:max-w-[60%]">
+              <span className="pointer-events-none rounded-full border border-accent-cyan/40 bg-background/80 px-2.5 py-1 text-accent-cyan">{t('launch.hint')}</span>
+              {([['launch.earth', 3.003e-6], ['launch.jupiter', 9.546e-4], ['launch.star', 1]] as const).map(([key, value]) => (
+                <button key={key} type="button" aria-pressed={launchMass === value} onClick={() => setLaunchMass(value)} className={`rounded-full border px-2.5 py-1 ${launchMass === value ? 'border-accent-cyan/60 bg-accent-cyan/15 text-accent-cyan' : 'border-panel-border bg-background/80'}`}>{t(key)}</button>
+              ))}
+            </div>
+          ) : null}
           <span className="pointer-events-none absolute bottom-3 right-3 z-10 rounded-full md:bottom-auto md:top-20 border border-panel-border bg-background/75 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/65">{t('notToScale')}</span>
           {engine.state.ids.length === 0 ? <p className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-foreground/55">{t('emptySpace')}</p> : null}
         </section>
@@ -371,6 +392,27 @@ export function Sandbox() {
   const customOverride = useMemo(() => (editing && custom.length > 0 ? customScenario(custom) : null), [editing, custom]);
   const override = catalogOverride ?? customOverride;
 
+  function launchBody(launch: { xAu: number; yAu: number; dxPx: number; dyPx: number; massSolar: number }) {
+    const centre = custom[0];
+    if (!centre) return;
+    const r = Math.max(0.005, Math.hypot(launch.xAu - centre.xAu, launch.yAu - centre.yAu));
+    // 80 px of drag = the circular speed at that distance.
+    const speed = circularSpeedKmS(centre.massSolar, r) * (Math.hypot(launch.dxPx, launch.dyPx) / 80);
+    const wx = launch.dxPx;
+    const wy = -launch.dyPx / ORBIT_TILT;
+    const norm = Math.hypot(wx, wy) || 1;
+    const label = launch.massSolar >= 0.5 ? 'Star' : launch.massSolar >= 1e-4 ? 'Giant' : 'Planet';
+    let n = custom.length;
+    while (custom.some((body) => body.name === `${label} ${n}`)) n += 1;
+    const spec: CustomBodySpec = { name: `${label} ${n}`, massSolar: launch.massSolar, xAu: launch.xAu, yAu: launch.yAu, vxKmS: centre.vxKmS + (wx / norm) * speed, vyKmS: centre.vyKmS + (wy / norm) * speed };
+    try {
+      customScenario([...custom, spec]);
+    } catch {
+      return;
+    }
+    setCustom([...custom, spec]);
+  }
+
   function changePreset(next: SandboxPreset) {
     if (fromCatalog) router.replace('/sandbox');
     setPreset(next);
@@ -385,6 +427,7 @@ export function Sandbox() {
         onPresetChange={changePreset}
         impactTargetId={impactTargetId}
         onImpactTargetChange={setImpactTargetId}
+        onLaunch={editing && custom.length > 0 ? launchBody : undefined}
       />
       {editing ? (
         <div className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-8">

@@ -317,6 +317,12 @@
       "ok": "no warnings",
       "warning": "warning",
       "collision": "collision"
+    },
+    "launch": {
+      "hint": "Drag on empty space to launch a body",
+      "earth": "Earth-mass",
+      "jupiter": "Jupiter-mass",
+      "star": "Sun-mass"
     }
   },
   "viewport": {
