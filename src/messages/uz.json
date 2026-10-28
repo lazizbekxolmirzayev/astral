@@ -322,7 +322,8 @@
       "hint": "Jism otish uchun bo‘sh joyda tortib qo‘yib yuboring",
       "earth": "Yer massasi",
       "jupiter": "Yupiter massasi",
-      "star": "Quyosh massasi"
+      "star": "Quyosh massasi",
+      "remove": "Bu jismni o‘chirish"
     }
   },
   "viewport": {

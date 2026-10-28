@@ -17,8 +17,10 @@ function formatDrift(value: number) {
   return `${value.toExponential(3)}%`;
 }
 
-export function SandboxWorkspace({ preset, onPresetChange, override, impactTargetId, onImpactTargetChange, onLaunch }: {
+export function SandboxWorkspace({ preset, onPresetChange, override, impactTargetId, onImpactTargetChange, onLaunch, onRemove }: {
   /** When set, dragging on empty space launches a new body (empty-space editing mode). */
+  /** Remove a custom body (empty-space editing mode). The centre body cannot be removed. */
+  onRemove?: (id: string) => void;
   onLaunch?: (launch: { xAu: number; yAu: number; dxPx: number; dyPx: number; massSolar: number }) => void;
   preset: SandboxPreset;
   onPresetChange: (preset: SandboxPreset) => void;
@@ -315,6 +317,7 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
                 </dl>
               ) : <p className="mt-1 text-foreground/55">{t('orbit.centre')}</p>}
               <p className="mt-2 text-[10px] leading-relaxed text-foreground/40">{t('orbit.note')}</p>
+              {onRemove && readout ? <button type="button" onClick={() => onRemove(selectedId)} className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-red-400/40 px-3 py-1.5 text-[11px] text-red-300 hover:bg-red-400/10">{t('launch.remove')}</button> : null}
             </div>
           ) : <p className="border-t border-panel-border pt-3 text-xs text-foreground/45">{t('orbit.pickHint')}</p>}
 
@@ -428,6 +431,7 @@ export function Sandbox() {
         impactTargetId={impactTargetId}
         onImpactTargetChange={setImpactTargetId}
         onLaunch={editing && custom.length > 0 ? launchBody : undefined}
+        onRemove={editing && custom.length > 1 ? (id) => setCustom(custom.filter((body, index) => index === 0 || body.name !== id)) : undefined}
       />
       {editing ? (
         <div className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-8">

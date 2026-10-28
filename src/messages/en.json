@@ -322,7 +322,8 @@
       "hint": "Drag on empty space to launch a body",
       "earth": "Earth-mass",
       "jupiter": "Jupiter-mass",
-      "star": "Sun-mass"
+      "star": "Sun-mass",
+      "remove": "Remove this body"
     }
   },
   "viewport": {
