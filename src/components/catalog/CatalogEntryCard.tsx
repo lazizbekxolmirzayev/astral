@@ -5,12 +5,18 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { focusRing } from '@/components/ui/FocusRing';
 import type { CatalogEntry, CatalogQuantity } from '@/data/catalog/types';
+import { FeaturedThumb } from '@/components/gallery/FeaturedThumb';
+import type { ThumbKind } from '@/data/featured';
 import { catalogScenario, IMPACT_TARGET_IDS, type ImpactTargetId } from '@/lib/sandboxSimulation';
 
 const FIELDS = [
   'massSolar', 'massEarth', 'massKg', 'radiusSolar', 'radiusKm', 'diameterM', 'densityKgM3', 'temperatureK',
   'distanceLy', 'semiMajorAxisAu', 'eccentricity', 'orbitalPeriodDays', 'rotationPeriodMs', 'impactVelocityKmS', 'energyMegatons',
 ] as const;
+
+const THUMB_BY_TYPE: Record<CatalogEntry['type'], ThumbKind> = {
+  star: 'star', pulsar: 'pulsar', black_hole: 'blackhole', exoplanet: 'exo', asteroid: 'comet', comet: 'comet', meteorite_event: 'impact', galaxy: 'galaxy',
+};
 
 function format(q: CatalogQuantity): string {
   const abs = Math.abs(q.value);
@@ -27,6 +33,11 @@ export function CatalogEntryCard({ entry, compact = false }: { entry: CatalogEnt
   const impactor = entry.type === 'asteroid' || entry.type === 'comet' || entry.type === 'meteorite_event';
   return (
     <article className={compact ? 'text-sm' : 'rounded-lg border border-panel-border bg-background/50 p-5'} aria-live="polite">
+      {compact ? null : (
+        <div className="-mx-5 -mt-5 mb-4 aspect-[3/1] overflow-hidden rounded-t-lg border-b border-panel-border">
+          <FeaturedThumb kind={THUMB_BY_TYPE[entry.type]} seed={entry.id} />
+        </div>
+      )}
       <h2 className={compact ? 'text-base font-semibold' : 'text-lg font-semibold'}>{entry.name}</h2>
       <p className="text-xs text-foreground/55">{t(`types.${entry.type}`)}{entry.classification ? ` · ${entry.classification}` : ''}</p>
       <p className="mt-3 text-sm text-foreground/75">{entry.description}</p>

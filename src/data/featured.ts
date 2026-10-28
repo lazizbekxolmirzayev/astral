@@ -3,7 +3,7 @@
  * one is just a link into the simulator (a preset or a catalog entry), so the
  * gallery always has something to open.
  */
-export type ThumbKind = 'orbit' | 'binary' | 'impact' | 'blackhole' | 'exo' | 'comet' | 'star';
+export type ThumbKind = 'orbit' | 'binary' | 'impact' | 'blackhole' | 'exo' | 'comet' | 'star' | 'pulsar' | 'galaxy';
 
 export type FeaturedExperiment = {
   id: string;
