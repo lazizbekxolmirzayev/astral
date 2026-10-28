@@ -201,10 +201,17 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
 
           <div className="pointer-events-none absolute right-3 top-3 z-10 hidden rounded-[18px] md:block border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.78))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
             <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Status</div>
-            <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-emerald-300">
-              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" aria-hidden="true" />
-              stable
-            </div>
+            {(() => {
+              const level = snapshot.collision ? 'collision' : snapshot.warnings.length > 0 ? 'warning' : 'ok';
+              const tone = level === 'collision' ? 'text-red-300' : level === 'warning' ? 'text-star-gold' : 'text-emerald-300';
+              const dot = level === 'collision' ? 'bg-red-400' : level === 'warning' ? 'bg-amber-400' : 'bg-emerald-400';
+              return (
+                <div className={`mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] ${tone}`}>
+                  <span className={`inline-block h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />
+                  {t(`status.${level}`)}
+                </div>
+              );
+            })()}
           </div>
 
           <div className="pointer-events-none absolute bottom-3 left-3 z-10 hidden max-w-[22rem] md:block rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.74))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">

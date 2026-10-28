@@ -312,7 +312,12 @@
       "note": "Ikki jism masalasining oniy (oskulyatsion) elementlari; boshqa jismlar bo‘lsa haqiqiy orbita undan chetlashadi.",
       "pickHint": "Orbita elementlarini ko‘rish uchun jismni bosing."
     },
-    "driftChart": "Energiya dreyfi vaqt bo‘yicha (nisbiy)"
+    "driftChart": "Energiya dreyfi vaqt bo‘yicha (nisbiy)",
+    "status": {
+      "ok": "ogohlantirishsiz",
+      "warning": "ogohlantirish",
+      "collision": "to‘qnashuv"
+    }
   },
   "viewport": {
     "title": "Koinot ko'rinishi",

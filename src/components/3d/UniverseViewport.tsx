@@ -131,9 +131,8 @@ export function UniverseViewport() {
             <div className="mt-2 rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 px-2.5 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-accent-cyan">
               {selectedId ?? hoveredId ?? 'SOLAR SYSTEM'}
             </div>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-[9px] uppercase tracking-[0.18em] text-foreground/50">
+            <div className="mt-2 grid grid-cols-1 gap-2 text-[9px] uppercase tracking-[0.18em] text-foreground/50">
               <div className="rounded-lg border border-panel-border bg-white/[0.02] px-2 py-1.5">Mode <span className="mt-1 block text-[10px] text-foreground/75">{scale}</span></div>
-              <div className="rounded-lg border border-panel-border bg-white/[0.02] px-2 py-1.5">Status <span className="mt-1 block text-[10px] text-emerald-300">Stable</span></div>
             </div>
           </div>
 

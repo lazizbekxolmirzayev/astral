@@ -312,7 +312,12 @@
       "note": "Instantaneous two-body (osculating) elements; with other bodies present the real orbit drifts from this.",
       "pickHint": "Click a body to see its orbital elements."
     },
-    "driftChart": "Energy drift over time (relative)"
+    "driftChart": "Energy drift over time (relative)",
+    "status": {
+      "ok": "no warnings",
+      "warning": "warning",
+      "collision": "collision"
+    }
   },
   "viewport": {
     "title": "Universe view",
