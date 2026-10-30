@@ -84,13 +84,15 @@ Topshirish muddati: taxminan 2026-11-15 (foydalanuvchi eslab aytgan, rasmiy sayt
 
 - `typecheck`: xatosiz.
 - `lint`: 0 xato, 21 ogohlantirish (eski kodda ishlatilmagan o'zgaruvchilar).
-- `vitest`: 248 test o'tdi.
+- `vitest`: 255 test o'tdi.
 - `npm run build`: o'tdi.
 - Playwright (`e2e/mission.spec.mjs`): 6 test production build'da o'tdi, konsolda xato yo'q.
 - Tekshirilmagan: `e2e/nexus.spec.mjs`, chunki u MongoDB talab qiladi.
 
 ## Ma'lum muammolar
 
-- `npm run build` ba'zan birinchi urinishda Next.js xavfsizlik xabari bilan to'xtaydi va `next upgrade --agent=security ...` ni taklif qiladi. Ikkinchi urinishda o'tadi. `npm audit --omit=dev` 0 zaiflik ko'rsatdi. Yangilash foydalanuvchi qarorisiz qilinmagan.
+- `npm run dev` Turbopack'da ishlashi shart: Tailwind faqat shu orqali ulangan, `--webpack` bilan sayt dizaynsiz chiqadi.
+- Dev rejimda birinchi ochilishda `/universe` 3D sahnasi taxminan 10 soniya yuklanadi. Production'da bu kechikish tekshirilmagan.
+- GitHub'dagi `master` hali o'yinni o'z ichiga olmaydi; ish `mission-game` branch'ida.
 - spaceappschallenge.org ni bu muhitdan ochib bo'lmadi (sertifikat xatosi): Resources va muddatni foydalanuvchi berishi kerak.
 - Jamoa o'yini bonusi tufayli eng yaxshi natija 100 dan oshishi mumkin, yakka o'yin bilan to'g'ridan-to'g'ri solishtirib bo'lmaydi.
