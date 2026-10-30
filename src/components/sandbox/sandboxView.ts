@@ -17,14 +17,26 @@ function colorFor(id: string): string {
 }
 
 const MAX_TRAIL = 520;
-const ORBIT_TILT = 0.72;
+export const ORBIT_TILT = 0.72;
 const DEPTH_TILT = 0.42;
 
 function projectPoint(x: number, y: number, z: number, scale: number, ox: number, oy: number): [number, number] {
   return [ox + x * scale, oy - (y * ORBIT_TILT + z * DEPTH_TILT) * scale];
 }
 
+export type LaunchPreview = { x0: number; y0: number; x1: number; y1: number };
+
 export type SandboxView = {
+  /** Smallest scene half-size, AU, so a lone body still gets a usable scale. */
+  minExtent: number;
+  /** Drag-to-launch arrow, in canvas pixels. */
+  preview: LaunchPreview | null;
+  /** Position in the orbital plane (AU, absolute) under a screen point. */
+  worldAt(canvas: HTMLCanvasElement, state: NBodyState, centerId: string | undefined, clientX: number, clientY: number): { xAu: number; yAu: number } | null;
+  launchBegin(canvas: HTMLCanvasElement, clientX: number, clientY: number): void;
+  launchMove(canvas: HTMLCanvasElement, clientX: number, clientY: number): void;
+  /** Ends a launch drag: start point and drag vector in canvas pixels, or null if too short. */
+  launchEnd(canvas: HTMLCanvasElement, clientX: number, clientY: number): { startClientX: number; startClientY: number; dx: number; dy: number } | null;
   zoom: number;
   panX: number;
   panY: number;
@@ -40,7 +52,7 @@ export type SandboxView = {
   /** Screen-space picking; returns a body id or null. */
   pick(canvas: HTMLCanvasElement, state: NBodyState, centerId: string | undefined, clientX: number, clientY: number): string | null;
   zoomAt(canvas: HTMLCanvasElement, clientX: number, clientY: number, factor: number): void;
-  setOptions(options: { selectedId: string | null; showTrails: boolean; showVectors: boolean }): void;
+  setOptions(options: { selectedId: string | null; showTrails: boolean; showVectors: boolean; minExtent?: number }): void;
   dragStart(x: number, y: number): void;
   dragMove(x: number, y: number): void;
   /** Ends a drag; true if the pointer actually moved (so it was a pan, not a click). */
@@ -67,12 +79,48 @@ export function createSandboxView(): SandboxView {
   let lastCanvasRect = { width: 1, height: 1 };
 
   let drag: { x: number; y: number; moved: boolean } | null = null;
+  let launch: { cx: number; cy: number; x: number; y: number } | null = null;
 
   const view: SandboxView = {
+    minExtent: 0, preview: null,
+    launchBegin(canvas, clientX, clientY) {
+      const r = canvas.getBoundingClientRect();
+      launch = { cx: clientX, cy: clientY, x: clientX - r.left, y: clientY - r.top };
+      view.preview = { x0: launch.x, y0: launch.y, x1: launch.x, y1: launch.y };
+    },
+    launchMove(canvas, clientX, clientY) {
+      if (!launch) return;
+      const r = canvas.getBoundingClientRect();
+      view.preview = { x0: launch.x, y0: launch.y, x1: clientX - r.left, y1: clientY - r.top };
+    },
+    launchEnd(_canvas, clientX, clientY) {
+      const start = launch;
+      launch = null;
+      view.preview = null;
+      if (!start) return null;
+      const dx = clientX - start.cx;
+      const dy = clientY - start.cy;
+      return Math.hypot(dx, dy) < 12 ? null : { startClientX: start.cx, startClientY: start.cy, dx, dy };
+    },
+    worldAt(canvas, state, centerId, clientX, clientY) {
+      if (state.ids.length === 0) return null;
+      const rect = canvas.getBoundingClientRect();
+      const c = Math.max(0, centerId ? state.ids.indexOf(centerId) : 0);
+      const cx = state.positions[c * 3] as number;
+      const cy = state.positions[c * 3 + 1] as number;
+      const cz = state.positions[c * 3 + 2] as number;
+      let extent = 1e-9;
+      for (let i = 0; i < state.ids.length; i += 1) extent = Math.max(extent, Math.hypot((state.positions[i * 3] as number) - cx, (state.positions[i * 3 + 1] as number) - cy, (state.positions[i * 3 + 2] as number) - cz));
+      const fitExtent = Math.max(smoothExtent, extent * 0.999, view.minExtent);
+      const scale = (Math.min(rect.width, rect.height) * 0.42 / fitExtent) * view.zoom;
+      const px = clientX - rect.left - (rect.width / 2 + view.panX);
+      const py = clientY - rect.top - (rect.height / 2 + view.panY);
+      return { xAu: cx + px / scale, yAu: cy - py / (scale * ORBIT_TILT) };
+    },
     zoom: 1, panX: 0, panY: 0, selectedId: null, showVectors: false, showTrails: true,
     fit() { view.zoom = 1; view.panX = 0; view.panY = 0; smoothExtent = 0; },
     clearTrails() { trails.clear(); },
-    setOptions(o) { view.selectedId = o.selectedId; view.showTrails = o.showTrails; view.showVectors = o.showVectors; },
+    setOptions(o) { if (o.minExtent !== undefined) view.minExtent = o.minExtent; view.selectedId = o.selectedId; view.showTrails = o.showTrails; view.showVectors = o.showVectors; },
     dragStart(x, y) { drag = { x, y, moved: false }; },
     dragMove(x, y) {
       if (!drag) return;
@@ -165,7 +213,7 @@ export function createSandboxView(): SandboxView {
       }
       extent = Math.max(extent, 1e-9);
       smoothExtent = smoothExtent === 0 ? extent : smoothExtent + (extent - smoothExtent) * 0.08;
-      const fitExtent = Math.max(smoothExtent, extent * 0.999);
+      const fitExtent = Math.max(smoothExtent, extent * 0.999, view.minExtent);
       const scale = (Math.min(rect.width, rect.height) * 0.42 / fitExtent) * view.zoom;
       const ox = rect.width / 2 + view.panX;
       const oy = rect.height / 2 + view.panY;
@@ -397,6 +445,21 @@ export function createSandboxView(): SandboxView {
       ctx.moveTo(16, by - 4); ctx.lineTo(16, by + 4); ctx.moveTo(16 + barPx, by - 4); ctx.lineTo(16 + barPx, by + 4); ctx.stroke();
       ctx.fillStyle = 'rgba(220,230,255,0.8)'; ctx.font = '11px ui-monospace, monospace';
       ctx.fillText(formatDistanceAu(barAu), 16, by - 8);
+
+      const pv = view.preview;
+      if (pv) {
+        ctx.strokeStyle = '#00f0ff'; ctx.fillStyle = '#00f0ff'; ctx.lineWidth = 2;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath(); ctx.moveTo(pv.x0, pv.y0); ctx.lineTo(pv.x1, pv.y1); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.beginPath(); ctx.arc(pv.x0, pv.y0, 5, 0, Math.PI * 2); ctx.fill();
+        const ang = Math.atan2(pv.y1 - pv.y0, pv.x1 - pv.x0);
+        ctx.beginPath();
+        ctx.moveTo(pv.x1, pv.y1);
+        ctx.lineTo(pv.x1 - 10 * Math.cos(ang - 0.4), pv.y1 - 10 * Math.sin(ang - 0.4));
+        ctx.lineTo(pv.x1 - 10 * Math.cos(ang + 0.4), pv.y1 - 10 * Math.sin(ang + 0.4));
+        ctx.closePath(); ctx.fill();
+      }
     },
 
     pick(canvas, state, centerId, clientX, clientY) {
@@ -409,7 +472,7 @@ export function createSandboxView(): SandboxView {
       const cz = state.positions[c * 3 + 2] as number;
       let extent = 1e-9;
       for (let i = 0; i < state.ids.length; i += 1) extent = Math.max(extent, Math.hypot((state.positions[i * 3] as number) - cx, (state.positions[i * 3 + 1] as number) - cy, (state.positions[i * 3 + 2] as number) - cz));
-      const fitExtent = Math.max(smoothExtent, extent * 0.999);
+      const fitExtent = Math.max(smoothExtent, extent * 0.999, view.minExtent);
       const scale = (Math.min(rect.width, rect.height) * 0.42 / fitExtent) * view.zoom;
       let best: string | null = null;
       let bestD = 16;

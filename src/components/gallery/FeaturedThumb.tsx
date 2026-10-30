@@ -146,6 +146,24 @@ export function FeaturedThumb({ kind, seed }: { kind: ThumbKind; seed: string })
           <circle cx="181" cy="76" r="5" fill="#ffffff" opacity="0.18" />
         </g>
       )}
+      {kind === 'pulsar' && (
+        <g>
+          <path d="M160 80 L40 6 L60 0 Z M160 80 L280 154 L260 160 Z" fill="#7fe8ff" opacity="0.3" />
+          <path d="M160 80 L90 4 L104 0 Z M160 80 L230 156 L216 160 Z" fill="#e8fdff" opacity="0.25" />
+          <ellipse cx="160" cy="80" rx="70" ry="26" fill="none" stroke="#829aff" strokeOpacity="0.4" transform="rotate(-24 160 80)" />
+          <circle cx="160" cy="80" r="26" fill={`url(#${id}-cyan)`} />
+          <circle cx="160" cy="80" r="6" fill="#ffffff" />
+        </g>
+      )}
+      {kind === 'galaxy' && (
+        <g>
+          <ellipse cx="160" cy="80" rx="130" ry="42" fill="#6c5ce7" opacity="0.14" transform="rotate(-18 160 80)" />
+          {[0, 1].map((arm) => (
+            <path key={arm} d={arm ? 'M160 80 C 200 40, 270 60, 290 96' : 'M160 80 C 120 120, 50 100, 30 64'} fill="none" stroke="#9db8ff" strokeOpacity="0.6" strokeWidth="6" strokeLinecap="round" transform="rotate(-18 160 80)" />
+          ))}
+          <circle cx="160" cy="80" r="22" fill={`url(#${id}-core)`} />
+        </g>
+      )}
       {kind === 'comet' && (
         <g>
           <ellipse cx="190" cy="80" rx="160" ry="48" fill="none" stroke="#00f0ff" strokeOpacity="0.3" transform="rotate(-14 190 80)" />

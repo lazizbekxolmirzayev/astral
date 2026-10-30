@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { AlertTriangle, Box, Radio } from 'lucide-react';
+import { AlertTriangle, Box, Info, Maximize2, Minimize2, Radio } from 'lucide-react';
 import { isWebGLAvailable } from '@/lib/webgl';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { useSelectionStore } from '@/stores/selectionStore';
@@ -36,11 +36,12 @@ function Notice({ children }: { children: React.ReactNode }) {
 }
 
 export function getViewportControlPanelClassName() {
-  return 'pointer-events-auto absolute left-3 top-3 z-20 rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-2 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm';
+  return 'pointer-events-auto absolute left-2 right-2 top-2 z-20 rounded-[18px] md:left-3 md:right-auto md:top-3 border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-2 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm';
 }
 
-export function UniverseViewport() {
+export function UniverseViewport({ immersive = false, onToggleImmersive }: { immersive?: boolean; onToggleImmersive?: () => void } = {}) {
   const t = useTranslations();
+  const [noteOpen, setNoteOpen] = useState(false);
   const pulsarText = useTranslations('pulsar');
   // null = not probed yet; the probe needs a DOM, so it cannot run on the server.
   const webglOk = useSyncExternalStore(nothingToSubscribeTo, getWebglSnapshot, () => null);
@@ -84,11 +85,11 @@ export function UniverseViewport() {
           <div className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_top_left,_rgba(0,240,255,0.08),transparent_26%),radial-gradient(circle_at_bottom_right,_rgba(108,92,231,0.08),transparent_28%)]" />
 
           <div className={getViewportControlPanelClassName()}>
-            <div className="mb-2 flex items-center justify-between gap-3">
+            <div className="mb-2 hidden items-center justify-between gap-3 md:flex">
               <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">System</span>
               <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em] text-emerald-200">Live</span>
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
             <div role="radiogroup" aria-label={t('scale.label')} className="flex gap-1 rounded-full border border-panel-border bg-background/70 p-1">
               {SCALE_LEVELS.map((level) => (
                 <button
@@ -97,7 +98,7 @@ export function UniverseViewport() {
                   role="radio"
                   aria-checked={scale === level}
                   onClick={() => setScale(level)}
-                  className={`rounded-full px-2.5 py-1 text-[10px] uppercase tracking-[0.16em] transition-all ${scale === level ? 'bg-accent-cyan/20 text-accent-cyan shadow-[0_0_18px_rgba(0,240,255,0.12)]' : 'text-foreground/60 hover:text-foreground'}`}
+                  className={`whitespace-nowrap rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.06em] transition-all md:px-2.5 md:tracking-[0.16em] ${scale === level ? 'bg-accent-cyan/20 text-accent-cyan shadow-[0_0_18px_rgba(0,240,255,0.12)]' : 'text-foreground/60 hover:text-foreground'}`}
                 >
                   {t(`scale.${level}`)}
                 </button>
@@ -115,12 +116,18 @@ export function UniverseViewport() {
           </div>
 
           {scale !== 'system' ? (
-            <p className="pointer-events-none absolute left-3 top-[5.9rem] z-20 max-w-[22rem] rounded-2xl border border-panel-border bg-background/75 px-2.5 py-1.5 font-mono text-[10px] leading-relaxed text-star-gold backdrop-blur-sm">
+            <p className={`${noteOpen ? 'block' : 'hidden'} md:block pointer-events-none absolute bottom-14 left-3 right-3 z-20 md:bottom-auto md:right-auto md:top-[5.9rem] md:max-w-[22rem] rounded-2xl border border-panel-border bg-background/75 px-2.5 py-1.5 font-mono text-[10px] leading-relaxed text-star-gold backdrop-blur-sm`}>
               {t(`scale.${scale}Note`)}
             </p>
           ) : null}
+          {scale !== 'system' ? (
+            <button type="button" onClick={() => setNoteOpen((v) => !v)} aria-pressed={noteOpen} aria-label={t('viewport.scaleInfo')} className="pointer-events-auto absolute bottom-3 left-3 z-40 grid h-9 w-9 place-items-center rounded-full border border-panel-border bg-background/80 text-star-gold backdrop-blur md:hidden"><Info size={16} aria-hidden /></button>
+          ) : null}
+          {onToggleImmersive ? (
+            <button type="button" onClick={onToggleImmersive} aria-label={immersive ? t('viewport.exitFullscreen') : t('viewport.fullscreen')} title={immersive ? t('viewport.exitFullscreen') : t('viewport.fullscreen')} className="pointer-events-auto absolute bottom-3 right-3 z-40 grid h-9 w-9 place-items-center rounded-full border border-panel-border bg-background/80 text-cyan-100 backdrop-blur hover:border-accent-cyan/60">{immersive ? <Minimize2 size={16} aria-hidden /> : <Maximize2 size={16} aria-hidden />}</button>
+          ) : null}
 
-          <div className="pointer-events-none absolute right-3 top-3 z-20 w-[15.5rem] rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute right-3 top-3 z-20 hidden w-[15.5rem] md:block rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.9),rgba(9,12,18,0.8))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
             <div className="flex items-center justify-between gap-2">
               <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Target</span>
               <span className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.18em] text-foreground/50">
@@ -131,13 +138,12 @@ export function UniverseViewport() {
             <div className="mt-2 rounded-xl border border-accent-cyan/25 bg-accent-cyan/5 px-2.5 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-accent-cyan">
               {selectedId ?? hoveredId ?? 'SOLAR SYSTEM'}
             </div>
-            <div className="mt-2 grid grid-cols-2 gap-2 text-[9px] uppercase tracking-[0.18em] text-foreground/50">
+            <div className="mt-2 grid grid-cols-1 gap-2 text-[9px] uppercase tracking-[0.18em] text-foreground/50">
               <div className="rounded-lg border border-panel-border bg-white/[0.02] px-2 py-1.5">Mode <span className="mt-1 block text-[10px] text-foreground/75">{scale}</span></div>
-              <div className="rounded-lg border border-panel-border bg-white/[0.02] px-2 py-1.5">Status <span className="mt-1 block text-[10px] text-emerald-300">Stable</span></div>
             </div>
           </div>
 
-          <div className="pointer-events-none absolute bottom-3 left-3 z-20 max-w-[22rem] rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.76))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute bottom-3 left-3 z-20 hidden max-w-[22rem] md:block rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.76))] p-3 shadow-[0_18px_34px_rgba(0,0,0,0.35)] backdrop-blur-sm">
             <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Flight deck</div>
             <p className="font-mono text-[10px] leading-relaxed text-foreground/60">
               {t('viewport.controlsHint')}

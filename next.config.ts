@@ -3,6 +3,9 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+// The dev server needs eval for React debugging and a websocket for hot reload.
+const isDev = process.env.NODE_ENV === "development";
+
 // Security headers applied to every response. Values are deliberately strict;
 // relax them only if a specific integration demonstrably breaks.
 const securityHeaders = [
@@ -10,11 +13,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self'",
-      "connect-src 'self' https:",
+      `connect-src 'self' https:${isDev ? " ws:" : ""}`,
       "media-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",

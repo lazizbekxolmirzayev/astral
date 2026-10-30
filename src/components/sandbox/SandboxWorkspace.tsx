@@ -7,17 +7,21 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getCatalogEntry } from '@/data/catalog/entries';
 import { CustomBodyEditor } from './CustomBodyEditor';
-import { createSandboxView, formatDistanceAu } from './sandboxView';
+import { createSandboxView, formatDistanceAu, ORBIT_TILT } from './sandboxView';
 import { orbitReadout, type OrbitReadout } from '@/physics/orbitReadout';
 import { kineticEnergyJoules, tntEquivalentMegatons } from '@/physics/impact';
-import { catalogScenario, createSandboxSimulation, customScenario, IMPACT_TARGET_IDS, type ImpactTargetId, type CustomBodySpec, SANDBOX_PRESETS, SANDBOX_SPEEDS, type SandboxPreset, type SandboxSpeed } from '@/lib/sandboxSimulation';
+import { catalogScenario, circularSpeedKmS, createSandboxSimulation, customScenario, IMPACT_TARGET_IDS, type ImpactTargetId, type CustomBodySpec, SANDBOX_PRESETS, SANDBOX_SPEEDS, type SandboxPreset, type SandboxSpeed } from '@/lib/sandboxSimulation';
 import type { SandboxPresetInfo, SandboxSnapshot } from '@/lib/sandboxSimulation';
 
 function formatDrift(value: number) {
   return `${value.toExponential(3)}%`;
 }
 
-export function SandboxWorkspace({ preset, onPresetChange, override, impactTargetId, onImpactTargetChange }: {
+export function SandboxWorkspace({ preset, onPresetChange, override, impactTargetId, onImpactTargetChange, onLaunch, onRemove }: {
+  /** When set, dragging on empty space launches a new body (empty-space editing mode). */
+  /** Remove a custom body (empty-space editing mode). The centre body cannot be removed. */
+  onRemove?: (id: string) => void;
+  onLaunch?: (launch: { xAu: number; yAu: number; dxPx: number; dyPx: number; massSolar: number }) => void;
   preset: SandboxPreset;
   onPresetChange: (preset: SandboxPreset) => void;
   /** A scenario built from a catalogue record; replaces the preset's own setup. */
@@ -33,6 +37,7 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
   const [speed, setSpeed] = useState<SandboxSpeed>(() => (!override && (preset === 'stable-system' || preset === 'star-replacement') ? 100 : 1));
   const [snapshot, setSnapshot] = useState<SandboxSnapshot>(() => engine.snapshot());
   const [view] = useState(() => createSandboxView());
+  const [launchMass, setLaunchMass] = useState(3.003e-6);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [readout, setReadout] = useState<OrbitReadout | null>(null);
   const [showTrails, setShowTrails] = useState(true);
@@ -42,8 +47,8 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
   const [drift, setDrift] = useState<number[]>([]);
 
   useEffect(() => {
-    view.setOptions({ selectedId, showTrails, showVectors });
-  }, [view, selectedId, showTrails, showVectors]);
+    view.setOptions({ selectedId, showTrails, showVectors, minExtent: onLaunch ? 1.6 : 0 });
+  }, [view, selectedId, showTrails, showVectors, onLaunch]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -109,12 +114,22 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
 
   function onPointerDown(event: React.PointerEvent<HTMLCanvasElement>) {
     event.currentTarget.setPointerCapture(event.pointerId);
-    view.dragStart(event.clientX, event.clientY);
+    if (onLaunch) view.launchBegin(event.currentTarget, event.clientX, event.clientY);
+    else view.dragStart(event.clientX, event.clientY);
   }
   function onPointerMove(event: React.PointerEvent<HTMLCanvasElement>) {
-    view.dragMove(event.clientX, event.clientY);
+    if (onLaunch) view.launchMove(event.currentTarget, event.clientX, event.clientY);
+    else view.dragMove(event.clientX, event.clientY);
   }
   function onPointerUp(event: React.PointerEvent<HTMLCanvasElement>) {
+    if (onLaunch) {
+      const done = view.launchEnd(event.currentTarget, event.clientX, event.clientY);
+      if (done) {
+        const at = view.worldAt(event.currentTarget, engine.state, engine.info.centerId, done.startClientX, done.startClientY);
+        if (at) onLaunch({ xAu: at.xAu, yAu: at.yAu, dxPx: done.dx, dyPx: done.dy, massSolar: launchMass });
+      }
+      return;
+    }
     const moved = view.dragEnd();
     if (!moved && canvasRef.current) {
       const id = view.pick(canvasRef.current, engine.state, engine.info.centerId, event.clientX, event.clientY);
@@ -148,7 +163,7 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
     : null;
 
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-5 px-5 py-7 text-foreground sm:px-8">
+    <main className="mx-auto flex min-h-full w-full max-w-6xl flex-col gap-4 px-3 py-4 text-foreground sm:gap-5 sm:px-8 sm:py-7">
       <header className="relative overflow-hidden rounded-[26px] border border-panel-border bg-[radial-gradient(circle_at_top_left,_rgba(0,240,255,0.12),transparent_25%),linear-gradient(135deg,rgba(10,14,22,0.96),rgba(14,20,30,0.88))] p-5 shadow-[0_20px_60px_rgba(4,8,16,0.6)]">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute -left-10 top-4 h-28 w-28 rounded-full border border-accent-cyan/15" />
@@ -199,20 +214,35 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
             <button type="button" aria-pressed={showVectors} onClick={() => setShowVectors((v) => !v)} className={`pointer-events-auto rounded-full border px-2.5 py-1.5 ${showVectors ? 'border-accent-cyan/60 bg-accent-cyan/15 text-accent-cyan' : 'border-panel-border bg-background/75 text-foreground/75'}`}>{t('view.vectors')}</button>
           </div>
 
-          <div className="pointer-events-none absolute right-3 top-3 z-10 rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.78))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute right-3 top-3 z-10 hidden rounded-[18px] md:block border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.78))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
             <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Status</div>
-            <div className="mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-emerald-300">
-              <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.9)]" aria-hidden="true" />
-              stable
-            </div>
+            {(() => {
+              const level = snapshot.collision ? 'collision' : snapshot.warnings.length > 0 ? 'warning' : 'ok';
+              const tone = level === 'collision' ? 'text-red-300' : level === 'warning' ? 'text-star-gold' : 'text-emerald-300';
+              const dot = level === 'collision' ? 'bg-red-400' : level === 'warning' ? 'bg-amber-400' : 'bg-emerald-400';
+              return (
+                <div className={`mt-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.18em] ${tone}`}>
+                  <span className={`inline-block h-2 w-2 rounded-full ${dot}`} aria-hidden="true" />
+                  {t(`status.${level}`)}
+                </div>
+              );
+            })()}
           </div>
 
-          <div className="pointer-events-none absolute bottom-3 left-3 z-10 max-w-[22rem] rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.74))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
+          <div className="pointer-events-none absolute bottom-3 left-3 z-10 hidden max-w-[22rem] md:block rounded-[18px] border border-panel-border bg-[linear-gradient(180deg,rgba(12,17,27,0.86),rgba(9,12,18,0.74))] px-3 py-2 shadow-[0_18px_35px_rgba(0,0,0,0.28)] backdrop-blur-sm">
             <div className="font-mono text-[9px] uppercase tracking-[0.2em] text-foreground/55">Flight deck</div>
             <p className="mt-1 font-mono text-[10px] leading-relaxed text-foreground/60">{t('view.hint')}</p>
           </div>
 
-          <span className="pointer-events-none absolute right-3 top-20 z-10 rounded-full border border-panel-border bg-background/75 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/65">{t('notToScale')}</span>
+          {onLaunch ? (
+            <div className="absolute inset-x-3 bottom-14 z-10 flex flex-wrap items-center gap-1.5 text-[11px] md:bottom-20 md:right-auto md:max-w-[60%]">
+              <span className="pointer-events-none rounded-full border border-accent-cyan/40 bg-background/80 px-2.5 py-1 text-accent-cyan">{t('launch.hint')}</span>
+              {([['launch.earth', 3.003e-6], ['launch.jupiter', 9.546e-4], ['launch.star', 1]] as const).map(([key, value]) => (
+                <button key={key} type="button" aria-pressed={launchMass === value} onClick={() => setLaunchMass(value)} className={`rounded-full border px-2.5 py-1 ${launchMass === value ? 'border-accent-cyan/60 bg-accent-cyan/15 text-accent-cyan' : 'border-panel-border bg-background/80'}`}>{t(key)}</button>
+              ))}
+            </div>
+          ) : null}
+          <span className="pointer-events-none absolute bottom-3 right-3 z-10 rounded-full md:bottom-auto md:top-20 border border-panel-border bg-background/75 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-foreground/65">{t('notToScale')}</span>
           {engine.state.ids.length === 0 ? <p className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-foreground/55">{t('emptySpace')}</p> : null}
         </section>
 
@@ -287,6 +317,7 @@ export function SandboxWorkspace({ preset, onPresetChange, override, impactTarge
                 </dl>
               ) : <p className="mt-1 text-foreground/55">{t('orbit.centre')}</p>}
               <p className="mt-2 text-[10px] leading-relaxed text-foreground/40">{t('orbit.note')}</p>
+              {onRemove && readout ? <button type="button" onClick={() => onRemove(selectedId)} className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-red-400/40 px-3 py-1.5 text-[11px] text-red-300 hover:bg-red-400/10">{t('launch.remove')}</button> : null}
             </div>
           ) : <p className="border-t border-panel-border pt-3 text-xs text-foreground/45">{t('orbit.pickHint')}</p>}
 
@@ -364,6 +395,27 @@ export function Sandbox() {
   const customOverride = useMemo(() => (editing && custom.length > 0 ? customScenario(custom) : null), [editing, custom]);
   const override = catalogOverride ?? customOverride;
 
+  function launchBody(launch: { xAu: number; yAu: number; dxPx: number; dyPx: number; massSolar: number }) {
+    const centre = custom[0];
+    if (!centre) return;
+    const r = Math.max(0.005, Math.hypot(launch.xAu - centre.xAu, launch.yAu - centre.yAu));
+    // 80 px of drag = the circular speed at that distance.
+    const speed = circularSpeedKmS(centre.massSolar, r) * (Math.hypot(launch.dxPx, launch.dyPx) / 80);
+    const wx = launch.dxPx;
+    const wy = -launch.dyPx / ORBIT_TILT;
+    const norm = Math.hypot(wx, wy) || 1;
+    const label = launch.massSolar >= 0.5 ? 'Star' : launch.massSolar >= 1e-4 ? 'Giant' : 'Planet';
+    let n = custom.length;
+    while (custom.some((body) => body.name === `${label} ${n}`)) n += 1;
+    const spec: CustomBodySpec = { name: `${label} ${n}`, massSolar: launch.massSolar, xAu: launch.xAu, yAu: launch.yAu, vxKmS: centre.vxKmS + (wx / norm) * speed, vyKmS: centre.vyKmS + (wy / norm) * speed };
+    try {
+      customScenario([...custom, spec]);
+    } catch {
+      return;
+    }
+    setCustom([...custom, spec]);
+  }
+
   function changePreset(next: SandboxPreset) {
     if (fromCatalog) router.replace('/sandbox');
     setPreset(next);
@@ -378,6 +430,8 @@ export function Sandbox() {
         onPresetChange={changePreset}
         impactTargetId={impactTargetId}
         onImpactTargetChange={setImpactTargetId}
+        onLaunch={editing && custom.length > 0 ? launchBody : undefined}
+        onRemove={editing && custom.length > 1 ? (id) => setCustom(custom.filter((body, index) => index === 0 || body.name !== id)) : undefined}
       />
       {editing ? (
         <div className="mx-auto w-full max-w-6xl px-5 pb-8 sm:px-8">

@@ -51,7 +51,8 @@
     "pulseRate": "Impuls chastotasi",
     "period": "Aylanish davri",
     "trace": "Signal chizig'i",
-    "traceNote": "Ko'rgazmali impuls ritmi"
+    "traceNote": "Ko'rgazmali impuls ritmi",
+    "volume": "Ovoz balandligi"
   },
   "diagnostics": {
     "title": "Diagnostika",
@@ -311,7 +312,19 @@
       "note": "Ikki jism masalasining oniy (oskulyatsion) elementlari; boshqa jismlar bo‘lsa haqiqiy orbita undan chetlashadi.",
       "pickHint": "Orbita elementlarini ko‘rish uchun jismni bosing."
     },
-    "driftChart": "Energiya dreyfi vaqt bo‘yicha (nisbiy)"
+    "driftChart": "Energiya dreyfi vaqt bo‘yicha (nisbiy)",
+    "status": {
+      "ok": "ogohlantirishsiz",
+      "warning": "ogohlantirish",
+      "collision": "to‘qnashuv"
+    },
+    "launch": {
+      "hint": "Jism otish uchun bo‘sh joyda tortib qo‘yib yuboring",
+      "earth": "Yer massasi",
+      "jupiter": "Yupiter massasi",
+      "star": "Quyosh massasi",
+      "remove": "Bu jismni o‘chirish"
+    }
   },
   "viewport": {
     "title": "Koinot ko'rinishi",
@@ -319,7 +332,10 @@
     "loading": "Sahna yuklanmoqda…",
     "webglUnsupported": "Brauzeringiz WebGL'ni qo'llab-quvvatlamaydi, shuning uchun 3D ko'rinish chizilmaydi.",
     "sceneError": "3D sahna xato bilan to'xtadi.",
-    "controlsHint": "Chap tugma — aylantirish, g'ildirak — masshtab, o'ng tugma — surish, WASD yoki strelkalar — parvoz. Obyektga bosilsa, kamera unga qaraydi."
+    "controlsHint": "Chap tugma — aylantirish, g'ildirak — masshtab, o'ng tugma — surish, WASD yoki strelkalar — parvoz. Obyektga bosilsa, kamera unga qaraydi.",
+    "fullscreen": "To‘liq ekran",
+    "exitFullscreen": "To‘liq ekrandan chiqish",
+    "scaleInfo": "Masshtab haqida"
   },
   "common": {
     "comingSoon": "Tez orada"
@@ -488,13 +504,13 @@
     "universeNote": "Yo'nalishlar haqiqiy; masofalar siqilgan, galaktikalar o'lchami esa hammasi sig'ishi uchun kattalashtirilgan. Masshtabga mos emas."
   },
   "nav": {
-    "mission": "Missiya",
     "universe": "Koinot",
     "gallery": "Galereya",
     "lab": "Laboratoriyalar",
     "catalog": "Katalog",
     "sandbox": "Sandbox",
-    "saved": "Saqlanganlar"
+    "saved": "Saqlanganlar",
+    "mission": "Missiya"
   },
   "gallery": {
     "eyebrow": "Galereya",

@@ -36,7 +36,7 @@ export function CatalogBrowser() {
               <p className="mt-2 max-w-2xl text-sm text-foreground/60">{t('subtitle')}</p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] text-amber-200">Verified</span>
+              <span className="rounded-full border border-amber-300/30 bg-amber-400/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] text-amber-200">Estimated</span>
               <span className="rounded-full border border-violet-400/30 bg-violet-500/10 px-2.5 py-1 text-[9px] uppercase tracking-[0.18em] text-violet-200">Catalog</span>
             </div>
           </div>

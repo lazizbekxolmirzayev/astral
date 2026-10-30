@@ -5,6 +5,7 @@ import { catalogScenario, createSandboxSimulation } from './sandboxSimulation';
 describe('catalogue records as simulator scenarios', () => {
   it.each(catalogEntries.map((entry) => [entry.id, entry] as const))('%s builds or is cleanly rejected', (_id, entry) => {
     const info = catalogScenario(entry);
+    // Galaxies and pulsars have no n-body scenario (no catalogued mass to integrate).
     if (entry.type === 'galaxy' || entry.type === 'pulsar') {
       expect(info).toBeNull();
       return;
