@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "NEXUS",
-    "tagline": "Interaktiv 3D koinot va fizika simulyatsiyasi"
+    "tagline": "Interaktiv kosmik missiya loyihalash o'yini"
   },
   "sidebar": {
     "title": "Scena obyektlari",
@@ -13,12 +13,20 @@
     "pause": "Pauza",
     "reset": "Noldan boshlash",
     "speed": "Tezlik",
-    "timeNote": "1Г— вЂ” bu haqiqiy vaqt emas, sahna vaqti"
+    "timeNote": "1× — bu haqiqiy vaqt emas, sahna vaqti"
   },
   "future": {
     "title": "Kelajak vaqt mashinasi",
     "fromNow": "Hozirdan keyin",
-    "milestones": ["Hozir", "1 ming yil", "100 ming yil", "600 mln yil", "1 mlrd yil", "5 mlrd yil", "7,5 mlrd yil"],
+    "milestones": [
+      "Hozir",
+      "1 ming yil",
+      "100 ming yil",
+      "600 mln yil",
+      "1 mlrd yil",
+      "5 mlrd yil",
+      "7,5 mlrd yil"
+    ],
     "early": "Sayyoralar hozirgi ko'rinishda; Oy Yerdan uzoqlashishda davom etadi.",
     "brightening": "Quyosh asta-sekin yorqinlashadi; Yer iqlimining aniq taqdiri bu modelda hisoblanmaydi.",
     "redGiant": "Taxminan 5 mlrd yilda Quyosh qizil gigant bosqichiga o'tadi.",
@@ -37,7 +45,8 @@
     "hideVideo": "Videoni yopish",
     "close": "Pulsar panelini yopish",
     "radioSignal": "Puls davri · ko'rgazmali",
-    "sonified": "Teleskop ma'lumotidan",    "active": "Signal ijroda",
+    "sonified": "Teleskop ma'lumotidan",
+    "active": "Signal ijroda",
     "standby": "Kutishda",
     "pulseRate": "Impuls chastotasi",
     "period": "Aylanish davri",
@@ -49,7 +58,7 @@
     "viewAs": "Ko'rinish turi",
     "viewReadout": "Matn",
     "viewTable": "Jadval",
-    "waiting": "Birinchi kadr kutilmoqdaвЂ¦",
+    "waiting": "Birinchi kadr kutilmoqda…",
     "tableCaption": "Sayyoralar bo'yicha jonli qiymatlar",
     "columnBody": "Jism",
     "unitAu": "a.b.",
@@ -69,7 +78,7 @@
     "warningUnbound": "qochish tezligidan oshdi: {measured} > {limit} {unit}",
     "warningDistance": "modellash chegarasidan uzoqroq: {measured} > {limit} {unit}",
     "kick": "Tanlangan sayyorani tezlashtirish",
-    "kickHint": "Tezligi {factor}Г— ortadi; ogarish va jarayon keyingi kadrdan ko'rinadi",
+    "kickHint": "Tezligi {factor}× ortadi; ogarish va jarayon keyingi kadrdan ko'rinadi",
     "kickNeedsBody": "Avval sayyorani bosing",
     "devOnly": "Bu tugma faqat development yig'mada"
   },
@@ -136,33 +145,33 @@
     "title": "Saqlangan tajribalar",
     "subtitle": "Ssenariylar shu qurilma brauzerida saqlanadi.",
     "saveTitle": "Ssenariyni saqlash",
-    "saveDescription": "Joriy Quyosh tizimi maвЂ™lumotlarini lokal tajriba sifatida saqlang.",
+    "saveDescription": "Joriy Quyosh tizimi ma’lumotlarini lokal tajriba sifatida saqlang.",
     "nameLabel": "Ssenariy nomi",
     "namePlaceholder": "Mening tajribam",
     "saveAction": "Lokal saqlash",
     "listTitle": "Ushbu qurilmada",
-    "listDescription": "Lokal ssenariyni yuklang, eksport qiling, import qiling yoki oвЂchiring.",
+    "listDescription": "Lokal ssenariyni yuklang, eksport qiling, import qiling yoki o‘chiring.",
     "importAction": "JSON import",
     "loadAction": "Yuklash",
     "exportAction": "JSON eksport",
     "exportLabel": "{name} ssenariysini JSON sifatida eksport qilish",
-    "deleteAction": "OвЂchirish",
-    "deleteLabel": "{name} ssenariysini oвЂchirish",
-    "loading": "Lokal tajribalar yuklanmoqdaвЂ¦",
-    "empty": "Hali saqlangan tajribalar yoвЂq.",
-    "scenarioMeta": "{count} ta obyekt В· saqlandi: {date}",
+    "deleteAction": "O‘chirish",
+    "deleteLabel": "{name} ssenariysini o‘chirish",
+    "loading": "Lokal tajribalar yuklanmoqda…",
+    "empty": "Hali saqlangan tajribalar yo‘q.",
+    "scenarioMeta": "{count} ta obyekt · saqlandi: {date}",
     "loadedTitle": "Yuklandi: {name}",
-    "loadedDescription": "Tekshirilgan ssenariyni koвЂrib chiqish mumkin.",
+    "loadedDescription": "Tekshirilgan ssenariyni ko‘rib chiqish mumkin.",
     "savedNotice": "{name} ushbu qurilmada saqlandi.",
     "loadedNotice": "{name} yuklandi.",
-    "deletedNotice": "{name} oвЂchirildi.",
+    "deletedNotice": "{name} o‘chirildi.",
     "importedNotice": "{name} import qilindi.",
-    "missingScenario": "Lokal ssenariy topilmadi. RoвЂyxatni yangilab, qayta urinib koвЂring.",
-    "storageUnavailable": "Bu brauzer lokal ssenariylarni saqlashni qoвЂllamaydi.",
+    "missingScenario": "Lokal ssenariy topilmadi. Ro‘yxatni yangilab, qayta urinib ko‘ring.",
+    "storageUnavailable": "Bu brauzer lokal ssenariylarni saqlashni qo‘llamaydi.",
     "nameRequired": "Ssenariy uchun nom kiriting.",
-    "invalidJson": "Tanlangan fayl toвЂgвЂri JSON formatida emas.",
+    "invalidJson": "Tanlangan fayl to‘g‘ri JSON formatida emas.",
     "invalidScenario": "Fayl ssenariy formatiga mos emas. Quyidagi maydonlarni tekshiring: {fields}.",
-    "unexpectedError": "Amalni bajarib boвЂlmadi. Qayta urinib koвЂring.",
+    "unexpectedError": "Amalni bajarib bo‘lmadi. Qayta urinib ko‘ring.",
     "exportUsdAction": "OpenUSD eksport",
     "exportUsdLabel": "{name} ssenariysini OpenUSD sifatida eksport qilish"
   },
@@ -178,14 +187,14 @@
     "previous": "Oldingi",
     "next": "Keyingi",
     "page": "{pages} dan {page}-sahifa",
-    "unlisted": "Yashirin В· havolaga ega har kim ko'ra oladi",
+    "unlisted": "Yashirin · havolaga ega har kim ko'ra oladi",
     "public": "Ommaviy ssenariy",
-    "sharedEyebrow": "NEXUS В· Ulashilgan ssenariy",
+    "sharedEyebrow": "NEXUS · Ulashilgan ssenariy",
     "restored": "Tiklangan ssenariy: {name}",
     "objectCount": "Osmon jismlari: {count}",
     "report": "Shikoyat qilish",
     "reported": "Yuborildi",
-    "sending": "YuborilmoqdaвЂ¦",
+    "sending": "Yuborilmoqda…",
     "reportFailed": "Shikoyat yuborilmadi.",
     "shareAction": "Ulashish",
     "shareTitle": "Tajribani ulashish",
@@ -205,60 +214,60 @@
   "sandbox": {
     "nav": "Sinov maydoni",
     "title": "Fizika sinov maydoni",
-    "subtitle": "Mustaqil Nyuton tajribalarini ishga tushiring. Har bir holat boshlangвЂich qiymatlarni aynan tiklaydi.",
+    "subtitle": "Mustaqil Nyuton tajribalarini ishga tushiring. Har bir holat boshlang‘ich qiymatlarni aynan tiklaydi.",
     "presetLabel": "Tayyor holat",
     "viewLabel": "Sinov maydoni simulyatsiyasi",
     "notToScale": "Masshtabga mos emas",
-    "emptySpace": "BoвЂsh fazo В· jismlar yoвЂq",
+    "emptySpace": "Bo‘sh fazo · jismlar yo‘q",
     "run": "Ishga tushirish",
-    "pause": "ToвЂxtatish",
-    "reset": "BoshlangвЂich holatga qaytarish",
+    "pause": "To‘xtatish",
+    "reset": "Boshlang‘ich holatga qaytarish",
     "speed": "Simulyatsiya tezligi",
     "elapsed": "Simulyatsiya vaqti",
-    "energyDrift": "Energiya ogвЂishi",
-    "angularMomentumDrift": "Burchak impulsi ogвЂishi",
+    "energyDrift": "Energiya og‘ishi",
+    "angularMomentumDrift": "Burchak impulsi og‘ishi",
     "notAvailable": "aniqlanmagan",
     "bodyCount": "Jismlar",
     "impactTargetLabel": "Nishon sayyora",
-    "impactSummary": "ToвЂqnashuv bahosi",
+    "impactSummary": "To‘qnashuv bahosi",
     "impactEnergy": "Kinetik energiya: {value} J",
     "impactMegatons": "TNT ekvivalenti: {value} Mt",
     "impactEnergyModelled": "Urilishdan oldin katalogdagi tezlik asosida hisoblangan baho.",
-    "impactEnergyActual": "Simulyatsiyadagi urilish tezligi boвЂyicha qayta hisoblandi.",
+    "impactEnergyActual": "Simulyatsiyadagi urilish tezligi bo‘yicha qayta hisoblandi.",
     "airburstFlag": "Modul evristikasi atmosferada portlash ehtimoli shartlarini belgiladi.",
-    "airburstUnsupported": "Gaz gigantida qattiq sirt modeli yoвЂq; atmosfera portlashi baholanmaydi.",
+    "airburstUnsupported": "Gaz gigantida qattiq sirt modeli yo‘q; atmosfera portlashi baholanmaydi.",
     "noAirburstFlag": "Modul evristikasi atmosferada portlash shartlarini belgilamadi.",
-    "validityTitle": "Nyuton modeli yaroqlilik koвЂrsatkichi",
+    "validityTitle": "Nyuton modeli yaroqlilik ko‘rsatkichi",
     "schwarzschildDistance": "Zarra masofasi: Shvarschild radiusidan {value} baravar",
     "validity": {
       "valid": "Uzoq maydon: model Nyuton yaqinlashuvini yaroqli deb belgilaydi.",
       "caution": "Ehtiyot: bu masofada Nyuton yaqinlashuvining cheklovlari ortadi.",
-      "invalid": "Nyuton yaqinlashuvi uchun koвЂrsatilgan yaroqli masofadan tashqarida."
+      "invalid": "Nyuton yaqinlashuvi uchun ko‘rsatilgan yaroqli masofadan tashqarida."
     },
     "stability": "Barqarorlik ogohlantirishlari",
-    "noWarnings": "Barqarorlik boвЂyicha ogohlantirish yoвЂq.",
-    "warningUnbound": "{body} bogвЂlanmagan: tezlik {measured} > qochish tezligi {limit} {unit}.",
+    "noWarnings": "Barqarorlik bo‘yicha ogohlantirish yo‘q.",
+    "warningUnbound": "{body} bog‘lanmagan: tezlik {measured} > qochish tezligi {limit} {unit}.",
     "warningDistance": "{body} modellashtirilgan masofadan tashqarida: {measured} > {limit} {unit}.",
     "presets": {
       "stable-system": "Barqaror sayyoralar tizimi",
-      "two-body": "Ikki jism oвЂzaro taвЂ™siri",
-      "asteroid-impact": "Asteroid toвЂqnashuvi",
+      "two-body": "Ikki jism o‘zaro ta’siri",
+      "asteroid-impact": "Asteroid to‘qnashuvi",
       "star-replacement": "Yulduzni almashtirish",
       "black-hole": "Qora tuynuk yaqinidagi sayyora",
-      "empty-space": "BoвЂsh fazo"
+      "empty-space": "Bo‘sh fazo"
     },
     "notes": {
-      "stable": "JPL Quyosh tizimi boshlangвЂich holatlari oвЂzgarmas qadamli Nyuton dvigatelida hisoblanadi.",
-      "twoBody": "JPLвЂ™dan olingan Quyosh va Yer holati; qolgan jismlar bu ikki jism tajribasiga kiritilmagan.",
-      "impact": "Yer va radiusi 500 m, zichligi 3000 kg/mВі deb olingan namuna asteroid. ToвЂqnashuv energiyasi va atmosferada portlash koвЂrsatkichi moduldan olinadi. N-jism dvigateli jismlarning tegishini, atmosfera trayektoriyasini yoki zararni hisoblamaydi.",
-      "starReplacement": "Quyoshning gravitatsion parametrini darhol boshlangвЂich qiymatining yarmiga oвЂzgartiradi, boshqa jismlarning oвЂrni va tezligi saqlanadi. Bu fikriy tajriba, yulduz evolyutsiyasi modeli emas.",
-      "blackHole": "1000 Quyosh massasiga teng aylanmaydigan qora tuynuk va Shvarschild radiusidan 12 baravar masofadagi sinov zarrasi. Trayektoriya Nyuton yaqinlashuvi; yaroqlilik koвЂrsatkichini koвЂring.",
+      "stable": "JPL Quyosh tizimi boshlang‘ich holatlari o‘zgarmas qadamli Nyuton dvigatelida hisoblanadi.",
+      "twoBody": "JPL’dan olingan Quyosh va Yer holati; qolgan jismlar bu ikki jism tajribasiga kiritilmagan.",
+      "impact": "Yer va radiusi 500 m, zichligi 3000 kg/m³ deb olingan namuna asteroid. To‘qnashuv energiyasi va atmosferada portlash ko‘rsatkichi moduldan olinadi. N-jism dvigateli jismlarning tegishini, atmosfera trayektoriyasini yoki zararni hisoblamaydi.",
+      "starReplacement": "Quyoshning gravitatsion parametrini darhol boshlang‘ich qiymatining yarmiga o‘zgartiradi, boshqa jismlarning o‘rni va tezligi saqlanadi. Bu fikriy tajriba, yulduz evolyutsiyasi modeli emas.",
+      "blackHole": "1000 Quyosh massasiga teng aylanmaydigan qora tuynuk va Shvarschild radiusidan 12 baravar masofadagi sinov zarrasi. Trayektoriya Nyuton yaqinlashuvi; yaroqlilik ko‘rsatkichini ko‘ring.",
       "empty": "Jismlarsiz simulyatsiya soati. Saqlanish diagnostikasi aniqlanmaydi."
     },
-    "starModelCard": "Model kartasi В· Massa bir zumda almashtiriladi. Boshqa jismlarning oвЂrni va tezligi saqlanadi. Yulduz evolyutsiyasi, massa yoвЂqotishi, otilmalar va nurlanish modellashtirilmaydi.",
-    "blackHoleModelCard": "Model kartasi В· Radius va koвЂrsatkich Shvarschild geometriyasiga asoslangan; sinov zarrachasi trayektoriyasi Nyutoncha. Relativistik harakat va yorugвЂlik tarqalishi hisoblanmaydi.",
-    "impactModelCard": "Model kartasi В· Impaktor shar shaklida va bir xil zichlikda deb olinadi. Jismlarning toвЂqnashishi hisoblanmaydi. Atmosferada portlash natijasi qoвЂpol evristika, bashorat emas.",
-    "newtonianModelCard": "Model kartasi В· Nuqtaviy Nyuton gravitatsiyasi va oвЂzgarmas qadamli Verlet integratori. Tasvir masshtabga mos emas.",
+    "starModelCard": "Model kartasi · Massa bir zumda almashtiriladi. Boshqa jismlarning o‘rni va tezligi saqlanadi. Yulduz evolyutsiyasi, massa yo‘qotishi, otilmalar va nurlanish modellashtirilmaydi.",
+    "blackHoleModelCard": "Model kartasi · Radius va ko‘rsatkich Shvarschild geometriyasiga asoslangan; sinov zarrachasi trayektoriyasi Nyutoncha. Relativistik harakat va yorug‘lik tarqalishi hisoblanmaydi.",
+    "impactModelCard": "Model kartasi · Impaktor shar shaklida va bir xil zichlikda deb olinadi. Jismlarning to‘qnashishi hisoblanmaydi. Atmosferada portlash natijasi qo‘pol evristika, bashorat emas.",
+    "newtonianModelCard": "Model kartasi · Nuqtaviy Nyuton gravitatsiyasi va o‘zgarmas qadamli Verlet integratori. Tasvir masshtabga mos emas.",
     "catalogLoaded": "Katalogdan: {name}",
     "assumptions": "Yozuvda qiymat yo'qligi uchun qabul qilindi: {list}.",
     "unverified": "Katalog qiymatlari taxminiy va tekshirilmagan.",
@@ -280,37 +289,37 @@
       "remove": "{name} ni o'chirish"
     },
     "view": {
-      "fit": "SigвЂdirish",
+      "fit": "Sig‘dirish",
       "trails": "Izlar",
       "vectors": "Tezlik",
-      "hint": "GвЂildirak: masshtab В· Tortish: siljitish В· Bosish: tanlash В· Ikki marta bosish: sigвЂdirish"
+      "hint": "G‘ildirak: masshtab · Tortish: siljitish · Bosish: tanlash · Ikki marta bosish: sig‘dirish"
     },
     "orbit": {
       "title": "{name}: markazga nisbatan orbita",
       "distance": "Masofa",
       "speed": "Tezlik",
       "status": "Holat",
-      "bound": "bogвЂlangan",
-      "unbound": "bogвЂlanmagan",
+      "bound": "bog‘langan",
+      "unbound": "bog‘lanmagan",
       "eccentricity": "Ekssentrisitet",
-      "semiMajor": "Katta yarim oвЂq",
+      "semiMajor": "Katta yarim o‘q",
       "period": "Davr",
       "years": "yil",
       "periapsis": "Periapsis",
       "apoapsis": "Apoapsis",
       "centre": "Bu markaziy jism (sanoq sistemasi).",
-      "note": "Ikki jism masalasining oniy (oskulyatsion) elementlari; boshqa jismlar boвЂlsa haqiqiy orbita undan chetlashadi.",
-      "pickHint": "Orbita elementlarini koвЂrish uchun jismni bosing."
+      "note": "Ikki jism masalasining oniy (oskulyatsion) elementlari; boshqa jismlar bo‘lsa haqiqiy orbita undan chetlashadi.",
+      "pickHint": "Orbita elementlarini ko‘rish uchun jismni bosing."
     },
-    "driftChart": "Energiya dreyfi vaqt boвЂyicha (nisbiy)"
+    "driftChart": "Energiya dreyfi vaqt bo‘yicha (nisbiy)"
   },
   "viewport": {
     "title": "Koinot ko'rinishi",
     "notToScale": "Masshtabga rioya qilinmagan",
-    "loading": "Sahna yuklanmoqdaвЂ¦",
+    "loading": "Sahna yuklanmoqda…",
     "webglUnsupported": "Brauzeringiz WebGL'ni qo'llab-quvvatlamaydi, shuning uchun 3D ko'rinish chizilmaydi.",
     "sceneError": "3D sahna xato bilan to'xtadi.",
-    "controlsHint": "Chap tugma вЂ” aylantirish, g'ildirak вЂ” masshtab, o'ng tugma вЂ” surish, WASD yoki strelkalar вЂ” parvoz. Obyektga bosilsa, kamera unga qaraydi."
+    "controlsHint": "Chap tugma — aylantirish, g'ildirak — masshtab, o'ng tugma — surish, WASD yoki strelkalar — parvoz. Obyektga bosilsa, kamera unga qaraydi."
   },
   "common": {
     "comingSoon": "Tez orada"
@@ -328,8 +337,8 @@
     "colors": "Ranglar",
     "fonts": "Shriftlar",
     "provenanceLabels": "Kelib chiqish yorliqlari",
-    "sansLabel": "Inter вЂ” interfeys matni",
-    "monoLabel": "JetBrains Mono вЂ” raqamlar"
+    "sansLabel": "Inter — interfeys matni",
+    "monoLabel": "JetBrains Mono — raqamlar"
   },
   "auth": {
     "loginTitle": "Kirish",
@@ -479,6 +488,7 @@
     "universeNote": "Yo'nalishlar haqiqiy; masofalar siqilgan, galaktikalar o'lchami esa hammasi sig'ishi uchun kattalashtirilgan. Masshtabga mos emas."
   },
   "nav": {
+    "mission": "Missiya",
     "universe": "Koinot",
     "gallery": "Galereya",
     "lab": "Laboratoriyalar",
@@ -488,14 +498,14 @@
   },
   "gallery": {
     "eyebrow": "Galereya",
-    "title": "Hoziroq ishga tushirish mumkin boвЂlgan tajribalar",
-    "subtitle": "Tayyor stsenariyni tanlang вЂ” u darhol simulyatorda ochiladi. Barcha qiymatlar katalogdan olingan va taxmin sifatida belgilangan; bular bashorat emas.",
+    "title": "Hoziroq ishga tushirish mumkin bo‘lgan tajribalar",
+    "subtitle": "Tayyor stsenariyni tanlang — u darhol simulyatorda ochiladi. Barcha qiymatlar katalogdan olingan va taxmin sifatida belgilangan; bular bashorat emas.",
     "featuredTitle": "Tayyor tajribalar",
     "featuredHint": "Doim mavjud, akkaunt shart emas.",
     "filterLabel": "Filtr",
     "run": "Ishga tushirish",
     "communityTitle": "Hamjamiyat tajribalari",
-    "communityEmpty": "Hali hech kim tajriba eвЂ™lon qilmagan. Sandboxda saqlab, ulashing.",
+    "communityEmpty": "Hali hech kim tajriba e’lon qilmagan. Sandboxda saqlab, ulashing.",
     "communityOffline": "Hamjamiyat tajribalari hozir mavjud emas (baza ulanmagan). Yuqoridagi tayyor tajribalar odatdagidek ishlaydi.",
     "filters": {
       "all": "Hammasi",
@@ -508,7 +518,7 @@
     "items": {
       "stable-system": {
         "title": "Barqaror Quyosh tizimi",
-        "body": "Quyosh va sayyoralar haqiqiy boshlangвЂich shartlardan. Energiya va impuls momenti oвЂzgarmasligini kuzating."
+        "body": "Quyosh va sayyoralar haqiqiy boshlang‘ich shartlardan. Energiya va impuls momenti o‘zgarmasligini kuzating."
       },
       "two-body": {
         "title": "Ikki jism masalasi",
@@ -519,33 +529,33 @@
         "body": "Quyoshni boshqa yulduzga almashtiring: qaysi sayyoralar orbitada qoladi, qaysilari uchib ketadi."
       },
       "asteroid-impact": {
-        "title": "ToвЂqnashuv yoвЂlidagi asteroid",
+        "title": "To‘qnashuv yo‘lidagi asteroid",
         "body": "Yerga asteroid yuboring: urilish tezligi, TNT ekvivalentidagi energiya, havoda portlash yoki krater."
       },
       "black-hole": {
-        "title": "Qora tuynuk yonidan oвЂtish",
+        "title": "Qora tuynuk yonidan o‘tish",
         "body": "Nyuton qora tuynugi yonida sinov zarrasi (relyativistik effektlarsiz yaqinlashuv): orbita, qulash yoki qochish."
       },
       "chelyabinsk-2013": {
-        "body": "Rossiya ustida 19 m jismning havoda portlashi, taxminan 500 kt. Hisoblangan energiyani eвЂ™lon qilingan qiymat bilan solishtiring."
+        "body": "Rossiya ustida 19 m jismning havoda portlashi, taxminan 500 kt. Hisoblangan energiyani e’lon qilingan qiymat bilan solishtiring."
       },
       "tunguska-1908": {
-        "body": "Sibirda oвЂrmonni yiqitgan portlash. Hajmi va tezligi juda noaniq, shunday koвЂrsatiladi."
+        "body": "Sibirda o‘rmonni yiqitgan portlash. Hajmi va tezligi juda noaniq, shunday ko‘rsatiladi."
       },
       "chicxulub": {
-        "body": "BoвЂr davri oxiridagi zarba. Energiya faqat tartib darajasida; boshqalar bilan solishtiring."
+        "body": "Bo‘r davri oxiridagi zarba. Energiya faqat tartib darajasida; boshqalar bilan solishtiring."
       },
       "apophis": {
-        "body": "2029-yilda xavfsiz oвЂtadigan Yerga yaqin asteroid. Orbita katalog qiymatlaridan; toвЂqnashuv prognoz qilinmagan."
+        "body": "2029-yilda xavfsiz o‘tadigan Yerga yaqin asteroid. Orbita katalog qiymatlaridan; to‘qnashuv prognoz qilinmagan."
       },
       "halley": {
-        "body": "Juda choвЂzinchoq orbita (eв‰€0,97). Perigeliy va afeliy orasida tezlik keskin oвЂzgaradi."
+        "body": "Juda cho‘zinchoq orbita (e≈0,97). Perigeliy va afeliy orasida tezlik keskin o‘zgaradi."
       },
       "sirius-a": {
-        "body": "Markazga ~2 Quyosh massali A yulduzini qoвЂying. Qaysi sayyoralar saqlanadi, davrlar qanday oвЂzgaradi?"
+        "body": "Markazga ~2 Quyosh massali A yulduzini qo‘ying. Qaysi sayyoralar saqlanadi, davrlar qanday o‘zgaradi?"
       },
       "betelgeuse": {
-        "body": "Quyosh oвЂrniga qizil oвЂta gigant. Massasi noaniq; sandbox yulduz ichidagi sayyoralar haqida ogohlantiradi."
+        "body": "Quyosh o‘rniga qizil o‘ta gigant. Massasi noaniq; sandbox yulduz ichidagi sayyoralar haqida ogohlantiradi."
       },
       "proxima-centauri": {
         "body": "0,12 Quyosh massali qizil mitti sayyoralarni ushlab turishga yetarli tortishishga ega emas."
@@ -554,23 +564,488 @@
         "body": "Taxminan 21 Quyosh massali yulduz massasidagi qora tuynuk. Sinov zarralari orbitalari, Nyuton yaqinlashuvi."
       },
       "sagittarius-a-star": {
-        "body": "Somon yoвЂlining markaziy qora tuynugi, taxminan 4 mln Quyosh massasi. Orbitalar tez va tor."
+        "body": "Somon yo‘lining markaziy qora tuynugi, taxminan 4 mln Quyosh massasi. Orbitalar tez va tor."
       },
       "m87-star": {
-        "body": "6,5 mlrd Quyosh massali qora tuynuk. Dvigatel uchun oвЂta katta tortishish parametri."
+        "body": "6,5 mlrd Quyosh massali qora tuynuk. Dvigatel uchun o‘ta katta tortishish parametri."
       },
       "proxima-b": {
-        "body": "11 kunlik orbitadagi sayyora. Faqat minimal massa maвЂ™lum."
+        "body": "11 kunlik orbitadagi sayyora. Faqat minimal massa ma’lum."
       },
       "51-pegasi-b": {
         "body": "Birinchi issiq Yupiter: 0,05 AU masofada 4 kunda aylanadigan gigant."
       },
       "trappist-1e": {
-        "body": "OвЂta sovuq mitti yulduz atrofidagi toshli sayyora. Yili 6 kun."
+        "body": "O‘ta sovuq mitti yulduz atrofidagi toshli sayyora. Yili 6 kun."
       },
       "55-cancri-e": {
         "body": "Yili bir sutkadan qisqa lava dunyosi. Juda tez va tor orbita."
       }
+    }
+  },
+  "mission": {
+    "title": "Kosmik missiyani loyihalash o'yini",
+    "intro": "Haqiqiy kosmik missiyani g'oyadan yakuniy hisobotgacha rejalang. Har bir tanlov massa, quvvat, pul yoki vaqt talab qiladi va yagona mukammal javob kamdan-kam bo'ladi.",
+    "stepsLabel": "Missiya bosqichlari",
+    "steps": {
+      "objective": "Maqsad",
+      "spacecraft": "Kosmik apparat",
+      "payload": "Asboblar",
+      "orbit": "Orbita va raketa",
+      "review": "Parvoz tekshiruvi",
+      "flight": "Parvoz",
+      "report": "Hisobot"
+    },
+    "back": "Orqaga",
+    "next": "Keyingi",
+    "partStats": "{mass} kg · {power} W · ${cost} mln",
+    "units": {
+      "kg": "kg",
+      "watt": "W",
+      "million": "mln $",
+      "gbPerDay": "Gb/kun",
+      "months": "oy",
+      "points": "ball"
+    },
+    "resources": {
+      "title": "Missiya resurslari",
+      "status": {
+        "ok": "Me'yorda",
+        "tight": "Chegaraga yaqin",
+        "over": "Chegaradan oshgan"
+      },
+      "mass": {
+        "label": "Massa",
+        "help": "Yoqilg'i to'ldirilgan apparat va raketa shu manzilga ko'tara oladigan yuk."
+      },
+      "power": {
+        "label": "Quvvat",
+        "help": "O'rtacha elektr iste'moli va soyadagi vaqtni hisobga olgan o'rtacha quvvat."
+      },
+      "budget": {
+        "label": "Byudjet",
+        "help": "Qurish, uchirish va boshqarish xarajati hamda mavjud mablag'."
+      },
+      "data": {
+        "label": "Ma'lumot",
+        "help": "Kuniga yig'iladigan ma'lumot va radio kuniga Yerga yubora oladigan hajm."
+      },
+      "time": {
+        "label": "Vaqt",
+        "help": "Uchish oyi va muddat. Sayyoralar uchish uchun faqat ma'lum paytlarda qulay joylashadi."
+      },
+      "science": {
+        "label": "Ilmiy natija",
+        "help": "Shu asboblar va orbita bera oladigan eng yaxshi natija hamda maqsad. Ko'p bo'lgani yaxshi."
+      }
+    },
+    "difficulty": {
+      "1": "Boshlang'ich",
+      "2": "O'rtacha",
+      "3": "Qiyin",
+      "4": "Mutaxassis"
+    },
+    "objective": {
+      "title": "Missiyani tanlang",
+      "help": "Javob topmoqchi bo'lgan savoldan boshlang. Maqsad byudjet, muddat va ilmiy vazifani belgilaydi.",
+      "facts": "${budget} mln · kamida {months} oy · {deadline}-oygacha uchish",
+      "best": "Eng yaxshi natijangiz: {score}"
+    },
+    "objectives": {
+      "earth-climate": {
+        "name": "Yer iqlimini kuzatish",
+        "brief": "Muz, okean va issiqlikni orbitadan kamida ikki yil kuzating."
+      },
+      "moon-ice": {
+        "name": "Oyda muz qidirish",
+        "brief": "Oy qutblari yaqinidagi qorong'i kraterlardagi suv muzini xaritalang."
+      },
+      "mars-water": {
+        "name": "Marsda suv qidirish",
+        "brief": "Radar yordamida Mars yuzasi ostidagi muzni izlang."
+      },
+      "jupiter-magnetosphere": {
+        "name": "Yupiter magnit maydonini o'rganish",
+        "brief": "Kuchli radiatsiya ichida sayyoralar orasidagi eng kuchli magnit maydonni o'lchang."
+      }
+    },
+    "team": {
+      "title": "Kim o'ynaydi?",
+      "solo": "Bir o'yinchi",
+      "together": "4 kishilik jamoa",
+      "namePlaceholder": "Ism (ixtiyoriy)",
+      "turn": "Navbat: {name} ({role}).",
+      "signoff": "Jamoa tasdig'i: uchish uchun to'rtta rolning hammasi rozi bo'lishi kerak"
+    },
+    "roles": {
+      "director": {
+        "name": "Missiya rahbari",
+        "duty": "Maqsadni tanlang va byudjetni himoya qiling.",
+        "goal": "Vazifa: byudjetning kamida 10% ini tejab qolish.",
+        "result": "byudjet zaxirasi {value}% (vazifa {goal}%)"
+      },
+      "engineer": {
+        "name": "Tizim muhandisi",
+        "duty": "Missiyaga bardosh beradigan apparat quring.",
+        "goal": "Vazifa: kamida 10% massa va 15% quvvat zaxirasi.",
+        "result": "massa zaxirasi {mass}% (vazifa {massGoal}%), quvvat zaxirasi {power}% (vazifa {powerGoal}%)"
+      },
+      "scientist": {
+        "name": "Ilmiy rahbar",
+        "duty": "Missiya savoliga javob beradigan asboblarni tanlang.",
+        "goal": "Vazifa: talabdan 20% ko'proq ilmiy natija olish.",
+        "result": "ilmiy natija {value} (vazifa {goal})"
+      },
+      "operator": {
+        "name": "Parvozni boshqarish rahbari",
+        "duty": "Orbita va raketani tanlang, ma'lumot Yerga qanday kelishini rejalang.",
+        "goal": "Vazifa: yig'ilgan ma'lumotning kamida 80% ini Yerga yetkazish.",
+        "result": "yetkazilgan ma'lumot {value}% (vazifa {goal}%)"
+      }
+    },
+    "spacecraft": {
+      "title": "Kosmik apparatni yig'ing",
+      "help": "Tanlash paytida resurslar panelini kuzating. Har bir yaxshilash bir tizimga foyda berib, boshqasidan oladi.",
+      "bus": "Korpus (platforma)",
+      "power": "Quvvat manbai",
+      "battery": "Batareya",
+      "comms": "Aloqa tizimi",
+      "computer": "Bort kompyuteri",
+      "adcs": "Yo'nalishni boshqarish",
+      "propulsion": "Dvigatel"
+    },
+    "extras": {
+      "solar": "{area} m² quyosh paneli",
+      "rtg": "Istalgan joyda barqaror {watts} W",
+      "bus": "{payload} kg asbob va {tank} kg yoqilg'i sig'adi",
+      "battery": "{capacity} Wh zaxira",
+      "comms": "{dish} m antenna, {transmit} W uzatgich",
+      "computer": "Radiatsiyaga chidamlilik {tolerance}%, xotira {storage} Gb",
+      "isp": "Samaradorlik (Isp) {isp} s",
+      "instrument": "Ilmiy natija +{science} · {data} Gb/kun"
+    },
+    "payload": {
+      "title": "Ilmiy asboblarni tanlang",
+      "help": "Asbob ko'p bo'lsa, ilmiy natija ham ko'p bo'ladi, lekin massa, quvvat, narx va yuboriladigan ma'lumot ham oshadi.",
+      "required": "Bu missiyaga kerak: {list}."
+    },
+    "orbit": {
+      "title": "Orbita va raketani tanlang",
+      "help": "Orbita nimani ko'rishingizni, qancha yoqilg'i sarflashingizni va qancha quyosh olishingizni belgilaydi. Raketa sizni u yerga yetkaza olishi kerak.",
+      "choose": "Orbita",
+      "stats": "Qamrov {coverage}% · tormozlash {deltaV} m/s · radiatsiya {radiation}%",
+      "derived": "Bir aylanish: {period} daq · soyada: {eclipse} daq · yoqilg'i: {deltaV} m/s uchun {propellant} kg",
+      "launcher": "Raketa",
+      "capacity": "Bu yerga {capacity} kg olib boradi · ${cost} mln · ishonchlilik {reliability}%",
+      "cannotReach": "Bu manzilga yeta olmaydi",
+      "lifetime": "Rejalangan missiya davomiyligi: {months} oy",
+      "lifetimeHelp": "Uzoqroq missiya ko'proq ma'lumot beradi, lekin ko'proq yoqilg'i va boshqaruv puli talab qiladi."
+    },
+    "parts": {
+      "bus-small": {
+        "name": "Kichik korpus",
+        "desc": "Yengil va arzon, lekin joyi kam."
+      },
+      "bus-medium": {
+        "name": "O'rta korpus",
+        "desc": "Ko'p missiyalar uchun muvozanatli tanlov."
+      },
+      "bus-large": {
+        "name": "Katta korpus",
+        "desc": "Ko'p yuk sig'adi, lekin og'ir va sekin quriladi."
+      },
+      "solar-2": {
+        "name": "Kichik quyosh paneli",
+        "desc": "Yer yaqinida kichik apparatga yetadi."
+      },
+      "solar-6": {
+        "name": "O'rta quyosh paneli",
+        "desc": "Yer, Oy va yengil Mars missiyalariga mos."
+      },
+      "solar-16": {
+        "name": "Katta quyosh paneli",
+        "desc": "Ko'p quvvat talab qiladigan apparatlar uchun."
+      },
+      "solar-60": {
+        "name": "Ulkan quyosh paneli",
+        "desc": "Yupiterda quyosh nuri 27 baravar kuchsiz, shuning uchun o'lcham muhim."
+      },
+      "rtg": {
+        "name": "Radioizotop generator",
+        "desc": "Yadro issiqligi quyoshsiz ham barqaror quvvat beradi, lekin juda qimmat."
+      },
+      "battery-small": {
+        "name": "Kichik batareya",
+        "desc": "Qisqa tutilish va kichik yuk uchun."
+      },
+      "battery-medium": {
+        "name": "O'rta batareya",
+        "desc": "Oddiy apparatni soyadan olib o'tadi."
+      },
+      "battery-large": {
+        "name": "Katta batareya",
+        "desc": "Uzoq tutilish va katta yuk uchun."
+      },
+      "comms-small": {
+        "name": "Kichik antenna",
+        "desc": "Yer yaqinida yetarli, uzoq kosmosda kuchsiz."
+      },
+      "comms-medium": {
+        "name": "O'rta antenna",
+        "desc": "Oygacha kuchli aloqa beradi."
+      },
+      "comms-large": {
+        "name": "Katta antenna",
+        "desc": "Ichki Quyosh sistemasi uchun yaxshi."
+      },
+      "comms-deep": {
+        "name": "Uzoq kosmos antennasi",
+        "desc": "Mars va undan uzoqqa mo'ljallangan katta, kuchli antenna."
+      },
+      "computer-basic": {
+        "name": "Oddiy kompyuter",
+        "desc": "Arzon, lekin xotirasi va radiatsiyadan himoyasi kam."
+      },
+      "computer-standard": {
+        "name": "Standart kompyuter",
+        "desc": "Xotirasi yaxshi, himoyasi o'rtacha."
+      },
+      "computer-hardened": {
+        "name": "Radiatsiyaga chidamli kompyuter",
+        "desc": "Kuchli radiatsiyada ishlash uchun qurilgan."
+      },
+      "adcs-magnetic": {
+        "name": "Magnit g'altaklar",
+        "desc": "Yer magnit maydoniga tayanadi. Aniqligi past, faqat Yer orbitasida ishlaydi."
+      },
+      "adcs-wheels": {
+        "name": "Reaksiya g'ildiraklari",
+        "desc": "Aylanuvchi g'ildiraklar aniq yo'naltirishni ta'minlaydi."
+      },
+      "adcs-redundant": {
+        "name": "Zaxirali g'ildiraklar",
+        "desc": "Nosozlikdan keyin ham zaxira g'ildirak aniqlikni saqlaydi."
+      },
+      "prop-cold": {
+        "name": "Sovuq gaz dvigateli",
+        "desc": "Oddiy va yengil, lekin samaradorligi juda past."
+      },
+      "prop-mono": {
+        "name": "Bir komponentli dvigatel",
+        "desc": "Ishonchli, samaradorligi o'rtacha."
+      },
+      "prop-biprop": {
+        "name": "Ikki komponentli dvigatel",
+        "desc": "Og'irroq, lekin katta manevrlarda ancha kam yoqilg'i sarflaydi."
+      },
+      "camera-wide": {
+        "name": "Keng burchakli kamera",
+        "desc": "Keng ko'rinish va kam ma'lumot."
+      },
+      "camera-hires": {
+        "name": "Yuqori aniqlikdagi kamera",
+        "desc": "Aniq tasvir, katta hajm va aniq yo'naltirish talab qiladi."
+      },
+      "spectrometer": {
+        "name": "Tasvirli spektrometr",
+        "desc": "Yorug'lik orqali sirt nimadan iboratligini aniqlaydi."
+      },
+      "radar": {
+        "name": "Zondlovchi radar",
+        "desc": "Yer osti qatlamini ko'radi, lekin og'ir va ko'p quvvat sarflaydi."
+      },
+      "radiometer": {
+        "name": "Issiqlik radiometri",
+        "desc": "Issiqlikni kam ma'lumot bilan o'lchaydi."
+      },
+      "laser-altimeter": {
+        "name": "Lazer balandlik o'lchagich",
+        "desc": "Relyef balandligini xaritalaydi."
+      },
+      "magnetometer": {
+        "name": "Magnitometr",
+        "desc": "Magnit maydonni o'lchaydi. Kichik va tejamkor."
+      },
+      "particle-detector": {
+        "name": "Zarra detektori",
+        "desc": "Apparat atrofidagi zaryadli zarralarni sanaydi."
+      }
+    },
+    "orbits": {
+      "leo-sso": {
+        "name": "Quyosh-sinxron orbita, 700 km",
+        "desc": "Har kuni bir xil mahalliy vaqtda butun Yer ustidan o'tadi."
+      },
+      "leo-low": {
+        "name": "Past orbita, 450 km",
+        "desc": "Yaqinroq ko'radi, lekin havo qarshiligi yoqilg'i oladi va qutblar ko'rinmaydi."
+      },
+      "geo": {
+        "name": "Geostatsionar orbita, 35 786 km",
+        "desc": "Doim bir nuqta ustida turadi, lekin mayda tafsilotlardan uzoq."
+      },
+      "llo-polar": {
+        "name": "Past qutbiy Oy orbitasi, 100 km",
+        "desc": "Oyni qutblari bilan to'liq ko'radi. Muntazam tuzatish kerak."
+      },
+      "lunar-elliptic": {
+        "name": "Elliptik Oy orbitasi",
+        "desc": "Yoqilg'i kam ketadi va barqaror, lekin qamrov va aniqlik past."
+      },
+      "mars-low-polar": {
+        "name": "Past qutbiy Mars orbitasi, 400 km",
+        "desc": "Butun sayyorani ko'radi, lekin kuchli tormozlash kerak."
+      },
+      "mars-elliptic": {
+        "name": "Elliptik Mars orbitasi",
+        "desc": "Tormozlash yoqilg'isi ikki baravar kam, lekin qamrov va aniqlik ancha past."
+      },
+      "jupiter-polar": {
+        "name": "Qutbiy Yupiter orbitasi",
+        "desc": "Qutblar ustidan juda yaqin o'tadi, radiatsiya esa juda kuchli."
+      },
+      "jupiter-distant": {
+        "name": "Uzoq Yupiter orbitasi",
+        "desc": "Radiatsiya yumshoqroq, lekin ancha kam narsa ko'rinadi."
+      }
+    },
+    "launchers": {
+      "electron": "Electron",
+      "alpha": "Firefly Alpha",
+      "falcon-9": "Falcon 9",
+      "atlas-v": "Atlas V 551",
+      "falcon-heavy": "Falcon Heavy"
+    },
+    "capabilities": {
+      "imaging": "tasvirga olish",
+      "spectroscopy": "spektroskopiya",
+      "radar": "radar",
+      "fields": "magnit maydon",
+      "particles": "zarralar",
+      "thermal": "issiqlikni o'lchash",
+      "topography": "relyef balandligi"
+    },
+    "review": {
+      "title": "Parvoz tekshiruvi",
+      "help": "To'sib turgan muammolarni tuzatish shart. Ogohlantirishlar bilan uchish mumkin, lekin ularning ta'sirini orbitada ko'rasiz.",
+      "clear": "Muammo topilmadi. Missiya uchishga tayyor.",
+      "blocker": "Tuzatish shart",
+      "warning": "Xavf",
+      "launch": "Uchirish"
+    },
+    "issues": {
+      "noInstruments": "Asbobsiz apparat ilmiy ish qila olmaydi. Kamida bittasini qo'shing.",
+      "busPayload": "Asboblar {used} kg, lekin bu korpus {limit} kg ko'taradi. Kattaroq korpus oling yoki asboblarni kamaytiring.",
+      "propellantImpossible": "Bu dvigatel {deltaV} m/s bera olmaydi: {isp} s samaradorlikda baklarga yetarli yoqilg'i hech qachon sig'maydi. Samaraliroq dvigatel tanlang.",
+      "tankOverflow": "Missiyaga {used} kg yoqilg'i kerak, baklarga esa {limit} kg sig'adi. Samaraliroq dvigatel yoki kattaroq korpus yordam beradi.",
+      "launcherCannotReach": "Bu raketa manzilga yeta olmaydi. Kuchliroq raketa tanlang.",
+      "launcherOverweight": "Apparat {used} kg, lekin raketa bu yerga {limit} kg olib boradi. Massani kamaytiring yoki kattaroq raketa oling.",
+      "overBudget": "Missiya ${used} mln turadi, sizda esa ${limit} mln bor. Qismlar, raketa va boshqaruv hammasi hisobga kiradi.",
+      "lateLaunch": "Uchish {used}-oyga to'g'ri keldi, muddat esa {limit}-oy. Kamroq yoki soddaroq asboblar va kichikroq korpus tezroq quriladi.",
+      "magneticAwayFromEarth": "Magnit g'altaklarga Yer magnit maydoni kerak, shuning uchun bu manzilda ishlamaydi. Reaksiya g'ildiraklarini oling.",
+      "needsFinePointing": "Asbobga magnit g'altaklar bera olmaydigan aniq yo'naltirish kerak. Reaksiya g'ildiraklarini oling.",
+      "shortLifetime": "{used} oylik missiya talab qilingan {limit} oydan qisqa.",
+      "missingCapability": "Missiyaning asosiy savoli uchun {missing} kerak. Busiz ilmiy qiymat keskin tushadi.",
+      "powerDeficit": "Apparatga {used} W kerak, lekin o'rtacha {limit} W oladi, shuning uchun asboblar tez-tez o'chib turadi.",
+      "thinPower": "Quvvat zaxirasi atigi {margin}%. Panel biroz shikastlansa, asboblar o'chishi mumkin.",
+      "batteryShort": "Soyadan o'tishga {used} Wh kerak, batareya esa xavfsiz holda {limit} Wh beradi. Tutilishda asboblar to'xtaydi.",
+      "downlinkShort": "Asboblar kuniga {used} Gb yig'adi, radio esa {limit} Gb yuboradi. Qolgani yo'qolishi mumkin.",
+      "radiationExposure": "Bu yerda radiatsiya {radiation}%, kompyuter esa {tolerance}% ga chidaydi. U to'satdan ishdan chiqishi mumkin.",
+      "lowScience": "Mukammal parvozda ham {used} ball olinadi, maqsad esa {limit} ball."
+    },
+    "phases": {
+      "launch": "Uchish",
+      "cruise": "Manzil sari parvoz",
+      "operations": "Ilmiy ish",
+      "ended": "Missiya tugadi"
+    },
+    "flight": {
+      "noWebgl": "Bu brauzerda 3D ko'rinish ishlamaydi. Missiya pastda davom etadi.",
+      "notToScale": "Tasviriy ko'rinish, masshtabga mos emas. O'tish yo'li haqiqiy Hohmann ellipsidan olingan.",
+      "day": "Missiya kuni",
+      "dayValue": "{day}-kun",
+      "power": "Quvvat",
+      "powerValue": "{available} W mavjud / {load} W sarf",
+      "buffer": "Xotira",
+      "bufferValue": "{value} Gb navbatda",
+      "returned": "Yerga yuborildi",
+      "returnedValue": "{value} Gb",
+      "report": "Missiya hisobotini ochish",
+      "skip": "Oxiriga o'tish",
+      "log": "Missiya jurnali"
+    },
+    "events": {
+      "liftoff": "Uchdik!",
+      "launchFailure": "Raketa ko'tarilishda ishdan chiqdi. Ishonchli raketalarda ham xavf bor.",
+      "separation": "Apparat raketadan ajraldi.",
+      "insertion": "{deltaV} m/s tormozlash tugadi. Apparat orbitada.",
+      "insertionFailure": "Tormozlash muvaffaqiyatsiz tugadi va apparat orbitaga chiqa olmadi.",
+      "solarFlare": "Quyosh chaqnashi! {days} kun xavfsiz rejim.",
+      "micrometeoroid": "Mikrometeoroid quyosh paneliga urildi: quvvatning {loss}% i yo'qoldi.",
+      "wheelFailure": "Reaksiya g'ildiragi buzildi. Aniq asboblar endi vaqtning {duty}% ida ishlaydi.",
+      "wheelFailover": "Reaksiya g'ildiragi buzildi, lekin zaxirasi ishga tushdi va ilmiy ish yo'qolmadi.",
+      "groundOutage": "Yer stansiyasi ishlamayapti: {days} kun aloqa yo'q. Ma'lumot xotirada kutadi.",
+      "instrumentFault": "{instrument} ishdan chiqdi.",
+      "radiationKill": "Radiatsiya bort kompyuterini yo'q qildi. Aloqa uzildi.",
+      "powerCollapse": "Quvvat {available} W gacha tushdi, yashash uchun esa {needed} W kerak. Aloqa uzildi.",
+      "missionComplete": "Rejalangan missiya yakunlandi.",
+      "transmitterFade": "Uzatgich eskirdi: ma'lumot tezligining {left}% i qoldi."
+    },
+    "outcomes": {
+      "full": "Missiya muvaffaqiyatli",
+      "partial": "Qisman muvaffaqiyat",
+      "failed": "Missiya barbod bo'ldi"
+    },
+    "report": {
+      "summary": "Rejadagi {planned} kundan {days} kun ishladi, {returned} Gb yubordi, ilmiy natija {science}, talab {required}.",
+      "success": "Maqsad",
+      "science": "Ilmiy natija",
+      "budget": "Byudjetdan foydalanish",
+      "robustness": "Xavfsizlik zaxirasi",
+      "team": "Jamoa vazifalari",
+      "why": "Nega shunday bo'ldi",
+      "attempts": "Urinishlarni solishtiring",
+      "mission": "Missiya",
+      "total": "Ball",
+      "cost": "Narx",
+      "mass": "Massa",
+      "result": "Natija",
+      "redesign": "Dizaynni o'zgartirib, qayta uchish",
+      "newMission": "Boshqa missiya tanlash",
+      "teamGoals": "Rollar vazifasi",
+      "met": "Vazifa bajarildi",
+      "notMet": "Vazifa bajarilmadi",
+      "share": "Dizayn havolasini nusxalash",
+      "copied": "Havola nusxalandi"
+    },
+    "insights": {
+      "launchFailure": "Raketa ishdan chiqdi. Bu dizayn xatosi emas, omadsizlik. Haqiqiy dasturlar bunga sug'urta va zaxira uskuna bilan tayyorlanadi.",
+      "insertionFailure": "Yetib kelganda tormozlash muvaffaqiyatsiz bo'ldi. Har bir missiyada ikkinchi imkoniyat bo'lmaydigan lahzalar bor.",
+      "radiationKill": "Kompyuter {planned} kundan {days} kun o'tib ishdan chiqdi. Radiatsiyaga chidamli elektronika qimmat, lekin bu orbita uni talab qiladi.",
+      "powerCollapse": "{planned} kundan {days} kun o'tib quvvat apparat yashashi uchun kerakli darajadan pastga tushdi. Panel qo'shing yoki iste'molni kamaytiring.",
+      "missingCapability": "Missiyada {missing} yo'q edi, shuning uchun asosiy savolga javob bera olmadi.",
+      "dataLost": "Ma'lumotning {pct}% i yo'qoldi: asboblar kuniga {generated} Gb yig'di, radio esa {downlink} Gb yubordi. Signal masofa kvadratiga mos ravishda susayadi, shuning uchun kattaroq antenna yoki ko'proq quvvat yordam beradi. Kamroq yig'ish ham foyda beradi.",
+      "dataHealthy": "Aloqa tizimi ulgurdi va ma'lumotning {pct}% i saqlandi.",
+      "lowDuty": "Asboblar vaqtning atigi {pct}% ida ishladi, chunki quvvat yetmadi yoki xavfsiz rejim yoqildi. Ko'proq quvvat yoki kichikroq yuk yordam beradi.",
+      "batteryShort": "Har bir {eclipse} daqiqalik tutilishga {need} Wh kerak edi, batareya esa xavfsiz holda {have} Wh berdi, shuning uchun asboblar soyada to'xtadi.",
+      "powerMargin": "{pct}% quvvat zaxirasi panellar eskirganda yoki shikastlanganda apparatni asradi.",
+      "budgetMargin": "Byudjetning {pct}% ini zaxirada saqladingiz. Haqiqiy missiyalarga bu kutilmagan holatlar uchun kerak.",
+      "scienceShort": "Ilmiy natija {value} bo'ldi, talab esa {required}. Yaxshiroq asbob, orbita yoki ko'proq ma'lumot yetkazish uni oshiradi.",
+      "redundancyPaid": "Zaxira reaksiya g'ildiragi o'zini oqladi: nosozlik ilmiy ishga zarar yetkazmadi.",
+      "noRedundancy": "G'ildirak buzildi, zaxirasi esa yo'q edi. Zaxira massa va narxni oshiradi, lekin ilmiy ishni himoya qiladi.",
+      "launchWindow": "Apparat oldinroq tayyor bo'lib, sayyoralar qulay joylashishini {months} oy kutdi. Jamoa maoshi bu vaqtda ham to'lanadi."
+    },
+    "tutorial": {
+      "title": "Qanday o'ynaladi",
+      "one": "Missiyani tanlang. U byudjet, muddat va ilmiy vazifani belgilaydi.",
+      "two": "Apparatni yig'ing va resurslar panelini kuzating: har bir qism nimadir talab qiladi.",
+      "three": "Asboblar, orbita va raketani tanlab, parvoz tekshiruvidan o'ting.",
+      "four": "Uching, nega yutgan yoki yutqazganingizni o'qing, dizaynni o'zgartiring va yuqoriroq ball oling.",
+      "done": "Tushunarli"
+    },
+    "sandbox": {
+      "label": "Sandbox rejimi",
+      "help": "Byudjet va muddat cheklovisiz sinab ko'ring. Natijalar reytingga kirmaydi."
     }
   }
 }

@@ -38,7 +38,7 @@ test.afterAll(async () => {
 
 test.describe('NEXUS browser journeys', () => {
   test('opens the Solar System and selects a planet', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/universe');
     await expect(page.getByText('Not to scale')).toBeVisible();
 
     // Earth begins near the centre of the view. Selecting the scene object

@@ -67,7 +67,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         <div className="relative">
           <div className="mb-5 flex items-center justify-between">
             <span className="inline-flex rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.2em] text-cyan-200">NEXUS</span>
-            <Link href="/" className="text-[10px] uppercase tracking-[0.18em] text-foreground/55 hover:text-accent-cyan">{t('back')}</Link>
+            <Link href="/universe" className="text-[10px] uppercase tracking-[0.18em] text-foreground/55 hover:text-accent-cyan">{t('back')}</Link>
           </div>
 
           <h1 className="text-2xl font-semibold tracking-tight">{t(isRegister ? 'registerTitle' : 'loginTitle')}</h1>

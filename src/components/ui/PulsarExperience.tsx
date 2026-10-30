@@ -5,10 +5,12 @@ import { Pause, Play, Radio, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useSelectionStore } from '@/stores/selectionStore';
 
-const PULSARS = {
+type PulsarInfo = { name: string; hz: number; periodMs: number; media: string; kind: 'audio' | 'video' };
+
+const PULSARS: Record<'vela-pulsar' | 'crab-pulsar', PulsarInfo> = {
   'vela-pulsar': { name: 'Vela Pulsar', hz: 11.2, periodMs: 89, media: 'https://chandra.si.edu/photo/2024/ar/ar_vela_composite.mp4', kind: 'audio' },
   'crab-pulsar': { name: 'Crab Pulsar', hz: 30.2, periodMs: 33, media: 'https://chandra.si.edu/sound/sounds/audio/crab_chandra_nustar.mp3', kind: 'audio' },
-} as const;
+};
 
 export function getPulsarPlaybackAction({ playing, kind, videoOpen }: { playing: boolean; kind: 'audio' | 'video'; videoOpen: boolean }) {
   if (playing) return { action: 'pause' as const, openVideo: false };
@@ -102,6 +104,14 @@ export function PulsarExperience() {
   const synthRef = useRef<{ context: AudioContext; interval: number } | null>(null);
   const selected = selectedId && selectedId in PULSARS ? PULSARS[selectedId as keyof typeof PULSARS] : null;
 
+  // Switching pulsars resets playback during render, so no stale frame shows the old state.
+  const [playbackFor, setPlaybackFor] = useState(selectedId);
+  if (playbackFor !== selectedId) {
+    setPlaybackFor(selectedId);
+    setPlaying(false);
+    setVideoOpen(false);
+  }
+
   useEffect(() => {
     return () => {
       stopPulsarSynth(synthRef);
@@ -131,7 +141,7 @@ export function PulsarExperience() {
     }
   }, [playing, selected]);
 
-  useEffect(() => { media.current?.pause(); setPlaying(false); setVideoOpen(false); }, [selectedId]);
+  useEffect(() => { media.current?.pause(); }, [selectedId]);
   if (!selected) return null;
 
   async function toggleAudio() {

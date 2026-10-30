@@ -27,7 +27,7 @@ export function LabIndex() {
         <div className="absolute left-6 top-1/2 h-24 w-24 -translate-y-1/2 rounded-full border border-accent-cyan/20" style={{ transform: 'translateY(-50%) rotate(28deg)' }} />
 
         <div className="relative">
-          <Link href="/" className="inline-flex text-xs font-medium uppercase tracking-[0.18em] text-foreground/60 transition-colors hover:text-accent-cyan">{t('back')}</Link>
+          <Link href="/universe" className="inline-flex text-xs font-medium uppercase tracking-[0.18em] text-foreground/60 transition-colors hover:text-accent-cyan">{t('back')}</Link>
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="inline-flex rounded-full border border-accent-cyan/40 bg-accent-cyan/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-accent-cyan">Lab</span>

@@ -9,10 +9,11 @@ describe('galaxy layout', () => {
     expect(d * LY_PER_GALAXY_UNIT).toBeGreaterThan(25_500);
     expect(d * LY_PER_GALAXY_UNIT).toBeLessThan(26_500);
   });
-  it('puts every marker inside the Milky Way disc and keeps unique ids', () => {
+  it('puts every Milky Way marker inside the disc and keeps unique ids', () => {
     const markers = galaxyMarkers();
     expect(new Set(markers.map((m) => m.id)).size).toBe(markers.length);
-    for (const m of markers) expect(Math.hypot(...m.position)).toBeLessThan(MILKY_WAY_RADIUS * 1.2);
+    // The Magellanic Clouds are satellites, outside the disc by design.
+    for (const m of markers.filter((marker) => marker.kind !== 'galaxy')) expect(Math.hypot(...m.position)).toBeLessThan(MILKY_WAY_RADIUS * 1.2);
   });
   it('keeps nearby stars at their real distance from the Sun', () => {
     const sirius = galaxyMarkers().find((m) => m.id === 'sirius-a')!;

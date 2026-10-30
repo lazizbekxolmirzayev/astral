@@ -1,10 +1,12 @@
-import { Shell } from "@/components/ui/Shell";
-import { AppProviders } from "@/components/ui/AppProviders";
+import { AppProviders } from '@/components/ui/AppProviders';
+import { SiteNav } from '@/components/ui/SiteNav';
+import { MissionGame } from '@/components/mission/MissionGame';
 
-export default function Home() {
+export default function MissionPage() {
   return (
     <AppProviders>
-      <Shell />
+      <SiteNav />
+      <MissionGame />
     </AppProviders>
   );
 }

@@ -1,6 +1,10 @@
 ﻿# NEXUS
 
-NEXUS is a Next.js App Router demo for an interactive, explicitly **not to scale** solar system view and physics experiments. Simulated positions are data-driven; visual sizes and the compressed scene layout are artistic.
+NEXUS is a **Space Mission Design Game** built for the 2026 NASA Space Apps Challenge. Players choose an objective, build a spacecraft, pick instruments, an orbit, and a rocket, fly the mission, and learn from a report that explains why it succeeded or failed. Solo play and four-role team play on one computer are both supported, in Uzbek, Russian, and English.
+
+The game runs at `/` and needs no database. The interactive, explicitly **not to scale** solar system view and physics experiments are at `/universe`. Simulated positions are data-driven; visual sizes and the compressed scene layout are artistic.
+
+Progress and next steps are tracked in [docs/PROGRESS.md](./docs/PROGRESS.md).
 
 ## Install and run
 
@@ -12,7 +16,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Run checks with `npm run typecheck`, `npm run lint`, and `npm test`.
 
-MongoDB-backed sharing and authentication require a MongoDB Atlas URI (or local MongoDB) in `MONGODB_URI`. Environment variables:
+Only the sharing and account features need a database. They require a MongoDB Atlas URI (or local MongoDB) in `MONGODB_URI`. Environment variables:
 
 - `MONGODB_URI`: server-side MongoDB connection URI.
 - `MONGODB_DB`: database name, for example `nexus`.
@@ -26,7 +30,7 @@ Never expose these values through `NEXT_PUBLIC_` variables.
 
 ## Demo scenario
 
-Open the home page, wait for the Solar System view, then zoom with the mouse wheel and click a body to focus it. The permanent “Not to scale” notice applies to the rendered layout.
+Open the home page and pick a mission. To see the universe view, open `/universe`, wait for the Solar System view, then zoom with the mouse wheel and click a body to focus it. The permanent “Not to scale” notice applies to the rendered layout.
 
 ## Browser tests
 

@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "NEXUS",
-    "tagline": "Interactive 3D universe and physics simulation"
+    "tagline": "Interactive space mission design game"
   },
   "sidebar": {
     "title": "Scene objects",
@@ -13,12 +13,20 @@
     "pause": "Pause",
     "reset": "Reset",
     "speed": "Speed",
-    "timeNote": "1Г— is scene time, not real time"
+    "timeNote": "1× is scene time, not real time"
   },
   "future": {
     "title": "Future time machine",
     "fromNow": "From now",
-    "milestones": ["Now", "1 thousand years", "100 thousand years", "600 million years", "1 billion years", "5 billion years", "7.5 billion years"],
+    "milestones": [
+      "Now",
+      "1 thousand years",
+      "100 thousand years",
+      "600 million years",
+      "1 billion years",
+      "5 billion years",
+      "7.5 billion years"
+    ],
     "early": "Planets remain as shown; the Moon continues to recede from Earth.",
     "brightening": "The Sun gradually brightens; Earth's climate outcome is not calculated here.",
     "redGiant": "In about 5 billion years, the Sun enters its red giant phase.",
@@ -37,7 +45,8 @@
     "hideVideo": "Hide video",
     "close": "Close pulsar panel",
     "radioSignal": "Pulse cadence · illustrative",
-    "sonified": "Telescope data sonification",    "active": "Signal playing",
+    "sonified": "Telescope data sonification",
+    "active": "Signal playing",
     "standby": "Standby",
     "pulseRate": "Pulse rate",
     "period": "Rotation period",
@@ -49,7 +58,7 @@
     "viewAs": "View mode",
     "viewReadout": "Text",
     "viewTable": "Table",
-    "waiting": "Waiting for the first frameвЂ¦",
+    "waiting": "Waiting for the first frame…",
     "tableCaption": "Live values per planet",
     "columnBody": "Body",
     "unitAu": "AU",
@@ -148,9 +157,9 @@
     "exportLabel": "Export {name} as JSON",
     "deleteAction": "Delete",
     "deleteLabel": "Delete {name}",
-    "loading": "Loading local experimentsвЂ¦",
+    "loading": "Loading local experiments…",
     "empty": "No saved experiments yet.",
-    "scenarioMeta": "{count} objects В· saved {date}",
+    "scenarioMeta": "{count} objects · saved {date}",
     "loadedTitle": "Loaded: {name}",
     "loadedDescription": "This validated scenario is ready to inspect.",
     "savedNotice": "Saved {name} on this device.",
@@ -178,14 +187,14 @@
     "previous": "Previous",
     "next": "Next",
     "page": "Page {page} of {pages}",
-    "unlisted": "Unlisted В· anyone with this link can view",
+    "unlisted": "Unlisted · anyone with this link can view",
     "public": "Public scenario",
-    "sharedEyebrow": "NEXUS В· Shared scenario",
+    "sharedEyebrow": "NEXUS · Shared scenario",
     "restored": "Restored scenario: {name}",
     "objectCount": "{count} celestial objects",
     "report": "Report",
     "reported": "Reported",
-    "sending": "SendingвЂ¦",
+    "sending": "Sending…",
     "reportFailed": "Report could not be submitted.",
     "shareAction": "Share",
     "shareTitle": "Share experiment",
@@ -209,7 +218,7 @@
     "presetLabel": "Preset",
     "viewLabel": "Sandbox simulation view",
     "notToScale": "Not to scale",
-    "emptySpace": "Empty space В· no bodies",
+    "emptySpace": "Empty space · no bodies",
     "run": "Run",
     "pause": "Pause",
     "reset": "Reset to initial state",
@@ -250,15 +259,15 @@
     "notes": {
       "stable": "JPL Solar System initial conditions, integrated with the app's fixed-step Newtonian engine.",
       "twoBody": "Sun and Earth initial state from JPL; other bodies are omitted for this two-body experiment.",
-      "impact": "Earth and a 500 m radius, 3000 kg/mВі illustrative asteroid. Impact energy and the airburst flag use the impact module. The N-body engine does not resolve body contact, an atmospheric trajectory, or damage.",
+      "impact": "Earth and a 500 m radius, 3000 kg/m³ illustrative asteroid. Impact energy and the airburst flag use the impact module. The N-body engine does not resolve body contact, an atmospheric trajectory, or damage.",
       "starReplacement": "Instantly replaces the Sun's gravitational parameter with half its initial value while preserving all positions and velocities. This is a controlled thought experiment, not stellar evolution.",
       "blackHole": "A 1000 solar-mass non-rotating black hole and a test particle at 12 Schwarzschild radii. Newtonian particle motion is only an approximation; see the validity gauge.",
       "empty": "An empty simulation clock with no bodies. Conservation diagnostics are undefined."
     },
-    "starModelCard": "Model Card В· Instantaneous mass substitution. Other bodies keep their positions and velocities. No stellar evolution, mass loss, ejecta, or radiation is modelled.",
-    "blackHoleModelCard": "Model Card В· Non-rotating Schwarzschild geometry for radius and gauge; test-particle trajectory remains Newtonian. No relativistic trajectory or light propagation.",
-    "impactModelCard": "Model Card В· Spherical uniform-density impactor and Newtonian kinetic energy. Body contact is not resolved. Airburst output is a coarse heuristic, not a probability or damage forecast.",
-    "newtonianModelCard": "Model Card В· Point-mass Newtonian gravity with a fixed-step velocity-Verlet integrator. Scene geometry is illustrative and not to scale.",
+    "starModelCard": "Model Card · Instantaneous mass substitution. Other bodies keep their positions and velocities. No stellar evolution, mass loss, ejecta, or radiation is modelled.",
+    "blackHoleModelCard": "Model Card · Non-rotating Schwarzschild geometry for radius and gauge; test-particle trajectory remains Newtonian. No relativistic trajectory or light propagation.",
+    "impactModelCard": "Model Card · Spherical uniform-density impactor and Newtonian kinetic energy. Body contact is not resolved. Airburst output is a coarse heuristic, not a probability or damage forecast.",
+    "newtonianModelCard": "Model Card · Point-mass Newtonian gravity with a fixed-step velocity-Verlet integrator. Scene geometry is illustrative and not to scale.",
     "catalogLoaded": "From catalogue: {name}",
     "assumptions": "Assumed because the record has no value: {list}.",
     "unverified": "Catalogue values are approximate and unverified.",
@@ -283,7 +292,7 @@
       "fit": "Fit",
       "trails": "Trails",
       "vectors": "Velocity",
-      "hint": "Scroll: zoom В· Drag: pan В· Click: select В· Double-click: fit"
+      "hint": "Scroll: zoom · Drag: pan · Click: select · Double-click: fit"
     },
     "orbit": {
       "title": "{name}: orbit relative to the centre",
@@ -307,7 +316,7 @@
   "viewport": {
     "title": "Universe view",
     "notToScale": "Not to scale",
-    "loading": "Loading sceneвЂ¦",
+    "loading": "Loading scene…",
     "webglUnsupported": "Your browser does not support WebGL, so the 3D view cannot render.",
     "sceneError": "The 3D scene stopped with an error.",
     "controlsHint": "Left drag rotates, wheel zooms, right drag pans, WASD or arrow keys fly. Clicking a body glides the camera onto it."
@@ -328,8 +337,8 @@
     "colors": "Colors",
     "fonts": "Fonts",
     "provenanceLabels": "Provenance labels",
-    "sansLabel": "Inter вЂ” interface text",
-    "monoLabel": "JetBrains Mono вЂ” numbers"
+    "sansLabel": "Inter — interface text",
+    "monoLabel": "JetBrains Mono — numbers"
   },
   "auth": {
     "loginTitle": "Sign in",
@@ -479,6 +488,7 @@
     "universeNote": "Directions are real; distances are compressed and galaxy sizes exaggerated so everything fits. Not to scale."
   },
   "nav": {
+    "mission": "Mission",
     "universe": "Universe",
     "gallery": "Gallery",
     "lab": "Labs",
@@ -539,7 +549,7 @@
         "body": "Near-Earth asteroid with a safe 2029 flyby. Orbit from catalog values; no collision is predicted."
       },
       "halley": {
-        "body": "Highly eccentric comet (eв‰€0.97). Speed changes enormously between perihelion and aphelion."
+        "body": "Highly eccentric comet (e≈0.97). Speed changes enormously between perihelion and aphelion."
       },
       "sirius-a": {
         "body": "Put a 2-solar-mass A star at the centre. Which planets survive, and how do the periods change?"
@@ -554,7 +564,7 @@
         "body": "Stellar-mass black hole of about 21 solar masses. Test particle orbits, Newtonian approximation."
       },
       "sagittarius-a-star": {
-        "body": "The Milky WayвЂ™s central black hole, about 4 million solar masses. Orbits are fast and tight."
+        "body": "The Milky Way’s central black hole, about 4 million solar masses. Orbits are fast and tight."
       },
       "m87-star": {
         "body": "A 6.5-billion-solar-mass black hole. An extreme gravitational parameter for the engine."
@@ -571,6 +581,471 @@
       "55-cancri-e": {
         "body": "Lava world orbiting in under a day. A very fast, tight orbit."
       }
+    }
+  },
+  "mission": {
+    "title": "Space Mission Design Game",
+    "intro": "Plan a real-feeling space mission from idea to final report. Every choice costs mass, power, money, or time, and there is rarely one perfect answer.",
+    "stepsLabel": "Mission steps",
+    "steps": {
+      "objective": "Objective",
+      "spacecraft": "Spacecraft",
+      "payload": "Instruments",
+      "orbit": "Orbit & launch",
+      "review": "Launch review",
+      "flight": "Flight",
+      "report": "Report"
+    },
+    "back": "Back",
+    "next": "Next",
+    "partStats": "{mass} kg · {power} W · ${cost}M",
+    "units": {
+      "kg": "kg",
+      "watt": "W",
+      "million": "$M",
+      "gbPerDay": "Gb/day",
+      "months": "months",
+      "points": "points"
+    },
+    "resources": {
+      "title": "Mission resources",
+      "status": {
+        "ok": "Within limits",
+        "tight": "Almost at the limit",
+        "over": "Limit broken"
+      },
+      "mass": {
+        "label": "Mass",
+        "help": "Fully fuelled spacecraft against what the rocket can lift to this destination."
+      },
+      "power": {
+        "label": "Power",
+        "help": "Average electrical load against average power, counting time in shadow."
+      },
+      "budget": {
+        "label": "Budget",
+        "help": "Building, launching, and operating the mission against the funds you have."
+      },
+      "data": {
+        "label": "Data",
+        "help": "Data made each day against what the radio can send home each day."
+      },
+      "time": {
+        "label": "Time",
+        "help": "The launch month against the deadline. Planets only line up for departure at certain times."
+      },
+      "science": {
+        "label": "Science",
+        "help": "Best possible science from these instruments in this orbit, against the goal. More is better."
+      }
+    },
+    "difficulty": {
+      "1": "Beginner",
+      "2": "Moderate",
+      "3": "Hard",
+      "4": "Expert"
+    },
+    "objective": {
+      "title": "Choose your mission",
+      "help": "Start with the question you want answered. The objective sets your budget, deadline, and science goal.",
+      "facts": "${budget}M · {months}+ months · launch by month {deadline}",
+      "best": "Your best: {score}"
+    },
+    "objectives": {
+      "earth-climate": {
+        "name": "Watch Earth's climate",
+        "brief": "Track ice, oceans, and heat from orbit for at least two years."
+      },
+      "moon-ice": {
+        "name": "Find ice on the Moon",
+        "brief": "Map water ice in the dark craters near the lunar poles."
+      },
+      "mars-water": {
+        "name": "Search for water on Mars",
+        "brief": "Use radar to look for ice buried under the surface of Mars."
+      },
+      "jupiter-magnetosphere": {
+        "name": "Explore Jupiter's magnetic field",
+        "brief": "Measure the strongest magnetic field of any planet, through intense radiation."
+      }
+    },
+    "team": {
+      "title": "Who is playing?",
+      "solo": "Single player",
+      "together": "Team of 4",
+      "namePlaceholder": "Name (optional)",
+      "turn": "Turn: {name} ({role}).",
+      "signoff": "Team sign-off: all four roles must agree to launch"
+    },
+    "roles": {
+      "director": {
+        "name": "Mission director",
+        "duty": "Pick the objective and protect the budget.",
+        "goal": "Goal: keep at least 10% of the budget unspent.",
+        "result": "budget margin {value}% (goal {goal}%)"
+      },
+      "engineer": {
+        "name": "Systems engineer",
+        "duty": "Build a spacecraft that survives the mission.",
+        "goal": "Goal: at least 10% mass margin and 15% power margin.",
+        "result": "mass margin {mass}% (goal {massGoal}%), power margin {power}% (goal {powerGoal}%)"
+      },
+      "scientist": {
+        "name": "Science lead",
+        "duty": "Choose instruments that answer the mission's question.",
+        "goal": "Goal: return 20% more science than the mission requires.",
+        "result": "science {value} (goal {goal})"
+      },
+      "operator": {
+        "name": "Flight operations lead",
+        "duty": "Choose the orbit and rocket, and plan how data gets home.",
+        "goal": "Goal: bring home at least 80% of the collected data.",
+        "result": "data returned {value}% (goal {goal}%)"
+      }
+    },
+    "spacecraft": {
+      "title": "Build the spacecraft",
+      "help": "Watch the resource panel as you choose. Each upgrade helps one system and costs another.",
+      "bus": "Structure (bus)",
+      "power": "Power source",
+      "battery": "Battery",
+      "comms": "Communications",
+      "computer": "Onboard computer",
+      "adcs": "Attitude control",
+      "propulsion": "Propulsion"
+    },
+    "extras": {
+      "solar": "{area} m² of solar panels",
+      "rtg": "Steady {watts} W anywhere",
+      "bus": "Carries {payload} kg of instruments, {tank} kg of fuel",
+      "battery": "{capacity} Wh stored",
+      "comms": "{dish} m dish, {transmit} W transmitter",
+      "computer": "Radiation tolerance {tolerance}%, stores {storage} Gb",
+      "isp": "Efficiency (Isp) {isp} s",
+      "instrument": "Science +{science} · {data} Gb/day"
+    },
+    "payload": {
+      "title": "Choose scientific instruments",
+      "help": "More instruments mean more science, but also more mass, power, cost, and data to send home.",
+      "required": "This mission needs: {list}."
+    },
+    "orbit": {
+      "title": "Choose orbit and launch vehicle",
+      "help": "The orbit decides what you can see, how much fuel you burn, and how much sun you get. The rocket must be able to carry you there.",
+      "choose": "Orbit",
+      "stats": "Coverage {coverage}% · braking burn {deltaV} m/s · radiation {radiation}%",
+      "derived": "One orbit: {period} min · in shadow: {eclipse} min · fuel: {propellant} kg for {deltaV} m/s",
+      "launcher": "Launch vehicle",
+      "capacity": "Lifts {capacity} kg here · ${cost}M · {reliability}% reliable",
+      "cannotReach": "Cannot reach this destination",
+      "lifetime": "Planned mission length: {months} months",
+      "lifetimeHelp": "A longer mission returns more data, but needs more fuel and operations money."
+    },
+    "parts": {
+      "bus-small": {
+        "name": "Small bus",
+        "desc": "Light and cheap, but with little room."
+      },
+      "bus-medium": {
+        "name": "Medium bus",
+        "desc": "A balanced frame for most missions."
+      },
+      "bus-large": {
+        "name": "Large bus",
+        "desc": "Holds a lot, but is heavy and slow to build."
+      },
+      "solar-2": {
+        "name": "Small solar array",
+        "desc": "Enough near Earth for a small spacecraft."
+      },
+      "solar-6": {
+        "name": "Medium solar array",
+        "desc": "A good fit for Earth, Moon, and light Mars missions."
+      },
+      "solar-16": {
+        "name": "Large solar array",
+        "desc": "Big wings for power-hungry spacecraft."
+      },
+      "solar-60": {
+        "name": "Giant solar array",
+        "desc": "Sunlight at Jupiter is 27 times weaker, so size matters."
+      },
+      "rtg": {
+        "name": "Radioisotope generator",
+        "desc": "Nuclear heat gives steady power with no sunlight, at a high price."
+      },
+      "battery-small": {
+        "name": "Small battery",
+        "desc": "For short eclipses and light loads."
+      },
+      "battery-medium": {
+        "name": "Medium battery",
+        "desc": "Carries a typical spacecraft through shadow."
+      },
+      "battery-large": {
+        "name": "Large battery",
+        "desc": "Long eclipses and heavy loads."
+      },
+      "comms-small": {
+        "name": "Small antenna",
+        "desc": "Fine close to Earth, too weak for deep space."
+      },
+      "comms-medium": {
+        "name": "Medium dish",
+        "desc": "A strong link out to the Moon."
+      },
+      "comms-large": {
+        "name": "Large dish",
+        "desc": "Good for the inner solar system."
+      },
+      "comms-deep": {
+        "name": "Deep-space dish",
+        "desc": "A big high-power dish for Mars and beyond."
+      },
+      "computer-basic": {
+        "name": "Basic computer",
+        "desc": "Cheap, with little memory and little radiation protection."
+      },
+      "computer-standard": {
+        "name": "Standard computer",
+        "desc": "Good memory and fair protection."
+      },
+      "computer-hardened": {
+        "name": "Radiation-hardened computer",
+        "desc": "Built to survive harsh radiation."
+      },
+      "adcs-magnetic": {
+        "name": "Magnetic torquers",
+        "desc": "Push against Earth's magnetic field. Rough pointing, Earth orbit only."
+      },
+      "adcs-wheels": {
+        "name": "Reaction wheels",
+        "desc": "Spinning wheels give precise pointing."
+      },
+      "adcs-redundant": {
+        "name": "Redundant wheels",
+        "desc": "A spare wheel keeps pointing precise after a failure."
+      },
+      "prop-cold": {
+        "name": "Cold gas thrusters",
+        "desc": "Simple and light, but very inefficient."
+      },
+      "prop-mono": {
+        "name": "Monopropellant engine",
+        "desc": "Reliable, with moderate efficiency."
+      },
+      "prop-biprop": {
+        "name": "Bipropellant engine",
+        "desc": "Heavier, but needs far less fuel for big burns."
+      },
+      "camera-wide": {
+        "name": "Wide-angle camera",
+        "desc": "Broad views with little data."
+      },
+      "camera-hires": {
+        "name": "High-resolution camera",
+        "desc": "Sharp detail, large images, and precise pointing needed."
+      },
+      "spectrometer": {
+        "name": "Imaging spectrometer",
+        "desc": "Reads what surfaces are made of from their light."
+      },
+      "radar": {
+        "name": "Sounding radar",
+        "desc": "Sees beneath the surface, but is heavy and power hungry."
+      },
+      "radiometer": {
+        "name": "Thermal radiometer",
+        "desc": "Measures heat with little data."
+      },
+      "laser-altimeter": {
+        "name": "Laser altimeter",
+        "desc": "Maps the height of the terrain."
+      },
+      "magnetometer": {
+        "name": "Magnetometer",
+        "desc": "Measures magnetic fields. Tiny and efficient."
+      },
+      "particle-detector": {
+        "name": "Particle detector",
+        "desc": "Counts charged particles around the spacecraft."
+      }
+    },
+    "orbits": {
+      "leo-sso": {
+        "name": "Sun-synchronous orbit, 700 km",
+        "desc": "Passes over the whole Earth at the same local time each day."
+      },
+      "leo-low": {
+        "name": "Low orbit, 450 km",
+        "desc": "Closer views, but air drag costs fuel and the poles are missed."
+      },
+      "geo": {
+        "name": "Geostationary orbit, 35,786 km",
+        "desc": "Always above one spot, far from fine detail."
+      },
+      "llo-polar": {
+        "name": "Low polar lunar orbit, 100 km",
+        "desc": "Sees all of the Moon, including the poles. Needs regular corrections."
+      },
+      "lunar-elliptic": {
+        "name": "Elliptical lunar orbit",
+        "desc": "Less fuel and stable, with less coverage and detail."
+      },
+      "mars-low-polar": {
+        "name": "Low polar Mars orbit, 400 km",
+        "desc": "Sees the whole planet, but needs a big braking burn."
+      },
+      "mars-elliptic": {
+        "name": "Elliptical Mars orbit",
+        "desc": "Half the braking fuel, with much less coverage and detail."
+      },
+      "jupiter-polar": {
+        "name": "Polar Jupiter orbit",
+        "desc": "Close passes over the poles through extreme radiation."
+      },
+      "jupiter-distant": {
+        "name": "Distant Jupiter orbit",
+        "desc": "Gentler radiation, but sees much less."
+      }
+    },
+    "launchers": {
+      "electron": "Electron",
+      "alpha": "Firefly Alpha",
+      "falcon-9": "Falcon 9",
+      "atlas-v": "Atlas V 551",
+      "falcon-heavy": "Falcon Heavy"
+    },
+    "capabilities": {
+      "imaging": "imaging",
+      "spectroscopy": "spectroscopy",
+      "radar": "radar",
+      "fields": "magnetic fields",
+      "particles": "particles",
+      "thermal": "heat measurement",
+      "topography": "terrain height"
+    },
+    "review": {
+      "title": "Launch review",
+      "help": "Blocking problems must be fixed. Warnings can fly, but you will see their effect in orbit.",
+      "clear": "No problems found. The mission is go for launch.",
+      "blocker": "Must fix",
+      "warning": "Risk",
+      "launch": "Launch"
+    },
+    "issues": {
+      "noInstruments": "A spacecraft with no instruments cannot do any science. Add at least one.",
+      "busPayload": "Instruments weigh {used} kg, but this bus carries {limit} kg. Pick a bigger bus or fewer instruments.",
+      "propellantImpossible": "This engine cannot deliver {deltaV} m/s: with an efficiency of {isp} s, the tanks could never hold enough fuel. Pick a more efficient engine.",
+      "tankOverflow": "The mission needs {used} kg of fuel, but the tanks hold {limit} kg. A more efficient engine or a bigger bus would fix it.",
+      "launcherCannotReach": "This rocket cannot reach the destination. Pick a more powerful one.",
+      "launcherOverweight": "The spacecraft weighs {used} kg, but this rocket lifts {limit} kg here. Lose mass or pick a bigger rocket.",
+      "overBudget": "The mission costs ${used}M, but you have ${limit}M. Parts, the rocket, and operations all count.",
+      "lateLaunch": "The launch falls in month {used}, after the month {limit} deadline. Fewer or simpler instruments and a smaller bus are faster to build.",
+      "magneticAwayFromEarth": "Magnetic torquers need Earth's magnetic field, so they cannot work at this destination. Use reaction wheels.",
+      "needsFinePointing": "An instrument needs precise pointing that magnetic torquers cannot give. Use reaction wheels.",
+      "shortLifetime": "A {used}-month mission is shorter than the {limit} months required.",
+      "missingCapability": "The mission's main question needs {missing}. Without it, the science value falls sharply.",
+      "powerDeficit": "The spacecraft needs {used} W but gets only {limit} W on average, so instruments will often be switched off.",
+      "thinPower": "Power margin is only {margin}%. A little panel damage could shut down instruments.",
+      "batteryShort": "Getting through the shadow takes {used} Wh, but the battery can safely give {limit} Wh. Instruments will pause in eclipse.",
+      "downlinkShort": "Instruments make {used} Gb per day, but the radio can send only {limit} Gb. The rest may be lost.",
+      "radiationExposure": "Radiation here is {radiation}%, but the computer tolerates {tolerance}%. It may fail suddenly.",
+      "lowScience": "Even a perfect flight gives {used} science points, and the goal is {limit}."
+    },
+    "phases": {
+      "launch": "Launch",
+      "cruise": "Cruise to the target",
+      "operations": "Science operations",
+      "ended": "Mission ended"
+    },
+    "flight": {
+      "noWebgl": "3D view is not available in this browser. The mission still runs below.",
+      "notToScale": "Illustration, not to scale. The transfer path uses a real Hohmann ellipse.",
+      "day": "Mission day",
+      "dayValue": "Day {day}",
+      "power": "Power",
+      "powerValue": "{available} W available / {load} W used",
+      "buffer": "Memory",
+      "bufferValue": "{value} Gb waiting",
+      "returned": "Sent home",
+      "returnedValue": "{value} Gb",
+      "report": "Open mission report",
+      "skip": "Skip to the end",
+      "log": "Mission log"
+    },
+    "events": {
+      "liftoff": "Liftoff!",
+      "launchFailure": "The rocket failed during ascent. Even reliable rockets carry risk.",
+      "separation": "The spacecraft separated from the rocket.",
+      "insertion": "Braking burn of {deltaV} m/s complete. In orbit.",
+      "insertionFailure": "The braking burn failed and the spacecraft missed its orbit.",
+      "solarFlare": "Solar flare! Safe mode for {days} days.",
+      "micrometeoroid": "A micrometeoroid hit the solar panels: {loss}% of power lost.",
+      "wheelFailure": "A reaction wheel failed. Precise instruments now work {duty}% of the time.",
+      "wheelFailover": "A reaction wheel failed, and the spare took over with no science lost.",
+      "groundOutage": "Ground station outage: no contact for {days} days. Data waits in memory.",
+      "instrumentFault": "{instrument} has failed.",
+      "radiationKill": "Radiation destroyed the onboard computer. Contact lost.",
+      "powerCollapse": "Power fell to {available} W, below the {needed} W needed to survive. Contact lost.",
+      "missionComplete": "Planned mission complete.",
+      "transmitterFade": "The transmitter has aged: only {left}% of the data rate is left."
+    },
+    "outcomes": {
+      "full": "Mission success",
+      "partial": "Partial success",
+      "failed": "Mission failed"
+    },
+    "report": {
+      "summary": "Worked for {days} of {planned} planned days, sent home {returned} Gb, science {science} of {required} required.",
+      "success": "Objective",
+      "science": "Science",
+      "budget": "Budget use",
+      "robustness": "Safety margins",
+      "team": "Team goals",
+      "why": "Why it turned out this way",
+      "attempts": "Compare your attempts",
+      "mission": "Mission",
+      "total": "Score",
+      "cost": "Cost",
+      "mass": "Mass",
+      "result": "Result",
+      "redesign": "Change the design and fly again",
+      "newMission": "Choose another mission",
+      "teamGoals": "Role goals",
+      "met": "Goal met",
+      "notMet": "Goal not met",
+      "share": "Copy link to this design",
+      "copied": "Link copied"
+    },
+    "insights": {
+      "launchFailure": "The rocket failed. It was bad luck, not bad design, and real programmes plan for it with insurance and spare hardware.",
+      "insertionFailure": "The braking burn failed on arrival. Every mission has moments with no second chance.",
+      "radiationKill": "The computer died after {days} of {planned} days. Radiation-hardened electronics cost more, but this orbit demands them.",
+      "powerCollapse": "After {days} of {planned} days, power fell below what the spacecraft needs to stay alive. Add panels or cut the load.",
+      "missingCapability": "The mission lacked {missing}, so it could not answer its main question.",
+      "dataLost": "{pct}% of the data was lost: instruments made {generated} Gb per day, but the radio sent only {downlink} Gb. Signal strength falls with the square of distance, so a bigger dish or more power helps. So does collecting less.",
+      "dataHealthy": "The communications system kept up, and {pct}% of the data was kept.",
+      "lowDuty": "Instruments ran only {pct}% of the time because power or safe mode stopped them. More power or a smaller load would help.",
+      "batteryShort": "Each {eclipse}-minute eclipse needed {need} Wh, but the battery could safely give {have} Wh, so instruments paused in shadow.",
+      "powerMargin": "A {pct}% power margin kept the spacecraft safe when panels wore out or got damaged.",
+      "budgetMargin": "You kept {pct}% of the budget in reserve. Real missions need this for surprises.",
+      "scienceShort": "Science reached {value} of the {required} required. Better instruments, a better orbit, or more data returned would raise it.",
+      "redundancyPaid": "The spare reaction wheel paid for itself: a failure did not cost any science.",
+      "noRedundancy": "A wheel failed with no spare. Redundancy adds mass and cost, but protects the science.",
+      "launchWindow": "The spacecraft was ready early and waited {months} months for the planets to line up. The team's salaries still had to be paid."
+    },
+    "tutorial": {
+      "title": "How to play",
+      "one": "Pick a mission. It sets your budget, deadline, and science goal.",
+      "two": "Build the spacecraft and watch the resources panel: every part costs something.",
+      "three": "Choose instruments, an orbit, and a rocket, then pass the launch review.",
+      "four": "Fly it, read why it worked or failed, change the design, and try for a better score.",
+      "done": "Got it"
+    },
+    "sandbox": {
+      "label": "Sandbox mode",
+      "help": "Experiment with no budget or schedule limit. Scores are not ranked."
     }
   }
 }

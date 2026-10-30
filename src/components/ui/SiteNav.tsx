@@ -6,7 +6,8 @@ import { useTranslations } from 'next-intl';
 import { AccountMenu } from './AccountMenu';
 
 const LINKS = [
-  { href: '/', key: 'universe' },
+  { href: '/', key: 'mission' },
+  { href: '/universe', key: 'universe' },
   { href: '/gallery', key: 'gallery' },
   { href: '/lab', key: 'lab' },
   { href: '/catalog', key: 'catalog' },
@@ -21,13 +22,13 @@ export function SiteNav() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-panel-border bg-[linear-gradient(90deg,rgba(10,14,22,0.96),rgba(13,18,28,0.9),rgba(9,12,18,0.96))] backdrop-blur-sm">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-3 px-4 sm:px-6">
+      <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2 sm:flex-nowrap sm:px-6 sm:py-0">
         <Link href="/" className="mr-2 flex items-center gap-2 text-sm font-semibold tracking-[0.2em] text-foreground">
           <span aria-hidden className="inline-block h-2.5 w-2.5 rounded-full bg-accent-cyan shadow-[0_0_10px_2px_rgba(0,240,255,0.7)]" />
           NEXUS
         </Link>
 
-        <nav aria-label="Main" className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto">
+        <nav aria-label="Main" className="order-last flex w-full min-w-0 items-center gap-1.5 overflow-x-auto sm:order-none sm:w-auto sm:flex-1">
           {LINKS.map((link) => {
             const active = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
             return (
