@@ -55,6 +55,7 @@ Yangi qism yoki orbita qo'shilsa: `data.ts` ga va uchala tarjimaga qo'shing, aks
 - [x] Birinchi kirganlar uchun qo'llanma, sandbox rejimi, har missiya bo'yicha eng yaxshi natija.
 - [x] Dizaynni havola orqali ulashish (`src/mission/share.ts`), kirish ma'lumoti tekshiriladi.
 - [x] Yangi hodisa: uzatgich eskirishi. Mobil navigatsiya tuzatildi.
+- [x] Tanlovga qarab o'zgaradigan 3D apparat modeli (`SpacecraftPreview.tsx`). 375 px ekranda dizayn bosqichlarida gorizontal siljish yo'q.
 
 ## Qilinishi kerak bo'lgan ishlar
 

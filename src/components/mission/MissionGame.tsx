@@ -27,6 +27,7 @@ import { LanguageSwitch } from '@/components/ui/SettingsPanel';
 import { ResourcePanel } from './ResourcePanel';
 
 const MissionScene = dynamic(() => import('./MissionScene'), { ssr: false });
+const SpacecraftPreview = dynamic(() => import('./SpacecraftPreview'), { ssr: false });
 
 type Translate = ReturnType<typeof useTranslations<'mission'>>;
 
@@ -240,6 +241,7 @@ function SpacecraftStep({ design }: { design: MissionDesign }) {
     <section>
       <h2 className="text-lg font-semibold">{t('spacecraft.title')}</h2>
       <p className="mt-1 text-sm text-foreground/70">{t('spacecraft.help')}</p>
+      <SpacecraftPreview design={design} label={t('preview')} />
       <PartPicker legend={t('spacecraft.bus')} options={BUSES} selected={design.busId} onSelect={(busId) => update({ busId })} extra={(id) => { const bus = BUSES.find((item) => item.id === id)!; return t('extras.bus', { payload: bus.payloadCapacityKg, tank: bus.tankCapacityKg }); }} />
       <PartPicker legend={t('spacecraft.power')} options={POWER_SOURCES} selected={design.powerId} onSelect={(powerId) => update({ powerId })} extra={source} />
       <PartPicker legend={t('spacecraft.battery')} options={BATTERIES} selected={design.batteryId} onSelect={(batteryId) => update({ batteryId })} extra={(id) => t('extras.battery', { capacity: BATTERIES.find((item) => item.id === id)!.capacityWh })} />
@@ -261,6 +263,7 @@ function PayloadStep({ design }: { design: MissionDesign }) {
     <section>
       <h2 className="text-lg font-semibold">{t('payload.title')}</h2>
       <p className="mt-1 text-sm text-foreground/70">{t('payload.help')}</p>
+      <SpacecraftPreview design={design} label={t('preview')} />
       <p className="mt-2 text-sm">{t('payload.required', { list: objective.required.map((id) => t(`capabilities.${id}`)).join(', ') })}</p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {INSTRUMENTS.map((instrument) => (

@@ -1062,6 +1062,7 @@
     "sandbox": {
       "label": "Sandbox rejimi",
       "help": "Byudjet va muddat cheklovisiz sinab ko'ring. Natijalar reytingga kirmaydi."
-    }
+    },
+    "preview": "Kosmik apparatingiz modeli, qismlarni tanlaganda yangilanadi"
   }
 }

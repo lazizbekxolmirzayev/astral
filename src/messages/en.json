@@ -1062,6 +1062,7 @@
     "sandbox": {
       "label": "Sandbox mode",
       "help": "Experiment with no budget or schedule limit. Scores are not ranked."
-    }
+    },
+    "preview": "Model of your spacecraft, updated as you choose parts"
   }
 }
