@@ -6,10 +6,11 @@ import { MISSION_SCHEMA_VERSION, missionSchema, type Mission, type Requirement, 
 /**
  * Starting designs, one per destination, so a new mission is never an empty page.
  *
- * They are sensible *starting points*: parts are compatible and fit the launcher by
- * mass, but nothing here has been checked against the power, Δv, link and cost
- * models yet. Phase 2 adds a test that runs the resource engine on every default
- * and retunes any that do not close.
+ * They are sensible *starting points*: parts are compatible, and the resource
+ * engine (src/mission/engine) finds no error in any of them. A test runs the engine
+ * on every default, so a catalog or model change that breaks one is caught.
+ * Margins are deliberately modest: a template is a starting point to improve, not a
+ * solution to copy.
  */
 
 export const DEFAULT_MISSION_TITLES: Record<DestinationId, Localized> = {
@@ -47,7 +48,7 @@ const TEMPLATES: Record<DestinationId, Template> = {
     requirements: [
       { id: 'req-cost', kind: 'max-cost', limit: 15e6 },
       { id: 'req-ops', kind: 'min-operations', limit: 365 },
-      { id: 'req-science', kind: 'min-science', limit: 8 },
+      { id: 'req-science', kind: 'min-science', limit: 6 },
     ],
   },
   sso: {
@@ -69,17 +70,17 @@ const TEMPLATES: Record<DestinationId, Template> = {
     requirements: [
       { id: 'req-cost', kind: 'max-cost', limit: 40e6 },
       { id: 'req-ops', kind: 'min-operations', limit: 730 },
-      { id: 'req-science', kind: 'min-science', limit: 40 },
+      { id: 'req-science', kind: 'min-science', limit: 30 },
     ],
   },
   geo: {
     spacecraft: {
       busId: 'bus-geo-3000',
       propulsionId: 'prop-biprop-large',
-      propellantMassKg: 2200,
+      propellantMassKg: 2800,
       parts: [
         { itemId: 'solar-wing-40', quantity: 1 },
-        { itemId: 'battery-5000wh', quantity: 2 },
+        { itemId: 'battery-5000wh', quantity: 3 },
         { itemId: 'comms-x-band-medium', quantity: 1 },
         { itemId: 'obc-rad-hard', quantity: 1 },
         { itemId: 'adcs-3axis-fine', quantity: 1 },
@@ -121,7 +122,7 @@ const TEMPLATES: Record<DestinationId, Template> = {
     spacecraft: {
       busId: 'bus-deepspace-1500',
       propulsionId: 'prop-biprop-large',
-      propellantMassKg: 1300,
+      propellantMassKg: 1500,
       parts: [
         { itemId: 'solar-wing-16', quantity: 1 },
         { itemId: 'battery-5000wh', quantity: 1 },

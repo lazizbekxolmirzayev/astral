@@ -34,6 +34,7 @@ export type Dimension =
   | 'gravParam'
   | 'specificEnergy'
   | 'irradiance'
+  | 'temperature'
   | 'score';
 
 type UnitDef = { readonly dimension: Dimension; /** Multiplier to the SI base unit of the dimension. */ readonly factor: number };
@@ -103,6 +104,8 @@ const UNITS = {
   'km^2/s^2': { dimension: 'specificEnergy', factor: 1e6 },
 
   'W/m^2': { dimension: 'irradiance', factor: 1 },
+
+  K: { dimension: 'temperature', factor: 1 },
 
   /** Game-defined science points. Not a physical unit. */
   pt: { dimension: 'score', factor: 1 },

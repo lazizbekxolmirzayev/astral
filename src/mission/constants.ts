@@ -23,7 +23,7 @@ export type Body = {
   /** Radius used to turn altitudes into orbit radii (mean or equatorial, see source). */
   radius: Quantity;
   /** Mean distance from the parent body, where it matters for the mission models. */
-  orbit?: { parent: BodyId; semiMajorAxis: Quantity };
+  orbit?: { parent: BodyId; semiMajorAxis: Quantity; eccentricity?: Quantity };
 };
 
 const JPL_GM = 'JPL/NAIF planetary constants kernel (pck00010)';
@@ -43,7 +43,11 @@ export const BODIES: Record<BodyId, Body> = {
     name: L('Earth', 'Yer'),
     gm: q(3.986004418e5, 'km^3/s^2', 'measured', JPL_GM),
     radius: q(6378.137, 'km', 'measured', 'WGS 84 equatorial radius'),
-    orbit: { parent: 'sun', semiMajorAxis: q(149.598e6, 'km', 'measured', FACTSHEET) },
+    orbit: {
+      parent: 'sun',
+      semiMajorAxis: q(149.598e6, 'km', 'measured', FACTSHEET),
+      eccentricity: q(0.0167, '1', 'measured', FACTSHEET),
+    },
   },
   moon: {
     id: 'moon',
@@ -57,7 +61,11 @@ export const BODIES: Record<BodyId, Body> = {
     name: L('Mars', 'Mars'),
     gm: q(4.282837e4, 'km^3/s^2', 'measured', JPL_GM),
     radius: q(3389.5, 'km', 'measured', `${IAU_RADII} (mean radius)`),
-    orbit: { parent: 'sun', semiMajorAxis: q(227.956e6, 'km', 'measured', `${FACTSHEET} (Mars)`) },
+    orbit: {
+      parent: 'sun',
+      semiMajorAxis: q(227.956e6, 'km', 'measured', `${FACTSHEET} (Mars)`),
+      eccentricity: q(0.0935, '1', 'measured', `${FACTSHEET} (Mars)`),
+    },
   },
 };
 

@@ -73,6 +73,8 @@ export const solarArraySchema = z
     ...baseShape,
     category: z.literal('solar-array'),
     area: quantityOf('area'),
+    /** Body-mounted cells cannot face the Sun; wings turn to track it. Sets the average cosine loss. */
+    mounting: z.enum(['body-mounted', 'sun-tracking']),
     /** Array-level beginning-of-life efficiency, packing factor included. */
     efficiency: quantityOf('ratio'),
     /** Fractional output loss per year from radiation and thermal cycling. */
@@ -142,11 +144,11 @@ export const instrumentSchema = z
     category: z.literal('instrument'),
     kind: z.enum(INSTRUMENT_KINDS),
     powerDraw: quantityOf('power'),
-    /** Data produced while the instrument is operating. */
+    /** Average data produced while the instrument is operating, after onboard processing and compression. */
     dataRate: quantityOf('dataRate'),
     /** Fraction of the mission the instrument is operating. */
     dutyCycle: quantityOf('ratio'),
-    /** Game-defined value of the science return when operated fully. */
+    /** Game-defined value of the science return when all the data the instrument plans to produce reaches Earth. */
     scienceValue: quantityOf('score'),
     /** Pointing error the instrument tolerates; compared with the ADCS in Phase 2. */
     requiredPointing: quantityOf('angle'),

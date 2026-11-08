@@ -1,4 +1,4 @@
-import { getDestination, getLauncher, getPart } from './catalog';
+import { DEFAULT_CATALOG, type CatalogLookup } from './catalog';
 import type { Mission } from './models/mission';
 import { toBase } from './units';
 
@@ -29,9 +29,13 @@ export type MissionIssueCode =
 
 export type MissionIssue = { code: MissionIssueCode; path: string; message: string };
 
+/** Issues after which the design cannot be resolved to catalog items, so nothing can be computed. */
+export const FATAL_ISSUE_CODES: readonly MissionIssueCode[] = ['unknown-bus', 'unknown-propulsion', 'unknown-part', 'unknown-launcher', 'wrong-category'];
+
 const EPSILON = 1e-6;
 
-export function validateMissionReferences(mission: Mission): MissionIssue[] {
+export function validateMissionReferences(mission: Mission, catalog: CatalogLookup = DEFAULT_CATALOG): MissionIssue[] {
+  const { getDestination, getLauncher, getPart } = catalog;
   const issues: MissionIssue[] = [];
   const add = (code: MissionIssueCode, path: string, message: string) => issues.push({ code, path, message });
 

@@ -29,6 +29,8 @@ export type ModelCard = {
   /** Development phase in which the model is implemented. */
   phase: 2 | 4 | 5 | 6;
   status: 'planned' | 'implemented';
+  /** Source file of the implementation; present exactly when the status is `implemented`. */
+  implementedIn?: string;
   title: Localized;
   scope: Localized;
   /** Language-neutral formulas, written with plain symbols. */
@@ -47,13 +49,18 @@ export const MODEL_CARDS: readonly ModelCard[] = [
   {
     id: 'delta-v',
     phase: 2,
-    status: 'planned',
+    status: 'implemented',
+    implementedIn: 'engine/deltaV.ts',
     title: L('Velocity change (Δv) and propellant', "Tezlik o'zgarishi (Δv) va yoqilg'i"),
     scope: L(
       'How much velocity change the spacecraft can produce with the propellant it carries, and how much propellant a required Δv needs.',
       "Apparat olib yurgan yoqilg'i bilan qancha tezlik o'zgarishi hosil qila olishi va kerakli Δv uchun qancha yoqilg'i zarurligi.",
     ),
-    equations: ['Δv = Isp · g0 · ln(m0 / mf)', 'm_propellant = mf · (exp(Δv / (Isp · g0)) − 1)'],
+    equations: [
+      'Δv = Isp · g0 · ln(m0 / mf)',
+      'm_propellant = mf · (exp(Δv / (Isp · g0)) − 1)',
+      'Δv_required = (Δv_insertion + Δv_corrections + Δv_stationkeeping) · (1 + margin)',
+    ],
     assumptions: [
       L('Burns are instantaneous (impulsive) and all propellant is usable.', "Yoqish bir lahzada (impulsiv) bo'ladi va barcha yoqilg'i ishlatiladi."),
       L('Specific impulse is constant for the whole burn.', "Solishtirma impuls butun yoqish davomida o'zgarmas."),
@@ -67,7 +74,8 @@ export const MODEL_CARDS: readonly ModelCard[] = [
   {
     id: 'mass-budget',
     phase: 2,
-    status: 'planned',
+    status: 'implemented',
+    implementedIn: 'engine/mass.ts',
     title: L('Mass budget', "Massa byudjeti"),
     scope: L(
       'Adds up the bus, parts, instruments and propellant, and compares the total with the bus payload limit and the launcher capacity.',
@@ -87,7 +95,8 @@ export const MODEL_CARDS: readonly ModelCard[] = [
   {
     id: 'power-budget',
     phase: 2,
-    status: 'planned',
+    status: 'implemented',
+    implementedIn: 'engine/power.ts',
     title: L('Power budget', "Quvvat byudjeti"),
     scope: L(
       'Solar power generated at the destination, the power every part draws, and whether the battery covers the time in eclipse.',
@@ -98,6 +107,7 @@ export const MODEL_CARDS: readonly ModelCard[] = [
       'P_gen = S(r) · A · η · cos(θ) · (1 − d)^t',
       't_eclipse ≈ T · asin(R / (R + h)) / π   (circular orbit, sun in the orbital plane)',
       'E_eclipse = P_load · t_eclipse ≤ DoD · C_battery',
+      'P_required = P_load · (1 + f / ((1 − f) · η_round-trip)),  f = t_eclipse / T',
     ],
     assumptions: [
       L('Sunlight is parallel and its intensity falls with the square of the distance from the Sun.', "Quyosh nuri parallel deb olinadi va uning kuchi Quyoshgacha masofa kvadratiga teskari kamayadi."),
@@ -137,8 +147,9 @@ export const MODEL_CARDS: readonly ModelCard[] = [
   },
   {
     id: 'launch-fit',
-    phase: 4,
-    status: 'planned',
+    phase: 2,
+    status: 'implemented',
+    implementedIn: 'engine/mass.ts',
     title: L('Launcher compatibility', "Raketa mosligi"),
     scope: L(
       'Checks that the launch vehicle can deliver the spacecraft to the destination\'s delivery target (LEO, SSO, GTO, trans-lunar or trans-Mars).',
@@ -158,14 +169,15 @@ export const MODEL_CARDS: readonly ModelCard[] = [
   {
     id: 'communications-data',
     phase: 2,
-    status: 'planned',
+    status: 'implemented',
+    implementedIn: 'engine/link.ts, engine/data.ts',
     title: L('Communications and data volume', "Aloqa va ma'lumot hajmi"),
     scope: L(
       'How much data the instruments produce, how much the onboard memory holds, and how much the downlink can send to Earth.',
       "Asboblar qancha ma'lumot hosil qilishi, bort xotirasi qancha sig'dirishi va aloqa kanali Yerga qancha yubora olishi.",
     ),
     equations: [
-      'P_r = P_t · G_t · G_r · (λ / (4π · d))²',
+      'P_r = P_t · G_t · G_r · (λ / (4π · d))²,  G_r = η · (π · D / λ)²',
       'R_max = P_r / (k · T_sys · (Eb/N0)_required · L_margin)',
       'V_generated = Σ(rate_i · duty_i) · t',
       'V_downlinked = R · t_contact',
@@ -183,7 +195,8 @@ export const MODEL_CARDS: readonly ModelCard[] = [
   {
     id: 'cost',
     phase: 2,
-    status: 'planned',
+    status: 'implemented',
+    implementedIn: 'engine/cost.ts',
     title: L('Mission cost', "Missiya narxi"),
     scope: L(
       'Adds up the prices of the spacecraft, the launch and the days of operations, and compares the total with the budget.',
@@ -201,15 +214,17 @@ export const MODEL_CARDS: readonly ModelCard[] = [
   },
   {
     id: 'transfer-approximation',
-    phase: 4,
-    status: 'planned',
+    phase: 2,
+    status: 'implemented',
+    implementedIn: 'engine/deltaV.ts',
     title: L('Transfers to the Moon and Mars (patched conics)', "Oy va Marsga uchish (patched conics)"),
     scope: L(
       'Approximate Δv for reaching the operational orbit from the delivery target, including the plane change for geostationary orbit and capture at the Moon and Mars.',
       "Yetkazish nuqtasidan operatsion orbitagacha taxminiy Δv, jumladan geostatsionar orbita uchun tekislik o'zgartirish va Oy hamda Marsda tutib olish.",
     ),
     equations: [
-      'v_inf = √(C3)',
+      'v_inf = √(C3)   (Hohmann Earth–Mars: v_inf = |v_planet − v_transfer|)',
+      'Δv_leo/sso = Hohmann(r1, r2) with the plane change merged into the burn at the higher orbit',
       'Δv_capture = √(v_inf² + 2μ / r_p) − √(μ / r_p)   (circular capture at r_p)',
       'Δv_plane = √(v1² + v2² − 2 · v1 · v2 · cos(Δi))',
     ],

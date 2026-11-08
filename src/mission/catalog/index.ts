@@ -18,3 +18,13 @@ export const getPart = (id: string): Part | undefined => partMap.get(id);
 export const getLauncher = (id: string): Launcher | undefined => launcherMap.get(id);
 export const getDestination = (id: DestinationId): Destination | undefined => destinationMap.get(id);
 export const getLaunchTarget = (id: LaunchTargetId): LaunchTarget | undefined => targetMap.get(id);
+
+/** The lookups the engine and validation need, so tests (and later custom catalogs) can swap them. */
+export type CatalogLookup = {
+  getPart: (id: string) => Part | undefined;
+  getLauncher: (id: string) => Launcher | undefined;
+  getDestination: (id: DestinationId) => Destination | undefined;
+  getLaunchTarget: (id: LaunchTargetId) => LaunchTarget | undefined;
+};
+
+export const DEFAULT_CATALOG: CatalogLookup = { getPart, getLauncher, getDestination, getLaunchTarget };
