@@ -33,7 +33,6 @@ export type PlanePosition = { x: number; z: number };
 export type Vec3 = readonly [number, number, number];
 
 const TWO_PI = Math.PI * 2;
-const NEWTON_ITERATIONS = 8;
 const NEWTON_TOLERANCE = 1e-12;
 
 export function meanAnomaly(elements: OrbitElements, time: number): number {

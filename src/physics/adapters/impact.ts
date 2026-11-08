@@ -1,5 +1,5 @@
 import type { CatalogAdapterResult, CatalogObject } from '@/types/catalog';
-import { computeVectorMagnitude, getScalarFromCatalog, GRAVITATIONAL_CONSTANT, toDensityKgM3, toLengthMeters, toMassKg, toVelocityMs } from './utils';
+import { getScalarFromCatalog, toDensityKgM3, toLengthMeters, toMassKg } from './utils';
 
 export type CatalogImpactor = {
   radiusM: number;

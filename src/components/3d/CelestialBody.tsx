@@ -198,10 +198,10 @@ export function CelestialBody({
   }, [material, cloudMaterial, materialOverride]);
 
   useEffect(() => {
-    registerMesh?.(meshRef.current);
+    const mesh = meshRef.current;
+    registerMesh?.(mesh);
     return () => {
       registerMesh?.(null);
-      const mesh = meshRef.current;
       if (!mesh) return;
       mesh.geometry.dispose();
       const meshMaterial = mesh.material;

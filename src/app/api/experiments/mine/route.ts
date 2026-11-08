@@ -23,7 +23,7 @@ function sanitizeFilter(raw: string | null): Record<string, unknown> | undefined
     throw new Error('invalid_filter');
   }
 
-  for (const [key, value] of Object.entries(filter)) {
+  for (const value of Object.values(filter)) {
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       const nested = value as Record<string, unknown>;
       if (Object.keys(nested).some((nestedKey) => nestedKey.startsWith('$'))) {

@@ -1,6 +1,6 @@
 import type { BodyDefinition } from '@/physics/gravity';
 import type { CatalogAdapterResult, CatalogObject } from '@/types/catalog';
-import { coerceQuantity, computeVectorMagnitude, toLengthMeters, toMassKg, toVector3, toVelocityAuPerDay } from './utils';
+import { coerceQuantity, toMassKg, toVector3 } from './utils';
 
 export function catalogToBody(record: CatalogObject): CatalogAdapterResult<BodyDefinition> {
   const missing: string[] = [];

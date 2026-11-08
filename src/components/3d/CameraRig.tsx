@@ -68,9 +68,9 @@ export function CameraRig() {
       framing.target.x,
       framing.target.y,
       framing.target.z,
-      true,
+      !reducedMotion,
     );
-  }, [controls, scene, selectedId]);
+  }, [controls, scene, selectedId, reducedMotion]);
 
   // Default view on mount and whenever the toolbar asks for a reset.
   useEffect(() => {
@@ -82,9 +82,9 @@ export function CameraRig() {
       view.target[0],
       view.target[1],
       view.target[2],
-      true,
+      !reducedMotion,
     );
-  }, [controls, viewResetNonce, view]);
+  }, [controls, viewResetNonce, view, reducedMotion]);
 
   useEffect(() => {
     function editableTarget(event: KeyboardEvent) {

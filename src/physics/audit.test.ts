@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { initialConditions, SUN_GM_AU3_PER_DAY2 } from '@/data/initialConditions';
 import { solarSystem } from '@/data/solarSystem';
-import { createState, accelerations, distanceBetween } from '@/physics/gravity';
-import { stepVelocityVerlet, integrate, DEFAULT_SOFTENING_AU } from '@/physics/integrator';
-import { totalEnergy, angularMomentum, driftPercent, kinematicsRelativeTo, escapeSpeed } from '@/physics/diagnostics';
-import { osculatingElements, keplerPeriod } from '@/physics/orbits';
+import { createState, accelerations } from '@/physics/gravity';
+import { integrate, DEFAULT_SOFTENING_AU } from '@/physics/integrator';
+import { totalEnergy, angularMomentum, driftPercent } from '@/physics/diagnostics';
+import { keplerPeriod } from '@/physics/orbits';
 
 describe('Physics and Data Audit', () => {
   it('measures energy and angular momentum drift over 1, 10, and 100 years', () => {

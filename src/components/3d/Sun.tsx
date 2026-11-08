@@ -2,7 +2,7 @@
 
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef } from 'react';
-import { Color, ShaderMaterial, Vector3, type Group } from 'three';
+import { Color, ShaderMaterial, type Group } from 'three';
 import { CENTRAL_BODY_INDEX, simulation } from '@/lib/simulation';
 import { SUN_LOOK, SUN_RADIUS, projectToScene } from './layout';
 import { createGlowTexture, GLOW_BLENDING } from './proceduralTextures';

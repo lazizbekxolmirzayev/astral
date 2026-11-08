@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { BufferAttribute, BufferGeometry, Color, ShaderMaterial, TextureLoader } from 'three';
+import { BufferAttribute, BufferGeometry, Color } from 'three';
 import { mulberry32 } from '@/lib/random';
 import { createNebulaTexture, GLOW_BLENDING } from './proceduralTextures';
 import { universeMarkers } from '@/lib/universeLayout';
