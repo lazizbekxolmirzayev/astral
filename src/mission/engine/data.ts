@@ -1,8 +1,15 @@
+import type { Instrument } from '../models/catalog';
 import type { Quantity } from '../models/quantity';
 import { toBase } from '../units';
 import { derive, type Derived } from './derived';
 import type { LinkResult } from './link';
 import type { ResolvedDesign } from './resolve';
+
+/** Bits one instrument adds to the onboard queue per day; relay instruments add none. */
+export function instrumentDailyData(part: Instrument, quantity = 1): number {
+  if (part.dataHandling === 'relay') return 0;
+  return toBase(part.dataRate) * toBase(part.dutyCycle) * quantity * 86_400;
+}
 
 export type DataResult = {
   /** Data the instruments produce per day (store-and-forward instruments only). */
@@ -40,7 +47,7 @@ export function computeData(design: ResolvedDesign, link: LinkResult): DataResul
   const inputs: Quantity[] = [];
   for (const { part, quantity } of design.instruments) {
     if (part.dataHandling === 'relay') continue;
-    generated += toBase(part.dataRate) * toBase(part.dutyCycle) * quantity * 86_400;
+    generated += instrumentDailyData(part, quantity);
     inputs.push(part.dataRate, part.dutyCycle);
   }
   const dailyGenerated = derive(generated, 'bit', model, 'Σ data rate · duty cycle · quantity · 86 400 s (per day)', inputs);

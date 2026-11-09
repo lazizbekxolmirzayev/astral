@@ -7,6 +7,8 @@ export * from './models/catalog';
 export * from './models/mission';
 export * from './models/quantity';
 export * from './models/resources';
+export * from './edit';
+export * from './templates/blank';
 export * from './templates/defaults';
 export * from './units';
 export * from './validation';

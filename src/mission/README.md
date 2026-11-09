@@ -66,3 +66,12 @@ Phase 1 data changed in Phase 2 (so the defaults close): instrument `dataRate` n
 ## Tests
 
 `npx vitest run src/mission` — unit conversions, schema validity, catalog integrity, provenance policy, bilingual completeness, and physical plausibility. Several catalog numbers are re-derived in the tests from the measured constants (geostationary altitude from the sidereal day, the sun-synchronous inclination from J2, the Hohmann Earth–Mars energy and transfer time).
+
+## Phase 3 additions (workspace support)
+
+- `edit.ts` — pure, immutable edits of a `Mission` (rename, bus, propulsion, propellant, add/remove/quantity of parts, launcher, destination, orbit, operations days, requirements). Each accepted edit bumps `revision`/`updatedAt`; only unrepresentable edits are refused (`EditError`). Questionable designs stay visible as engine issues, never silently corrected.
+- `templates/blank.ts` — an empty draft for a destination (first compatible bus, cheapest capable launcher, no parts).
+- `engine/cache.ts` — `evaluateMissionCached`, a WeakMap keyed by document identity. Results are never stored in state.
+- `view.ts` — `buildIndicators` (the seven live-panel indicators, display units, normal/warning/critical tones), `describePart` (parameter rows for the part cards). No physics here: everything comes from the engine.
+- `spacecraftLayout.ts` — pure schematic layout for the 3D preview. Panel area equals the catalog area; other sizes are display scaling only.
+- `format.ts` — locale-aware number and unit formatting.

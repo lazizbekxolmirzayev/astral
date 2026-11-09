@@ -8,3 +8,5 @@ export { rocketDeltaV, propellantForDeltaV, hohmannWithPlaneChange, captureBurn 
 export { circularSpeed, visViva, orbitPeriod, eclipseFraction, slantRange, describeOrbit } from './orbit';
 export type { Derived } from './derived';
 export type { RequirementResult } from './requirements';
+export { evaluateMissionCached } from './cache';
+export { instrumentDailyData } from './data';

@@ -11,6 +11,7 @@ const LINKS = [
   { href: '/lab', key: 'lab' },
   { href: '/catalog', key: 'catalog' },
   { href: '/sandbox', key: 'sandbox' },
+  { href: '/missions', key: 'missions' },
   { href: '/saved', key: 'saved' },
 ] as const;
 
