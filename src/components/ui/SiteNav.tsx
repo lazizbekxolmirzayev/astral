@@ -6,7 +6,8 @@ import { useTranslations } from 'next-intl';
 import { AccountMenu } from './AccountMenu';
 
 const LINKS = [
-  { href: '/', key: 'universe' },
+  { href: '/', key: 'game' },
+  { href: '/universe', key: 'universe' },
   { href: '/gallery', key: 'gallery' },
   { href: '/lab', key: 'lab' },
   { href: '/catalog', key: 'catalog' },

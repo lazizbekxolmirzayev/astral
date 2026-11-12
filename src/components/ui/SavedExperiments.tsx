@@ -214,7 +214,7 @@ export function SavedExperiments() {
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.04)_28%,transparent_58%)]" />
         <div className="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <Link href="/" className="mb-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-foreground/60 hover:text-accent-cyan">
+            <Link href="/universe" className="mb-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-foreground/60 hover:text-accent-cyan">
               <ArrowLeft size={14} aria-hidden />
               {t('back')}
             </Link>

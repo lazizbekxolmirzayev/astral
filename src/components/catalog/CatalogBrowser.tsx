@@ -26,7 +26,7 @@ export function CatalogBrowser() {
       <header className="relative overflow-hidden rounded-[28px] border border-panel-border bg-[radial-gradient(circle_at_top_left,_rgba(0,240,255,0.16),transparent_25%),linear-gradient(135deg,rgba(11,16,25,0.96),rgba(7,10,16,0.9))] p-5 shadow-[0_24px_80px_rgba(5,8,16,0.7)]">
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,transparent_0%,rgba(255,255,255,0.04)_32%,transparent_56%)]" />
         <div className="relative">
-          <Link href="/" className="mb-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-foreground/60 hover:text-accent-cyan">
+          <Link href="/universe" className="mb-3 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-foreground/60 hover:text-accent-cyan">
             <ArrowLeft size={14} aria-hidden />{t('back')}
           </Link>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">

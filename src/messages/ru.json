@@ -510,7 +510,8 @@
     "catalog": "Каталог",
     "sandbox": "Песочница",
     "saved": "Сохранённое",
-    "missions": "Missions"
+    "missions": "Missions",
+    "game": "Game"
   },
   "gallery": {
     "eyebrow": "Галерея",
@@ -1347,6 +1348,137 @@
         "unitRadii": "Scale: radii of the central body.",
         "hint": "Drag to rotate, scroll to zoom."
       }
+    }
+  },
+  "game": {
+    "title": "NEXUS Mission Control",
+    "steps": {
+      "map": "Destination",
+      "hangar": "Hangar",
+      "flight": "Flight",
+      "result": "Result"
+    },
+    "topbar": {
+      "engineer": "Engineer mode",
+      "universe": "Universe",
+      "engineerHint": "Open the full engineering workspace",
+      "mute": "Mute",
+      "unmute": "Sound on"
+    },
+    "loading": "Preparing the launch site…",
+    "noWebgl": "This game needs WebGL, and your browser or device does not provide it.",
+    "noWebglAction": "Open Engineer mode (no 3D needed)",
+    "map": {
+      "heading": "Choose your destination",
+      "hint": "Click a glowing marker in space — or pick one below.",
+      "selected": "Destination",
+      "build": "Build the mission",
+      "cruise": "Cruise",
+      "cruiseNone": "No cruise: launched straight into orbit",
+      "days": "{count} days",
+      "orbit": "Target orbit",
+      "orbitValue": "{peri} × {apo} km, {inc}°",
+      "notToScale": "The map is a stylised picture, not to scale.",
+      "pick": "Select {name}",
+      "close": "Close"
+    },
+    "hangar": {
+      "back": "Back to map",
+      "viewShip": "Spacecraft",
+      "viewRockets": "Rockets",
+      "bay": "Parts bay",
+      "status": "Mission status",
+      "cat": {
+        "platform": "Platform",
+        "power": "Power",
+        "comms": "Radio",
+        "payload": "Payload"
+      },
+      "bus": "Spacecraft bus",
+      "propulsion": "Propulsion",
+      "noPropulsion": "No propulsion",
+      "solar": "Solar arrays",
+      "battery": "Batteries",
+      "radio": "Radios",
+      "instruments": "Science instruments",
+      "add": "Add {name}",
+      "remove": "Remove {name}",
+      "fitsDestination": "Made for this destination",
+      "otherDestination": "Meant for another destination",
+      "rocket": "Launch vehicle",
+      "capacityNote": "Pick a rocket in the bay — its price and reliability count.",
+      "reliability": "Reliability {value}%",
+      "price": "Price {value}",
+      "gauge": {
+        "mass": "Mass",
+        "power": "Power",
+        "budget": "Budget",
+        "comms": "Downlink"
+      },
+      "gaugeOf": "{used} of {limit}",
+      "noLimit": "no limit",
+      "ready": "Ready to launch",
+      "blocked": "Cannot launch yet",
+      "warnings": "{count, plural, one {# warning} other {# warnings}} — you can still fly",
+      "launch": "LAUNCH",
+      "launchHint": "Fix the red items to unlock the launch.",
+      "fix": "Fix",
+      "refused": "That change is not allowed here.",
+      "mobileParts": "Parts",
+      "mobileStatus": "Status",
+      "quantity": "{count} installed"
+    },
+    "flight": {
+      "stage": "Stage {current} of {total}",
+      "tMinus": "T−{seconds}",
+      "liftoff": "LIFTOFF",
+      "lost": "MISSION LOST",
+      "pause": "Pause",
+      "resume": "Resume",
+      "skip": "Skip stage",
+      "skipHint": "Fast-forward to the end of this stage",
+      "telemetry": "Telemetry",
+      "altitude": "Altitude",
+      "distance": "Distance from centre",
+      "speed": "Speed",
+      "battery": "Battery",
+      "generation": "Power in / out",
+      "powerMode": {
+        "nominal": "Nominal",
+        "instruments-shed": "Instruments shed",
+        "comms-limited": "Radio limited",
+        "essential-only": "Essentials only",
+        "brownout": "BROWNOUT",
+        "unpowered": "No power"
+      },
+      "data": "Data sent",
+      "backlog": "Waiting to send",
+      "health": "Health",
+      "dv": "Δv left",
+      "science": "Science",
+      "contact": "Ground contact",
+      "contactOn": "Linked",
+      "contactOff": "No link",
+      "sunlit": "In sunlight",
+      "eclipse": "In Earth's shadow",
+      "log": "Mission log"
+    },
+    "result": {
+      "success": "MISSION SUCCESS",
+      "partial": "PARTIAL SUCCESS",
+      "failure": "MISSION FAILED",
+      "science": "Science points",
+      "of": "of {nominal} planned",
+      "data": "Data delivered",
+      "days": "Days operating",
+      "requirements": "Mission requirements",
+      "met": "Met",
+      "missed": "Missed",
+      "why": "What happened",
+      "improve": "Improve the design",
+      "again": "New mission",
+      "report": "Engineering report",
+      "stage": "Ended in: {stage}"
     }
   }
 }

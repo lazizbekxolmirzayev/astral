@@ -510,7 +510,8 @@
     "catalog": "Katalog",
     "sandbox": "Sandbox",
     "saved": "Saqlanganlar",
-    "missions": "Missiyalar"
+    "missions": "Missiyalar",
+    "game": "O'yin"
   },
   "gallery": {
     "eyebrow": "Galereya",
@@ -1347,6 +1348,137 @@
         "unitRadii": "Masshtab: markaziy jism radiuslari.",
         "hint": "Aylantirish uchun suring, kattalashtirish uchun g'ildirakni buring."
       }
+    }
+  },
+  "game": {
+    "title": "NEXUS Missiya Boshqaruvi",
+    "steps": {
+      "map": "Manzil",
+      "hangar": "Angar",
+      "flight": "Parvoz",
+      "result": "Natija"
+    },
+    "topbar": {
+      "engineer": "Muhandis rejimi",
+      "universe": "Koinot",
+      "engineerHint": "To'liq muhandislik ish maydonini ochish",
+      "mute": "Ovozsiz",
+      "unmute": "Ovoz yoqilgan"
+    },
+    "loading": "Uchirish maydoni tayyorlanmoqda…",
+    "noWebgl": "Bu o'yin WebGL talab qiladi, brauzeringiz yoki qurilmangiz uni qo'llamaydi.",
+    "noWebglAction": "Muhandis rejimini ochish (3D shart emas)",
+    "map": {
+      "heading": "Manzilni tanlang",
+      "hint": "Koinotdagi yonib turgan belgini bosing — yoki pastdan tanlang.",
+      "selected": "Manzil",
+      "build": "Missiyani yig'ish",
+      "cruise": "Yo'l",
+      "cruiseNone": "Yo'l yo'q: to'g'ridan-to'g'ri orbitaga uchiriladi",
+      "days": "{count} kun",
+      "orbit": "Maqsadli orbita",
+      "orbitValue": "{peri} × {apo} km, {inc}°",
+      "notToScale": "Xarita bezatilgan rasm, masshtabga mos emas.",
+      "pick": "{name} ni tanlash",
+      "close": "Yopish"
+    },
+    "hangar": {
+      "back": "Xaritaga qaytish",
+      "viewShip": "Kosmik kema",
+      "viewRockets": "Raketalar",
+      "bay": "Qismlar bo'limi",
+      "status": "Missiya holati",
+      "cat": {
+        "platform": "Platforma",
+        "power": "Quvvat",
+        "comms": "Radio",
+        "payload": "Yuk"
+      },
+      "bus": "Kema platformasi",
+      "propulsion": "Harakatlantirgich",
+      "noPropulsion": "Harakatlantirgichsiz",
+      "solar": "Quyosh panellari",
+      "battery": "Akkumulyatorlar",
+      "radio": "Radiolar",
+      "instruments": "Ilmiy asboblar",
+      "add": "{name} qo'shish",
+      "remove": "{name} olib tashlash",
+      "fitsDestination": "Shu manzil uchun",
+      "otherDestination": "Boshqa manzil uchun mo'ljallangan",
+      "rocket": "Uchirish raketasi",
+      "capacityNote": "Angardan raketani tanlang — narxi va ishonchliligi hisobga olinadi.",
+      "reliability": "Ishonchlilik {value}%",
+      "price": "Narxi {value}",
+      "gauge": {
+        "mass": "Massa",
+        "power": "Quvvat",
+        "budget": "Byudjet",
+        "comms": "Yuborish tezligi"
+      },
+      "gaugeOf": "{used} / {limit}",
+      "noLimit": "cheklov yo'q",
+      "ready": "Uchirishga tayyor",
+      "blocked": "Hali uchirib bo'lmaydi",
+      "warnings": "{count} ta ogohlantirish — baribir uchish mumkin",
+      "launch": "UCHIRISH",
+      "launchHint": "Uchirishni ochish uchun qizil bandlarni tuzating.",
+      "fix": "Tuzatish",
+      "refused": "Bu o'zgartirishga bu yerda ruxsat yo'q.",
+      "mobileParts": "Qismlar",
+      "mobileStatus": "Holat",
+      "quantity": "{count} ta o'rnatilgan"
+    },
+    "flight": {
+      "stage": "{current}-bosqich / {total}",
+      "tMinus": "T−{seconds}",
+      "liftoff": "UCHDI",
+      "lost": "MISSIYA YO'QOTILDI",
+      "pause": "To'xtatish",
+      "resume": "Davom ettirish",
+      "skip": "Bosqichni o'tkazish",
+      "skipHint": "Bosqich oxirigacha tezlashtirish",
+      "telemetry": "Telemetriya",
+      "altitude": "Balandlik",
+      "distance": "Markazdan masofa",
+      "speed": "Tezlik",
+      "battery": "Akkumulyator",
+      "generation": "Quvvat kirish / chiqish",
+      "powerMode": {
+        "nominal": "Me'yorda",
+        "instruments-shed": "Asboblar o'chirildi",
+        "comms-limited": "Radio cheklangan",
+        "essential-only": "Faqat zarur tizimlar",
+        "brownout": "QUVVAT TANQISLIGI",
+        "unpowered": "Quvvat yo'q"
+      },
+      "data": "Yuborilgan ma'lumot",
+      "backlog": "Yuborilishi kutilmoqda",
+      "health": "Holati",
+      "dv": "Qolgan Δv",
+      "science": "Ilm",
+      "contact": "Yer bilan aloqa",
+      "contactOn": "Aloqada",
+      "contactOff": "Aloqa yo'q",
+      "sunlit": "Quyosh nurida",
+      "eclipse": "Yer soyasida",
+      "log": "Missiya jurnali"
+    },
+    "result": {
+      "success": "MISSIYA MUVAFFAQIYATLI",
+      "partial": "QISMAN MUVAFFAQIYAT",
+      "failure": "MISSIYA MUVAFFAQIYATSIZ",
+      "science": "Ilmiy ball",
+      "of": "{nominal} rejadan",
+      "data": "Yetkazilgan ma'lumot",
+      "days": "Ishlagan kunlar",
+      "requirements": "Missiya talablari",
+      "met": "Bajarildi",
+      "missed": "Bajarilmadi",
+      "why": "Nima bo'ldi",
+      "improve": "Dizaynni yaxshilash",
+      "again": "Yangi missiya",
+      "report": "Muhandislik hisoboti",
+      "stage": "Tugagan bosqich: {stage}"
     }
   }
 }

@@ -1,7 +1,7 @@
 import { useStore } from 'zustand';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import type { Mission } from '@/mission';
-import { advanceSim, buildSimPlan, createSim, skipToNextStage, type SimPlan, type SimState } from '@/mission/sim';
+import { advanceSim, buildSimPlan, createSim, skipToNextStage, type SimPlan, type SimState, type StageId } from '@/mission/sim';
 
 /**
  * The running mission simulation of this browser session (one at a time).
@@ -29,6 +29,9 @@ export type SimStatus = 'idle' | 'running' | 'paused' | 'finished';
 /** Largest real-time gap a single tick may cover, so a background tab does not jump the simulation. */
 export const MAX_TICK_REAL_SECONDS = 0.25;
 
+/** Replaces the speed presets with a rate chosen per stage (the game's cinematic pacing). */
+export type RateModel = (plan: SimPlan, stage: StageId) => number;
+
 export type SimStoreState = {
   missionId: string | null;
   /** Revision of the mission document the plan was built from. */
@@ -39,6 +42,8 @@ export type SimStoreState = {
   speed: SimSpeedId;
   /** Continuous mission time the playback has reached; the state trails it by less than one step. */
   clockT: number;
+  /** When set, the simulated seconds per real second come from this model instead of `speed`. */
+  rateModel: RateModel | null;
   /** Builds a fresh plan and state for this mission and leaves them idle. */
   prepare: (mission: Mission) => void;
   start: () => void;
@@ -47,6 +52,7 @@ export type SimStoreState = {
   /** Rebuilds from the given (current) mission document and starts again from zero. */
   restart: (mission: Mission) => void;
   setSpeed: (speed: SimSpeedId) => void;
+  setRateModel: (model: RateModel | null) => void;
   /** Runs the active stage to its end (a real step of the simulation, not a jump of the display). */
   skipStage: () => void;
   /** Advances playback by `realSeconds` of wall-clock time at the chosen speed. */
@@ -72,6 +78,7 @@ export function createSimStore(): StoreApi<SimStoreState> {
       status: 'idle',
       speed: 'x3600',
       clockT: 0,
+      rateModel: null,
       prepare: (mission) => {
         const state = get();
         // A simulation that has begun keeps its own snapshot of the design until it is restarted.
@@ -90,6 +97,7 @@ export function createSimStore(): StoreApi<SimStoreState> {
         load(mission, 'running');
       },
       setSpeed: (speed) => set({ speed }),
+      setRateModel: (rateModel) => set({ rateModel }),
       skipStage: () => {
         const { plan, sim, status } = get();
         if (!plan || !sim || sim.ended || status === 'idle') return;
@@ -97,9 +105,10 @@ export function createSimStore(): StoreApi<SimStoreState> {
         set({ sim: next, clockT: next.t, status: next.ended ? 'finished' : status });
       },
       tick: (realSeconds) => {
-        const { plan, sim, status, speed, clockT } = get();
+        const { plan, sim, status, speed, clockT, rateModel } = get();
         if (status !== 'running' || !plan || !sim) return;
-        const target = clockT + Math.min(Math.max(0, realSeconds), MAX_TICK_REAL_SECONDS) * factorOf(speed);
+        const factor = rateModel ? rateModel(plan, plan.stageIds[sim.stageIndex]!) : factorOf(speed);
+        const target = clockT + Math.min(Math.max(0, realSeconds), MAX_TICK_REAL_SECONDS) * factor;
         const next = advanceSim(plan, sim, target - sim.t);
         set({ sim: next, clockT: next.ended ? next.t : target, status: next.ended ? 'finished' : 'running' });
       },

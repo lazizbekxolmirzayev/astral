@@ -238,4 +238,25 @@ export function craftTrail(plan: SimPlan, state: SimState, clockT: number = stat
   return points;
 }
 
+/**
+ * Where the spacecraft is on its operational orbit `seconds` after arrival, ignoring the simulation clock.
+ * Science operations last months while an orbit lasts hours, so at any watchable playback speed the true
+ * position would sweep around the orbit hundreds of times a second. A viewer that wants smooth motion
+ * advances `seconds` on its own (a documented visual pacing) and draws the craft with this; the simulation's
+ * numbers (telemetry, outcome) are unaffected. Valid for the stages that fly the operational orbit.
+ */
+export function operationalCraft(plan: SimPlan, state: SimState, seconds: number): Craft & { frameKey: string } {
+  const earthClass = plan.missionClass === 'earth-orbit';
+  const origin = earthClass ? startOf(state, plan, 'orbit-insertion') : startOf(state, plan, 'destination-arrival');
+  const fake: SimState = { ...state, t: origin + Math.max(0, seconds), stageElapsedS: 0 };
+  const frameKey = frameKeyOf(plan, plan.stageIds[state.stageIndex]!);
+  return { position: craftAt(plan, fake, 'science-operations', 0), speedMps: plan.geometry.operationalOrbitSpeedMps, frameKey };
+}
+
+/** The recent path for `operationalCraft`: the last `fraction` of an orbit, as `samples + 1` points. */
+export function operationalTrail(plan: SimPlan, state: SimState, seconds: number, samples = 48, fraction = 0.6): Vec3[] {
+  const span = geometryOf(plan).op.elements.period * fraction;
+  return Array.from({ length: samples + 1 }, (_, index) => operationalCraft(plan, state, seconds - span + (span * index) / samples).position);
+}
+
 export { distance as sceneDistance };

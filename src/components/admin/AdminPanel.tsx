@@ -54,7 +54,7 @@ export function AdminPanel() {
   return (
     <main className="mx-auto flex min-h-full w-full max-w-4xl flex-col gap-6 px-5 py-8 sm:px-8">
       <header className="border-b border-panel-border pb-4">
-        <Link href="/" className="text-xs text-foreground/60 hover:text-accent-cyan">{t('back')}</Link>
+        <Link href="/universe" className="text-xs text-foreground/60 hover:text-accent-cyan">{t('back')}</Link>
         <h1 className="mt-2 text-xl font-semibold">{t('title')}</h1>
       </header>
 

@@ -5,7 +5,7 @@ export { generateEvents } from './events';
 export { buildSimPlan, LAUNCH_BLOCKING_ISSUES, MISSION_CLASS, STAGES_OF_CLASS } from './plan';
 export type { PlanInstrument, SimPlan } from './plan';
 export { createRng, hashString, streamRng } from './rng';
-export { craftState, craftTrail, frameKeyOf, frameOf } from './scene';
+export { craftState, craftTrail, frameKeyOf, frameOf, operationalCraft, operationalTrail } from './scene';
 export type { SceneBody, SceneFrame, ScenePath } from './scene';
 export { readTelemetry } from './telemetry';
 export type { Telemetry } from './telemetry';
