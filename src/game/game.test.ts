@@ -149,3 +149,14 @@ describe('launch cameras and separation', () => {
     gameStore.getState().setLaunchCamera('auto');
   });
 });
+
+describe('instrument dials', () => {
+  it('log dials are 0 at zero, 1 at the top of the scale, and rise with the value', async () => {
+    const { logFraction } = await import('../components/game/Instruments');
+    expect(logFraction(0, 1000, 10)).toBe(0);
+    expect(logFraction(1000, 1000, 10)).toBeCloseTo(1, 6);
+    expect(logFraction(5000, 1000, 10)).toBe(1);
+    let previous = -1;
+    for (const value of [1, 10, 100, 500, 1000]) { const f = logFraction(value, 1000, 10); expect(f).toBeGreaterThan(previous); previous = f; }
+  });
+});

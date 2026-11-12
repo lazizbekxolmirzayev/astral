@@ -15,6 +15,7 @@ import { ErrorBoundary } from '../ui/ErrorBoundary';
 import { FlightHud } from './FlightHud';
 import { LabelLayer, type LabelSpec } from './labels';
 import { HangarPanel } from './HangarPanel';
+import { HelpBox } from './HelpBox';
 import { MapPanel } from './MapPanel';
 import { ResultPanel } from './ResultPanel';
 
@@ -139,6 +140,7 @@ export function GameHome() {
             <div className="pointer-events-auto flex items-center gap-1.5">
               <Link href="/universe" className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.universe')}</Link>
               <Link href={missionId ? `/missions/${missionId}` : '/missions'} title={t('topbar.engineerHint')} className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.engineer')}</Link>
+              <HelpBox phase={phase} />
               <MuteButton />
               <div className="hidden sm:block"><AccountMenu /></div>
             </div>

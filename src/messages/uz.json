@@ -1491,6 +1491,101 @@
       "again": "Yangi missiya",
       "report": "Muhandislik hisoboti",
       "stage": "Tugagan bosqich: {stage}"
+    },
+    "instruments": {
+      "altitude": "Balandlik",
+      "distance": "Masofa",
+      "speed": "Tezlik",
+      "dv": "Qolgan Δv",
+      "battery": "Akkumulyator",
+      "equipment": "Uskunalar",
+      "noInstruments": "Bortda ilmiy asbob yo'q — ilm yig'ish uchun angarda qo'shing.",
+      "status": {
+        "observing": "Kuzatmoqda",
+        "idle": "Tayyor",
+        "off": "O'chiq",
+        "unpowered": "Quvvat yo'q",
+        "fault": "Nosoz"
+      }
+    },
+    "help": {
+      "title": "Yordam",
+      "hint": "Yordam (H)",
+      "close": "Yordamni yopish",
+      "now": "Hozir nima qilish kerak",
+      "controls": "Boshqaruv",
+      "glossary": "Uchraydigan so'zlar",
+      "phases": {
+        "map": {
+          "title": "Qayerga borishni tanlang",
+          "step1": "Xaritada sayyora, Oy yoki orbitani bosing (yoki pastdagi qatordan tanlang).",
+          "step2": "Manzil kartasini o'qing: qanchalik uzoq, qanchalik qiyin, u yerda nimani o'rganish mumkin.",
+          "step3": "Angarni ochish uchun «Missiyani qurish» tugmasini bosing."
+        },
+        "hangar": {
+          "title": "Kosmik apparatni quring",
+          "step1": "Qismlar omborida qismlarni tanlang (platforma, quvvat, radio, yuk). O'ngdagi ko'rsatkichlar qo'shganingiz sari o'zgaradi.",
+          "step2": "«Raketalar» ni ochib, raketani bosing: kattasi ko'proq ko'taradi, lekin qimmat va to'liq ishonchli emas.",
+          "step3": "Holat «Uchishga tayyor» bo'lganda «Uchirish» ni bosing."
+        },
+        "flight": {
+          "title": "Uchishni tomosha qiling",
+          "step1": "Uchirish kameralarini tugmalar yoki C tugmasi bilan almashtiring.",
+          "step2": "Siferblatlar va telemetriya paneli simulyatsiyaning haqiqiy qiymatlarini ko'rsatadi.",
+          "step3": "Kutishni xohlamasangiz bosqichni o'tkazib yuboring; natija o'zgarmaydi."
+        },
+        "result": {
+          "title": "Natijani o'qing",
+          "step1": "Missiya talablari bajarilganmi va nima uchun shunday bo'lganini ko'ring.",
+          "step2": "Xuddi shu apparat bilan angarga qaytish uchun «Dizaynni yaxshilash» ni bosing.",
+          "step3": "Yoki yangi missiya boshlang, yoki barcha raqamlar uchun «Muhandislik hisoboti» ni oching."
+        }
+      },
+      "keys": {
+        "help": {
+          "key": "H",
+          "text": "Yordamni ochish yoki yopish"
+        },
+        "camera": {
+          "key": "C",
+          "text": "Keyingi uchirish kamerasi (uchirish paytida)"
+        },
+        "pause": {
+          "key": "Space",
+          "text": "Uchishni to'xtatish yoki davom ettirish"
+        },
+        "sound": {
+          "key": "🔊",
+          "text": "Tovushni yoqish yoki o'chirish (yuqori o'ngda)"
+        }
+      },
+      "terms": {
+        "dv": {
+          "name": "Δv (delta-v)",
+          "text": "Apparat yonilg'isi bilan tezligini qancha o'zgartira olishi. Koinotdagi yonilg'i ko'rsatkichi."
+        },
+        "leo": {
+          "name": "LEO",
+          "text": "Past Yer orbitasi, bir necha yuz kilometr balandlikda. Tez va yaqin."
+        },
+        "geo": {
+          "name": "GEO",
+          "text": "Geostatsionar orbita, taxminan 35 786 km balandlikda, sun'iy yo'ldosh Yerdagi bir nuqta ustida turadi."
+        },
+        "maxq": {
+          "name": "Max-Q",
+          "text": "Ko'tarilayotgan raketaga havo bosimi eng katta bo'ladigan lahza. Eng ko'p silkinadi."
+        },
+        "fairing": {
+          "name": "Fairing",
+          "text": "Yukni havoda himoya qiladigan burun qobig'i. Kosmosda ikkiga bo'linib tushib ketadi."
+        },
+        "downlink": {
+          "name": "Downlink",
+          "text": "Ilmiy ma'lumotni Yerga yuboradigan radio aloqa."
+        }
+      },
+      "honest": "Bosqichlar vaqti, silkinish va xarita joylashuvi ko'rinish uchun chizilgan. Siferblat, ko'rsatkich va natijadagi raqamlar missiya hisob-kitobidan olinadi."
     }
   }
 }

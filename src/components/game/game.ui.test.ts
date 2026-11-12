@@ -13,6 +13,8 @@ import { cinematicRate } from '@/game/cinematic';
 import { FlightHud } from './FlightHud';
 import { GameHome } from './GameHome';
 import { HangarPanel } from './HangarPanel';
+import { HelpBox } from './HelpBox';
+import { Dial } from './Instruments';
 import { MapPanel } from './MapPanel';
 import { ResultPanel } from './ResultPanel';
 
@@ -112,4 +114,16 @@ describe('game screens render with real data', () => {
     expect(html).toContain('Choose your destination');
     expect(problems).toEqual([]);
   });
+});
+
+describe('help box and instruments', () => {
+  for (const locale of ['uz', 'en', 'ru'] as const) {
+    it(`renders the help button and a dial in ${locale} without missing messages`, () => {
+      const html = render(locale, createElement('div', null, createElement(HelpBox, { phase: 'hangar' }), createElement(Dial, { testId: 'dial-x', label: 'Speed', fraction: 0.5, value: '5 km/s' })));
+      expect(html).toContain('data-action="toggle-help"');
+      expect(html).toContain('data-testid="dial-x"');
+      expect(html).toContain('data-fraction="0.500"');
+      expect(problems).toEqual([]);
+    });
+  }
 });

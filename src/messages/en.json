@@ -1491,6 +1491,101 @@
       "again": "New mission",
       "report": "Engineering report",
       "stage": "Ended in: {stage}"
+    },
+    "instruments": {
+      "altitude": "Altitude",
+      "distance": "Distance",
+      "speed": "Speed",
+      "dv": "Δv left",
+      "battery": "Battery",
+      "equipment": "Equipment",
+      "noInstruments": "No science instruments on board — add one in the hangar to collect science.",
+      "status": {
+        "observing": "Observing",
+        "idle": "Ready",
+        "off": "Off",
+        "unpowered": "No power",
+        "fault": "Fault"
+      }
+    },
+    "help": {
+      "title": "Help",
+      "hint": "Help (H)",
+      "close": "Close help",
+      "now": "What to do now",
+      "controls": "Controls",
+      "glossary": "Words you will meet",
+      "phases": {
+        "map": {
+          "title": "Choose where to go",
+          "step1": "Click a planet, the Moon or an orbit on the map (or pick one from the row at the bottom).",
+          "step2": "Read the destination card: how far, how hard, what you can learn there.",
+          "step3": "Press Build mission to open the hangar."
+        },
+        "hangar": {
+          "title": "Build the spacecraft",
+          "step1": "Pick parts in the Parts bay (platform, power, radio, payload). The gauges on the right change as you add them.",
+          "step2": "Open Rockets and click a launch vehicle: bigger rockets carry more but cost more and are not perfectly reliable.",
+          "step3": "When the status says Ready to launch, press Launch."
+        },
+        "flight": {
+          "title": "Watch the flight",
+          "step1": "Switch launch cameras with the buttons or the C key.",
+          "step2": "The dials and the telemetry panel show real values from the simulation.",
+          "step3": "Skip a stage if you do not want to wait; the result stays the same."
+        },
+        "result": {
+          "title": "Read the result",
+          "step1": "See whether the mission requirements were met and why things happened.",
+          "step2": "Press Improve the design to go back to the hangar with the same spacecraft.",
+          "step3": "Or start a new mission, or open the Engineering report for every number."
+        }
+      },
+      "keys": {
+        "help": {
+          "key": "H",
+          "text": "Open or close this help"
+        },
+        "camera": {
+          "key": "C",
+          "text": "Next launch camera (during the launch)"
+        },
+        "pause": {
+          "key": "Space",
+          "text": "Pause or resume the flight"
+        },
+        "sound": {
+          "key": "🔊",
+          "text": "Sound on or off (top right)"
+        }
+      },
+      "terms": {
+        "dv": {
+          "name": "Δv (delta-v)",
+          "text": "How much the spacecraft can change its speed with its fuel. It is the fuel gauge of space."
+        },
+        "leo": {
+          "name": "LEO",
+          "text": "Low Earth orbit, a few hundred kilometres up. Fast and close."
+        },
+        "geo": {
+          "name": "GEO",
+          "text": "Geostationary orbit, about 35,786 km up, where a satellite stays above one spot on Earth."
+        },
+        "maxq": {
+          "name": "Max-Q",
+          "text": "The moment of greatest air pressure on a climbing rocket. It shakes the most."
+        },
+        "fairing": {
+          "name": "Fairing",
+          "text": "The nose shell that protects the payload in the air. It splits and falls away in space."
+        },
+        "downlink": {
+          "name": "Downlink",
+          "text": "The radio link that sends your science data to Earth."
+        }
+      },
+      "honest": "Staging times, shaking and the map layout are drawn for effect. The numbers on the dials, gauges and result come from the mission calculations."
     }
   }
 }

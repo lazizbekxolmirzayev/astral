@@ -416,6 +416,8 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
 const WORLD_EXTENT = 10;
 /** Seconds the solar panels take to unfold after the spacecraft leaves the rocket. Drawn, not simulated. */
 const UNFOLD_SECONDS = 4;
+/** How long the spent upper stage stays in view after the spacecraft leaves it (seconds). */
+const SPENT_LIFE = 16;
 const PATH_STYLE: Record<string, { color: string; width: number; opacity: number }> = {
   operational: { color: '#00f0ff', width: 2.6, opacity: 1 },
   transfer: { color: '#ffc14d', width: 2.6, opacity: 1 },
@@ -437,7 +439,7 @@ function Body({ body, scale }: { body: SceneFrame['bodies'][number]; scale: numb
  * One frame of the simulation (the central body, orbit lines and the spacecraft), drawn in a fixed world size.
  * Every position comes from `craftState`/`craftTrail` of the simulation; this component owns no motion.
  */
-export function OrbitFrameView({ plan, frame, lost }: { plan: SimPlan; frame: SceneFrame; lost: () => boolean }) {
+export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; frame: SceneFrame; lost: () => boolean; rocket?: RocketClass }) {
   const scale = WORLD_EXTENT / Math.max(frame.extent, 1.2);
   const layout = useMemo(() => layoutSpacecraft(plan.mission), [plan.mission]);
   const ship = useRef<Group>(null);
@@ -447,8 +449,10 @@ export function OrbitFrameView({ plan, frame, lost }: { plan: SimPlan; frame: Sc
   const poseRef = useRef<CameraPose>({ position: [0, 6, 20], target: [0, 0, 0] });
   const trail = useRef<Vec3Like[]>([[0, 0, 0], [0.001, 0, 0]]);
   const trailKey = useRef(0);
-  const overview = OVERVIEW_FRAMES.has(frame.key);
-  const shipRadius = overview ? 0.4 : 0.9;
+  // wide orbits (the planet is small next to the orbit) are watched from above and slowly circled instead of from behind
+  const wideOrbit = !OVERVIEW_FRAMES.has(frame.key) && frame.unit === 'radii' && frame.extent > 3;
+  const overview = OVERVIEW_FRAMES.has(frame.key) || wideOrbit;
+  const shipRadius = wideOrbit ? 0.8 : overview ? 0.55 : 0.9;
 
   const visualClock = useRef(0);
   // the first frame after the launch is where the spacecraft unfolds its solar panels
@@ -457,13 +461,16 @@ export function OrbitFrameView({ plan, frame, lost }: { plan: SimPlan; frame: Sc
     return Boolean(sim && livePlan && sim.stageIndex === livePlan.stageIds.indexOf('launch') + 1);
   }, []);
   const unfoldClock = useRef(0);
+  // the spent upper stage the spacecraft just left: it stays where it was released while the spacecraft flies on
+  const spent = useRef<Group>(null);
+  const spentStart = useRef<Vec3Like | null>(null);
   const deploy = useMemo(() => (unfolds ? () => unfoldClock.current / UNFOLD_SECONDS : undefined), [unfolds]);
 
   useFrame(({ clock }, delta) => {
     const { plan: livePlan, sim, clockT, status } = simStore.getState();
     if (!livePlan || !sim) return;
     if (status !== 'paused') visualClock.current += Math.min(delta, 0.25);
-    if (unfolds) unfoldClock.current = Math.min(UNFOLD_SECONDS + 1, unfoldClock.current + Math.min(delta, 0.25));
+    if (unfolds) unfoldClock.current = Math.min(SPENT_LIFE + 1, unfoldClock.current + Math.min(delta, 0.25));
     const stage = livePlan.stageIds[sim.stageIndex]!;
     const visual = usesVisualOrbit(livePlan, stage);
     const craft = visual ? operationalCraft(livePlan, sim, visualOrbitSeconds(livePlan, visualClock.current)) : craftState(livePlan, sim, clockT);
@@ -474,6 +481,16 @@ export function OrbitFrameView({ plan, frame, lost }: { plan: SimPlan; frame: Sc
       ship.current.visible = !lost();
     }
     if (marker.current) marker.current.position.set(...world);
+    if (spent.current) {
+      if (unfolds && !spentStart.current) spentStart.current = [world[0], world[1], world[2]];
+      const start = spentStart.current;
+      const age = unfoldClock.current;
+      spent.current.visible = Boolean(start) && age < SPENT_LIFE;
+      if (start) {
+        spent.current.position.set(start[0] + age * 0.12, start[1] + age * 0.18, start[2] - age * 0.1);
+        spent.current.rotation.set(age * 0.35, age * 0.5, age * 0.2);
+      }
+    }
     // refresh the trail a few times a second
     const bucket = Math.floor(clock.elapsedTime * (visual ? 20 : 8));
     if (bucket !== trailKey.current) {
@@ -482,7 +499,10 @@ export function OrbitFrameView({ plan, frame, lost }: { plan: SimPlan; frame: Sc
       trail.current = points.map((point) => [point[0] * scale, point[1] * scale, point[2] * scale] as Vec3Like);
     }
     if (overview) {
-      poseRef.current = { position: [0, WORLD_EXTENT * 0.72, WORLD_EXTENT * 1.25], target: [world[0] * 0.3, 0, world[2] * 0.3] };
+      const swing = visualClock.current * 0.06;
+      poseRef.current = wideOrbit
+        ? { position: [Math.sin(swing) * WORLD_EXTENT * 1.1, WORLD_EXTENT * 0.9, Math.cos(swing) * WORLD_EXTENT * 1.5], target: [world[0] * 0.2, 0, world[2] * 0.2] }
+        : { position: [Math.sin(swing) * WORLD_EXTENT * 0.5, WORLD_EXTENT * 0.72, Math.cos(swing) * WORLD_EXTENT * 1.25], target: [world[0] * 0.3, 0, world[2] * 0.3] };
     } else {
       // Chase view: behind the spacecraft and a little above it, looking along its path, so the planet's
       // curved horizon fills the lower part of the picture and space the upper part.
@@ -522,6 +542,11 @@ export function OrbitFrameView({ plan, frame, lost }: { plan: SimPlan; frame: Sc
         </mesh>
       ) : null}
       <TrailLine source={trail} />
+      {unfolds && rocket ? (
+        <group ref={spent} visible={false} scale={shipRadius * 0.16}>
+          <RocketModel rocket={rocket} parts={{ ...NO_PARTS, upper: true }} />
+        </group>
+      ) : null}
       <group ref={ship}>
         <ShipModel shapes={layout.shapes} extent={layout.extent} radius={shipRadius} deploy={deploy} />
       </group>
@@ -589,5 +614,5 @@ function useSceneKey(plan: SimPlan): string {
 export function FlightScene({ plan, rocket }: { plan: SimPlan; rocket: RocketClass }) {
   const key = useSceneKey(plan);
   if (key === 'launch-cinematic') return <LaunchScene rocket={rocket} read={readLaunch} />;
-  return <OrbitFrameView key={key} plan={plan} frame={frameOf(plan, key)} lost={isLost} />;
+  return <OrbitFrameView key={key} plan={plan} frame={frameOf(plan, key)} lost={isLost} rocket={rocket} />;
 }

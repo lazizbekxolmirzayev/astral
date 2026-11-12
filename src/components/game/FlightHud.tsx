@@ -9,6 +9,7 @@ import { countdownSeconds } from './launchPath';
 import { formatBits, formatDistance, formatMissionTime, formatNumber, formatSpeed } from '@/game/format';
 import { gameStore, LAUNCH_CAMERAS } from '@/game/gameStore';
 import { simStore } from '@/stores/simStore';
+import { FlightInstruments } from './Instruments';
 import { useSimSnapshot } from './useSimSnapshot';
 
 const SEVERITY: Record<string, string> = { info: 'text-white/75', success: 'text-emerald-300', warning: 'text-amber-300', error: 'text-red-300' };
@@ -41,6 +42,22 @@ export function FlightHud() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onAscent]);
+  // Space pauses or resumes the flight (unless a button has the focus, which Space already activates)
+  const flying = Boolean(plan && sim && !sim.ended);
+  useEffect(() => {
+    if (!flying) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.code !== 'Space' || event.metaKey || event.ctrlKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      if (target && /^(input|textarea|select|button|a)$/i.test(target.tagName)) return;
+      event.preventDefault();
+      const state = simStore.getState();
+      if (state.status === 'running') state.pause();
+      else if (state.status === 'paused') state.resume();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [flying]);
   if (!plan || !sim) return null;
 
   const stageId = plan.stageIds[sim.stageIndex]!;
@@ -74,6 +91,8 @@ export function FlightHud() {
         {liftoff ? <p className="animate-pulse text-5xl font-extrabold uppercase tracking-[0.3em] text-orange-200 drop-shadow-[0_0_30px_rgba(255,140,60,0.9)] sm:text-7xl">{t('liftoff')}</p> : null}
         {lost ? <p data-testid="mission-lost" className="text-4xl font-extrabold uppercase tracking-[0.25em] text-red-300 drop-shadow-[0_0_30px_rgba(255,60,60,0.8)] sm:text-6xl">{t('lost')}</p> : null}
       </div>
+
+      <FlightInstruments />
 
       {/* telemetry */}
       <aside data-testid="telemetry" className="absolute bottom-3 left-3 z-20 w-[210px] rounded-2xl border border-white/10 bg-[linear-gradient(170deg,rgba(8,14,26,0.82),rgba(8,10,20,0.7))] p-3 backdrop-blur-md sm:w-[250px]">
