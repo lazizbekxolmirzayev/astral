@@ -1415,6 +1415,7 @@
         "budget": "Budget",
         "comms": "Downlink"
       },
+      "gaugeIdle": "no payload data yet — link can carry {limit}",
       "gaugeOf": "{used} of {limit}",
       "noLimit": "no limit",
       "ready": "Ready to launch",

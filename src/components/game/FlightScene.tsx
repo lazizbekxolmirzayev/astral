@@ -3,7 +3,7 @@
 import { Line } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AdditiveBlending, BackSide, Color, ShaderMaterial, type Group, type Mesh, type Object3D } from 'three';
+import { AdditiveBlending, BackSide, Color, ShaderMaterial, type Group, type Mesh, type Object3D, type PointLight } from 'three';
 import { craftState, craftTrail, frameKeyOf, frameOf, operationalCraft, operationalTrail, type SceneFrame, type SimPlan } from '@/mission/sim';
 import { blast, setThrust } from '@/game/audio';
 import { usesVisualOrbit, visualOrbitSeconds } from '@/game/orbitPacing';
@@ -76,6 +76,11 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   const ground = useRef<Mesh>(null);
   const failedAt = useRef<number | null>(null);
   const smokeFlash = useRef<Mesh>(null);
+  const shockwave = useRef<Mesh>(null);
+  const flashLight = useRef<PointLight>(null);
+  const failPos = useRef<[number, number]>([0, 2]);
+  const debrisEmitter = useRef<Object3D | null>(null);
+  const debrisThrottle = useRef(0);
   const poseRef = useRef<CameraPose>({ position: [14, 4, 22], target: [0, 6, 0] });
 
   const sky = useMemo(
@@ -96,7 +101,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     const pose = ascentPose(tau);
     const t = clock.elapsedTime;
     const exploded = failed && stage !== 'pre-launch';
-    if (exploded && failedAt.current === null) failedAt.current = t;
+    if (exploded && failedAt.current === null) { failedAt.current = t; failPos.current = [pose.x, pose.y + 2]; }
     const sinceFail = failedAt.current === null ? -1 : t - failedAt.current;
 
     const group = rocketGroup.current;
@@ -113,13 +118,27 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     if (sinceFail >= 0 && sinceFail < 0.05) blast();
     smokeThrottle.current = sinceFail < 0 && pose.y < 70 ? throttle : 0;
     burstThrottle.current = sinceFail >= 0 && sinceFail < 0.35 ? 1 : 0;
-    if (burstEmitter.current && sinceFail < 0) burstEmitter.current.position.set(pose.x, pose.y + 2, 0);
+    if (burstEmitter.current) burstEmitter.current.position.set(sinceFail < 0 ? pose.x : failPos.current[0], sinceFail < 0 ? pose.y + 2 : failPos.current[1], 0);
+    if (debrisEmitter.current) debrisEmitter.current.position.set(failPos.current[0], failPos.current[1], 0);
+    debrisThrottle.current = sinceFail >= 0 && sinceFail < 0.2 ? 1 : 0;
     if (flameEmitter.current) flameEmitter.current.position.set(pose.x, pose.y + 0.1, 0);
     if (smokeEmitter.current) smokeEmitter.current.position.set(pose.x * 0.3, Math.max(0.3, pose.y * 0.4), 0);
+    const since = Math.max(0, sinceFail);
     if (smokeFlash.current) {
       smokeFlash.current.visible = sinceFail >= 0 && sinceFail < 1.6;
-      smokeFlash.current.scale.setScalar(2 + Math.max(0, sinceFail) * 14);
-      (smokeFlash.current.material as { opacity: number }).opacity = Math.max(0, 0.9 - Math.max(0, sinceFail) * 0.6);
+      smokeFlash.current.position.set(failPos.current[0], failPos.current[1], 0);
+      smokeFlash.current.scale.setScalar(2 + since * 14);
+      (smokeFlash.current.material as { opacity: number }).opacity = Math.max(0, 0.9 - since * 0.6);
+    }
+    if (shockwave.current) {
+      shockwave.current.visible = sinceFail >= 0 && sinceFail < 2.2;
+      shockwave.current.position.set(failPos.current[0], failPos.current[1], 0);
+      shockwave.current.scale.setScalar(1 + since * 20);
+      (shockwave.current.material as { opacity: number }).opacity = Math.max(0, 0.22 - since * 0.1);
+    }
+    if (flashLight.current) {
+      flashLight.current.position.set(failPos.current[0], failPos.current[1], 4);
+      flashLight.current.intensity = sinceFail >= 0 ? Math.max(0, 9000 * Math.exp(-since * 3.2)) : 0;
     }
 
     // sky colour follows the climb; the dome rides with the camera so it is always around it
@@ -190,9 +209,16 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       <object3D ref={flameEmitter} />
       <object3D ref={smokeEmitter} />
       <object3D ref={burstEmitter} />
+      <object3D ref={debrisEmitter} />
       <Plume kind="flame" emitter={flameEmitter} throttle={flameThrottle} count={420} spread={1.2} speed={34} size={4.4} life={0.8} />
       <Plume kind="smoke" emitter={smokeEmitter} throttle={smokeThrottle} count={260} spread={6} speed={8} size={7} life={2.6} />
+      <Plume kind="burst" emitter={debrisEmitter} throttle={debrisThrottle} count={140} spread={3.2} speed={44} size={2.2} life={2.4} />
       <Plume kind="burst" emitter={burstEmitter} throttle={burstThrottle} count={300} spread={1.6} speed={26} size={7} life={1.8} />
+      <pointLight ref={flashLight} intensity={0} distance={260} color="#ffb070" />
+      <mesh ref={shockwave} visible={false} raycast={() => null}>
+        <sphereGeometry args={[1, 32, 16]} />
+        <meshBasicMaterial color="#ffd9a0" transparent opacity={0} blending={AdditiveBlending} depthWrite={false} wireframe />
+      </mesh>
       <mesh ref={smokeFlash} visible={false} raycast={() => null}>
         <sphereGeometry args={[1, 24, 18]} />
         <meshBasicMaterial color="#ffb060" transparent opacity={0.9} blending={AdditiveBlending} depthWrite={false} />

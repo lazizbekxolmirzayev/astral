@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { pickText } from '@/mission';
 import { stageTitle } from '@/mission/sim';
 import { gameStore } from '@/game/gameStore';
-import { formatBits, formatNumber } from '@/game/format';
+import { formatBits, formatMoney, formatNumber } from '@/game/format';
 import { useSimSnapshot } from './useSimSnapshot';
 
 const BADGE = {
@@ -14,9 +14,16 @@ const BADGE = {
   failure: { color: '#f87171', ring: 'border-red-300/60 shadow-[0_0_60px_rgba(248,113,113,0.35)]' },
 } as const;
 
+function formatRequirement(value: number, unit: string, locale: string): string {
+  if (unit === 'USD') return formatMoney(value, locale);
+  if (unit === '1') return `${formatNumber(value * 100, locale, 1)} %`;
+  return `${formatNumber(value, locale, unit === 'pt' ? 1 : 0)} ${unit}`;
+}
+
 /** The result screen: what the simulation concluded, why, and what to do next. */
 export function ResultPanel({ missionId }: { missionId: string | null }) {
   const t = useTranslations('game.result');
+  const kindT = useTranslations('mission.requirements.kind');
   const locale = useLocale();
   const { plan, sim } = useSimSnapshot();
   const outcome = sim?.outcome;
@@ -41,7 +48,7 @@ export function ResultPanel({ missionId }: { missionId: string | null }) {
             <ul className="mt-1.5 space-y-1 text-[12px]">
               {outcome.requirements.map((check) => (
                 <li key={check.id} className="flex items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1.5" data-requirement={check.met ? 'met' : 'missed'}>
-                  <span className="text-white/75">{check.kind}: {formatNumber(check.actual, locale, 1)} {check.unit} / {formatNumber(check.limit, locale, 1)}</span>
+                  <span className="text-white/75">{kindT(check.kind)}: <b className="font-medium text-white">{formatRequirement(check.actual, check.unit, locale)}</b> / {formatRequirement(check.limit, check.unit, locale)}</span>
                   <span className={check.met ? 'text-emerald-300' : 'text-red-300'}>{check.met ? t('met') : t('missed')}</span>
                 </li>
               ))}

@@ -1415,6 +1415,7 @@
         "budget": "Byudjet",
         "comms": "Yuborish tezligi"
       },
+      "gaugeIdle": "hali ma'lumot yo'q — aloqa {limit} o'tkaza oladi",
       "gaugeOf": "{used} / {limit}",
       "noLimit": "cheklov yo'q",
       "ready": "Uchirishga tayyor",

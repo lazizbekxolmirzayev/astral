@@ -73,7 +73,7 @@ export function HangarPanel({ mission, view, onLaunch }: { mission: Mission; vie
   const gauge = (key: ResourceKey, label: string, format: (value: number) => string) => {
     const line = resources?.[key];
     if (!line) return null;
-    return <Gauge key={key} label={label} used={line.used} limit={line.limit} status={line.status} text={line.limit === null ? `${format(line.used)} · ${t('noLimit')}` : t('gaugeOf', { used: format(line.used), limit: format(line.limit) })} />;
+    return <Gauge key={key} label={label} used={line.used} limit={line.limit} status={line.status} text={key === 'comms' && line.used === 0 && line.limit !== null ? t('gaugeIdle', { limit: format(line.limit) }) : line.limit === null ? `${format(line.used)} · ${t('noLimit')}` : t('gaugeOf', { used: format(line.used), limit: format(line.limit) })} />;
   };
 
   return (
