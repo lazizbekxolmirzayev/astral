@@ -1,10 +1,13 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useStore } from 'zustand';
 import { pickText } from '@/mission';
 import { readTelemetry, stageTitle } from '@/mission/sim';
 import { countdownSeconds } from './launchPath';
 import { formatBits, formatDistance, formatMissionTime, formatNumber, formatSpeed } from '@/game/format';
+import { gameStore, LAUNCH_CAMERAS } from '@/game/gameStore';
 import { simStore } from '@/stores/simStore';
 import { useSimSnapshot } from './useSimSnapshot';
 
@@ -23,6 +26,21 @@ export function FlightHud() {
   const t = useTranslations('game.flight');
   const locale = useLocale();
   const { plan, sim, status, clockT } = useSimSnapshot();
+  const launchCamera = useStore(gameStore, (state) => state.launchCamera);
+  const activeCamera = useStore(gameStore, (state) => state.activeCamera);
+  const onAscent = Boolean(plan && sim && (plan.stageIds[sim.stageIndex] === 'pre-launch' || plan.stageIds[sim.stageIndex] === 'launch') && !sim.ended);
+  // C cycles through the launch cameras
+  useEffect(() => {
+    if (!onAscent) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() !== 'c' || event.metaKey || event.ctrlKey || event.altKey) return;
+      const state = gameStore.getState();
+      const next = LAUNCH_CAMERAS[(LAUNCH_CAMERAS.indexOf(state.launchCamera) + 1) % LAUNCH_CAMERAS.length]!;
+      state.setLaunchCamera(next);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onAscent]);
   if (!plan || !sim) return null;
 
   const stageId = plan.stageIds[sim.stageIndex]!;
@@ -90,10 +108,32 @@ export function FlightHud() {
         </ul>
       </aside>
 
-      {/* controls */}
-      <div className="absolute right-3 top-[68px] z-20 flex gap-1.5">
-        <button type="button" data-action={running ? 'pause' : 'resume'} disabled={sim.ended} onClick={() => (running ? simStore.getState().pause() : simStore.getState().resume())} className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:text-white disabled:opacity-30">{running ? t('pause') : t('resume')}</button>
+      {/* crew window: the view from inside the nose */}
+      {onAscent && activeCamera === 'crew' ? (
+        <div aria-hidden data-testid="crew-window" className="pointer-events-none absolute inset-0 z-[5]" style={{ background: 'radial-gradient(ellipse 62% 58% at 50% 50%, transparent 62%, rgba(2,4,8,0.78) 82%, rgba(2,4,8,0.96) 100%)', boxShadow: 'inset 0 0 120px 40px rgba(0,0,0,0.65)' }}>
+          <div className="absolute left-1/2 top-1/2 h-[64%] w-[78%] -translate-x-1/2 -translate-y-1/2 rounded-[44%] border border-white/10" />
+        </div>
+      ) : null}
+
+      {/* controls and launch cameras: under the stage header on a phone, in the top-right corner on a larger screen */}
+      <div className="absolute inset-x-3 top-[150px] z-20 flex flex-col items-stretch gap-1.5 sm:inset-x-auto sm:right-3 sm:top-[68px] sm:items-end">
+        <div className="flex justify-center gap-1.5 sm:justify-end">
+          <button type="button" data-action={running ? 'pause' : 'resume'} disabled={sim.ended} onClick={() => (running ? simStore.getState().pause() : simStore.getState().resume())} className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:text-white disabled:opacity-30">{running ? t('pause') : t('resume')}</button>
         <button type="button" data-action="skip-stage" title={t('skipHint')} disabled={sim.ended} onClick={() => simStore.getState().skipStage()} className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:text-white disabled:opacity-30">{t('skip')} ⏭</button>
+        </div>
+        {onAscent ? (
+          <div role="group" aria-label={t('camera.label')} className="flex gap-1 overflow-x-auto pb-0.5 sm:max-w-[330px] sm:flex-wrap sm:justify-end sm:overflow-visible">
+            {LAUNCH_CAMERAS.map((mode) => {
+            const selected = launchCamera === mode;
+            return (
+              <button key={mode} type="button" data-action={`camera-${mode}`} aria-pressed={selected} onClick={() => gameStore.getState().setLaunchCamera(mode)} className={`shrink-0 whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.12em] backdrop-blur-md transition ${selected ? 'border-cyan-300/70 bg-cyan-400/20 text-cyan-100' : 'border-white/15 bg-black/45 text-white/70 hover:border-white/40 hover:text-white'}`}>{t(`camera.${mode}`)}</button>
+            );
+          })}
+          </div>
+        ) : null}
+        {onAscent ? (
+          <p className="hidden text-right sm:block text-[10px] tracking-[0.12em] text-white/45">{launchCamera === 'auto' && activeCamera ? `${t('camera.auto')} · ${t(`camera.${activeCamera}`)} · ` : ''}{t('camera.key')}</p>
+        ) : null}
       </div>
     </>
   );

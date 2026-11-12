@@ -13,6 +13,8 @@ import { cinematicRate } from './cinematic';
  */
 export type GamePhase = 'map' | 'hangar' | 'flight' | 'result';
 export type HangarView = 'ship' | 'rockets';
+export type LaunchCameraMode = 'auto' | 'side' | 'track' | 'chase' | 'rear' | 'onboard' | 'crew';
+export const LAUNCH_CAMERAS: readonly LaunchCameraMode[] = ['auto', 'side', 'track', 'chase', 'rear', 'onboard', 'crew'];
 
 export type GameState = {
   phase: GamePhase;
@@ -22,6 +24,12 @@ export type GameState = {
   destinationId: DestinationId | null;
   missionId: string | null;
   hangarView: HangarView;
+  /** Which camera shows the launch; `auto` cuts between the others like a broadcast. */
+  launchCamera: LaunchCameraMode;
+  setLaunchCamera: (mode: LaunchCameraMode) => void;
+  /** The camera actually in use right now (differs from `launchCamera` while it is `auto`); null outside the launch. */
+  activeCamera: Exclude<LaunchCameraMode, 'auto'> | null;
+  setActiveCamera: (mode: Exclude<LaunchCameraMode, 'auto'> | null) => void;
   /** Highlights a destination on the map; the camera glides to it. */
   focusDestination: (id: DestinationId | null) => void;
   /** Creates the mission from the template of the focused destination and enters the hangar. */
@@ -46,6 +54,10 @@ export function createGameStore(): StoreApi<GameState> {
     destinationId: null,
     missionId: null,
     hangarView: 'ship',
+    launchCamera: 'auto',
+    setLaunchCamera: (launchCamera) => set({ launchCamera }),
+    activeCamera: null,
+    setActiveCamera: (activeCamera) => set((state) => (state.activeCamera === activeCamera ? state : { activeCamera })),
     focusDestination: (focus) => set((state) => (state.phase === 'map' && state.focus !== focus ? { focus } : state)),
     confirmDestination: (title) => {
       const { focus, phase } = get();

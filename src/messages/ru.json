@@ -1462,7 +1462,18 @@
       "contactOff": "No link",
       "sunlit": "In sunlight",
       "eclipse": "In Earth's shadow",
-      "log": "Mission log"
+      "log": "Mission log",
+      "camera": {
+        "label": "Camera",
+        "auto": "Auto",
+        "side": "Pad",
+        "track": "Tracking",
+        "chase": "Chase",
+        "rear": "Rear",
+        "onboard": "Onboard",
+        "crew": "Crew",
+        "key": "Press C to switch"
+      }
     },
     "result": {
       "success": "MISSION SUCCESS",

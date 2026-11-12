@@ -30,3 +30,32 @@ export function padThrottle(progress: number): number {
 export function skyAmount(tau: number): number {
   return 1 - smooth(tau * 1.35);
 }
+
+/**
+ * When the vehicle drops its pieces, as a fraction of the launch stage. This is the drawn story of the ascent
+ * (the catalog does not model staging events), so it is the same for every launch.
+ */
+export const SEPARATION = { boosters: 0.38, stage1: 0.62, fairing: 0.8 } as const;
+
+/** Camera for the `auto` mode: a broadcast-style schedule that shows each separation from a good angle. */
+export function autoCameraAt(tau: number): 'side' | 'track' | 'chase' | 'rear' | 'onboard' | 'crew' {
+  if (tau < 0.1) return 'side';
+  if (tau < 0.3) return 'track';
+  if (tau < 0.45) return 'chase';
+  if (tau < 0.57) return 'crew';
+  if (tau < 0.7) return 'rear';
+  if (tau < 0.86) return 'chase';
+  return 'onboard';
+}
+
+/**
+ * How hard the vehicle shakes at a point in the climb (0..1): engine rumble through the pad and lift-off,
+ * the peak of dynamic pressure (max-Q), and a jolt that decays after each separation. Drawn, not computed.
+ */
+export function shakeAmount(tau: number, secondsSinceSeparation: number): number {
+  const lift = tau < 0.1 ? 0.55 + (tau / 0.1) * 0.25 : 0;
+  const maxQ = Math.exp(-(((tau - 0.2) / 0.07) ** 2)) * 0.9;
+  const cruise = tau >= 0.1 ? 0.18 * (1 - tau * 0.6) : 0;
+  const jolt = secondsSinceSeparation >= 0 ? Math.exp(-secondsSinceSeparation * 5) * 1.1 : 0;
+  return Math.min(1.2, lift + maxQ + cruise + jolt);
+}

@@ -13,21 +13,29 @@ export const ROCKET_LOOKS: Record<RocketClass, { height: number; radius: number;
   'super-heavy': { height: 15.5, radius: 0.95, boosters: 0, engines: 7, tint: '#cfd5de' },
 };
 
+/**
+ * Which pieces of the vehicle are drawn. The launch scene turns pieces off as they separate and draws each one
+ * again on its own as it falls away. Every piece keeps the same origin (the base of the engines), so a detached
+ * piece starts exactly where it was attached.
+ */
+export type RocketParts = { stage1: boolean; upper: boolean; fairingA: boolean; fairingB: boolean; boosterL: boolean; boosterR: boolean };
+export const ALL_PARTS: RocketParts = { stage1: true, upper: true, fairingA: true, fairingB: true, boosterL: true, boosterR: true };
+
 const STEEL = '#c9d1dc';
 const DARK = '#1b2230';
 
-function Ogive({ radius, height, color }: { radius: number; height: number; color: string }) {
+function Ogive({ radius, height, color, half }: { radius: number; height: number; color: string; half?: 0 | 1 }) {
   const geometry = useMemo(() => {
     const points: Vector2[] = [];
     for (let index = 0; index <= 14; index += 1) {
       const t = index / 14;
       points.push(new Vector2(radius * Math.sqrt(Math.max(0, 1 - t ** 1.7)), t * height));
     }
-    return new LatheGeometry(points, 32);
-  }, [radius, height]);
+    return half === undefined ? new LatheGeometry(points, 32) : new LatheGeometry(points, 20, half * Math.PI, Math.PI);
+  }, [radius, height, half]);
   return (
     <mesh geometry={geometry} raycast={() => null}>
-      <meshStandardMaterial color={color} metalness={0.25} roughness={0.35} />
+      <meshStandardMaterial color={color} metalness={0.25} roughness={0.35} side={half === undefined ? 0 : 2} />
     </mesh>
   );
 }
@@ -47,11 +55,25 @@ function Bell({ radius, position }: { radius: number; position: [number, number,
   );
 }
 
+/** Where the pieces of a drawn vehicle sit, in model units (origin: base of the engines, +y up). */
+export function rocketDims(rocket: RocketClass) {
+  const { height, radius, boosters, engines } = ROCKET_LOOKS[rocket];
+  const noseHeight = radius * (rocket === 'super-heavy' ? 3.2 : 3.6);
+  const body = height - noseHeight;
+  const firstStage = body * 0.62;
+  const interstage = body * 0.05;
+  const secondStage = body - firstStage - interstage;
+  const engineBase = radius * 0.5;
+  const boosterRadius = radius * 0.34;
+  const boosterHeight = body * 0.55;
+  return { height, radius, boosters, engines, noseHeight, body, firstStage, interstage, secondStage, engineBase, boosterRadius, boosterHeight };
+}
+
 /**
  * A stylised launch vehicle for the hangar and the launch scene. The base of the engines is the origin, the
  * nose points up (+y). `glow` brightens the engine bells (set while the engines fire).
  */
-export function RocketModel({ rocket, highlight = 0 }: { rocket: RocketClass; highlight?: number }) {
+export function RocketModel({ rocket, highlight = 0, parts = ALL_PARTS }: { rocket: RocketClass; highlight?: number; parts?: RocketParts }) {
   const look = ROCKET_LOOKS[rocket];
   const { height, radius, boosters, engines, tint } = look;
   const noseHeight = radius * (rocket === 'super-heavy' ? 3.2 : 3.6);
@@ -79,6 +101,7 @@ export function RocketModel({ rocket, highlight = 0 }: { rocket: RocketClass; hi
   return (
     <group>
       {/* first stage, with a dark band near the top */}
+      <group visible={parts.stage1}>
       <mesh position={[0, engineBase + firstStage / 2, 0]} raycast={() => null}>
         <cylinderGeometry args={[radius, radius * 1.02, firstStage, 36]} />
         <meshStandardMaterial color={tint} {...mat} />
@@ -91,7 +114,9 @@ export function RocketModel({ rocket, highlight = 0 }: { rocket: RocketClass; hi
         <cylinderGeometry args={[radius * 1.025, radius * 1.025, firstStage * 0.02, 36]} />
         <meshStandardMaterial color="#e5602b" {...mat} />
       </mesh>
+      </group>
       {/* interstage and second stage */}
+      <group visible={parts.upper}>
       <mesh position={[0, engineBase + firstStage + interstage / 2, 0]} raycast={() => null}>
         <cylinderGeometry args={[radius * 0.94, radius, interstage, 36]} />
         <meshStandardMaterial color={DARK} {...mat} />
@@ -100,10 +125,20 @@ export function RocketModel({ rocket, highlight = 0 }: { rocket: RocketClass; hi
         <cylinderGeometry args={[radius * 0.94, radius * 0.94, secondStage, 36]} />
         <meshStandardMaterial color={tint} {...mat} />
       </mesh>
-      {/* fairing */}
-      <group position={[0, engineBase + body, 0]}>
-        <Ogive radius={radius * 0.94} height={noseHeight} color={rocket === 'super-heavy' ? STEEL : '#f4f6fa'} />
+      {/* upper-stage engine, hidden inside the interstage while attached */}
+      <Bell radius={radius * 0.32} position={[0, engineBase + firstStage + interstage * 0.2, 0]} />
+      {/* the payload that rides inside the fairing */}
+      <mesh position={[0, engineBase + body + noseHeight * 0.28, 0]} raycast={() => null}>
+        <cylinderGeometry args={[radius * 0.5, radius * 0.5, noseHeight * 0.5, 20]} />
+        <meshStandardMaterial color="#d9b44a" metalness={0.8} roughness={0.35} />
+      </mesh>
       </group>
+      {/* fairing: two halves that open and fall away */}
+      <group position={[0, engineBase + body, 0]}>
+        <group visible={parts.fairingA}><Ogive radius={radius * 0.94} height={noseHeight} color={rocket === 'super-heavy' ? STEEL : '#f4f6fa'} half={0} /></group>
+        <group visible={parts.fairingB}><Ogive radius={radius * 0.94} height={noseHeight} color={rocket === 'super-heavy' ? STEEL : '#f4f6fa'} half={1} /></group>
+      </group>
+      <group visible={parts.stage1}>
       {/* engines */}
       <mesh position={[0, engineBase / 2, 0]} raycast={() => null}>
         <cylinderGeometry args={[radius * 0.97, radius * 0.9, engineBase, 24]} />
@@ -121,13 +156,14 @@ export function RocketModel({ rocket, highlight = 0 }: { rocket: RocketClass; hi
             </mesh>
           ))
         : null}
+      </group>
       {/* strap-on boosters */}
       {Array.from({ length: boosters }, (_, index) => {
         const side = index === 0 ? -1 : 1;
         const boosterRadius = radius * 0.34;
         const boosterHeight = body * 0.55;
         return (
-          <group key={index} position={[side * (radius + boosterRadius * 1.02), 0, 0]}>
+          <group key={index} position={[side * (radius + boosterRadius * 1.02), 0, 0]} visible={side < 0 ? parts.boosterL : parts.boosterR}>
             <mesh position={[0, engineBase + boosterHeight / 2, 0]} raycast={() => null}>
               <cylinderGeometry args={[boosterRadius, boosterRadius, boosterHeight, 24]} />
               <meshStandardMaterial color={tint} {...mat} />

@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useFrame } from '@react-three/fiber';
+import { useEffect, useMemo, useRef } from 'react';
+import type { Group } from 'three';
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
 import type { PartShape, ShapeRole } from '@/mission/spacecraftLayout';
 
@@ -51,8 +53,21 @@ const ROLE_COLOR: Record<ShapeRole, string> = {
  * shapes the Engineer pages show, with game materials. It is a picture of the design, not a structural model.
  * Metres in, scene units out: the model is scaled so its farthest corner is `radius` scene units from the centre.
  */
-export function ShipModel({ shapes, extent, radius = 1.6, glow = 0, selectedItemId = null }: { shapes: PartShape[]; extent: number; radius?: number; glow?: number; selectedItemId?: string | null }) {
+export function ShipModel({ shapes, extent, radius = 1.6, glow = 0, selectedItemId = null, deploy }: { shapes: PartShape[]; extent: number; radius?: number; glow?: number; selectedItemId?: string | null; deploy?: () => number }) {
   const cells = useMemo(() => cellTexture(), []);
+  const panels = useRef(new Map<string, Group>());
+  // solar panels unfold from the bus: 0 = folded against it, 1 = fully out (only when the scene asks for it)
+  useFrame(() => {
+    if (!deploy) return;
+    const amount = Math.min(1, Math.max(0, deploy()));
+    const eased = amount * amount * (3 - 2 * amount);
+    for (const shape of shapes) {
+      const group = panels.current.get(shape.key);
+      if (!group) continue;
+      group.position.set(shape.position[0] * eased, shape.position[1] * eased, shape.position[2] * eased);
+      group.scale.set(Math.max(0.02, eased), 1, Math.max(0.02, eased));
+    }
+  });
   useEffect(() => () => cells.dispose(), [cells]);
   const scale = radius / Math.max(extent, 0.3);
 
@@ -82,7 +97,7 @@ export function ShipModel({ shapes, extent, radius = 1.6, glow = 0, selectedItem
           material = <meshStandardMaterial color={color} metalness={0.5} roughness={0.45} emissive={shape.role === 'instrument' ? '#22d3ee' : color} emissiveIntensity={shape.role === 'instrument' ? 0.6 : 0.12} />;
         }
         return (
-          <group key={shape.key} position={shape.position} rotation={rotation}>
+          <group key={shape.key} position={shape.position} rotation={rotation} ref={shape.role === 'panel' && deploy ? (group) => { if (group) panels.current.set(shape.key, group); else panels.current.delete(shape.key); } : undefined}>
             <mesh raycast={() => null}>
               {geometry}
               {material}

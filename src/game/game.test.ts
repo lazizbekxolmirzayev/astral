@@ -105,3 +105,47 @@ describe('orbit pacing', () => {
     }
   });
 });
+
+describe('launch cameras and separation', () => {
+  it('separation happens in order, inside the climb, and the schedule shows each from a camera that can see it', async () => {
+    const { SEPARATION, autoCameraAt } = await import('../components/game/launchPath');
+    expect(SEPARATION.boosters).toBeLessThan(SEPARATION.stage1);
+    expect(SEPARATION.stage1).toBeLessThan(SEPARATION.fairing);
+    expect(SEPARATION.fairing).toBeLessThan(1);
+    // an outside camera is on while each piece falls away
+    expect(['chase', 'rear', 'track']).toContain(autoCameraAt(SEPARATION.boosters + 0.02));
+    expect(['chase', 'rear', 'track']).toContain(autoCameraAt(SEPARATION.stage1 + 0.02));
+    expect(['chase', 'rear', 'track']).toContain(autoCameraAt(SEPARATION.fairing + 0.02));
+    expect(autoCameraAt(0)).toBe('side');
+    // the auto schedule never uses the removed/unknown cameras
+    for (let tau = 0; tau <= 1; tau += 0.01) expect(['side', 'track', 'chase', 'rear', 'onboard', 'crew']).toContain(autoCameraAt(tau));
+  });
+
+  it('shakes hardest at lift-off and max-Q and jolts after a separation, then settles', async () => {
+    const { shakeAmount } = await import('../components/game/launchPath');
+    expect(shakeAmount(0.05, -1)).toBeGreaterThan(shakeAmount(0.6, -1));
+    expect(shakeAmount(0.2, -1)).toBeGreaterThan(shakeAmount(0.5, -1));
+    expect(shakeAmount(0.5, 0)).toBeGreaterThan(shakeAmount(0.5, -1));
+    expect(shakeAmount(0.5, 3)).toBeCloseTo(shakeAmount(0.5, -1), 3);
+    for (let tau = 0; tau <= 1; tau += 0.05) expect(shakeAmount(tau, 0)).toBeLessThanOrEqual(1.2);
+  });
+
+  it('the drawn vehicle has consistent proportions for every class', async () => {
+    const { rocketDims } = await import('../components/game/RocketModel');
+    for (const rocket of ['small', 'medium', 'heavy', 'super-heavy'] as const) {
+      const d = rocketDims(rocket);
+      expect(d.engineBase + d.firstStage + d.interstage + d.secondStage + d.noseHeight).toBeCloseTo(d.engineBase + d.body + d.noseHeight, 6);
+      expect(d.engineBase + d.body + d.noseHeight).toBeCloseTo(d.height + d.engineBase, 6);
+    }
+    expect(rocketDims('heavy').boosters).toBeGreaterThan(0);
+    expect(rocketDims('small').boosters).toBe(0);
+  });
+
+  it('the launch camera choice lives in the game store', async () => {
+    const { gameStore, LAUNCH_CAMERAS } = await import('./gameStore');
+    expect(LAUNCH_CAMERAS[0]).toBe('auto');
+    gameStore.getState().setLaunchCamera('crew');
+    expect(gameStore.getState().launchCamera).toBe('crew');
+    gameStore.getState().setLaunchCamera('auto');
+  });
+});

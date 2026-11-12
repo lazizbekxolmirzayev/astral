@@ -41,3 +41,22 @@ exhaust and explosion are particles with their own clock. None of it feeds the s
 
 `audio.ts` synthesises an engine rumble, a blast and interface blips with Web Audio (no files). It starts on
 the first click, and the top bar has a mute button.
+
+## Launch cameras, shaking and separation
+
+The launch can be watched from seven cameras (`LAUNCH_CAMERAS` in `gameStore.ts`): **Auto** (a broadcast-style schedule,
+`autoCameraAt`), **Pad** (wide, from the ground), **Tracking** (long lens from far away), **Chase** (beside the vehicle),
+**Rear** (below and behind, looking at the engines), **Onboard** (bolted to the side of the vehicle, looking out at the
+Earth) and **Crew** (from the nose, through a window frame). Press **C** or use the buttons to switch. A lost vehicle is
+always watched from outside.
+
+What is drawn and what is not:
+- *Drawn only*: when the pieces separate (`SEPARATION`, fractions of the launch stage), how they tumble, the camera shake
+  (`shakeAmount`: lift-off rumble, max-Q, a jolt after each separation) and the solar-panel unfolding after the launch.
+  The catalog does not model staging events, so these are the same story for every launch and do not change any result.
+- *From the simulation*: the stage, the progress through it, altitude, speed and whether the launch fails.
+
+Separating pieces (boosters of the heavy-lift vehicle, the first stage, the two fairing halves) are the same
+`RocketModel` drawn with only that piece on (`RocketParts`), so each one leaves from exactly where it was attached,
+keeps the vehicle's speed, then falls and spins on its own. After the first stage is gone the flame comes from the
+second-stage engine.

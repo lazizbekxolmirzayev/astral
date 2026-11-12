@@ -5,7 +5,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AdditiveBlending, BackSide, Color, ShaderMaterial, type Group, type Mesh, type Object3D, type PointLight } from 'three';
 import { craftState, craftTrail, frameKeyOf, frameOf, operationalCraft, operationalTrail, type SceneFrame, type SimPlan } from '@/mission/sim';
-import { blast, setThrust } from '@/game/audio';
+import { blast, blip, setThrust } from '@/game/audio';
 import { usesVisualOrbit, visualOrbitSeconds } from '@/game/orbitPacing';
 import { layoutSpacecraft } from '@/mission/spacecraftLayout';
 import { simStore } from '@/stores/simStore';
@@ -13,9 +13,10 @@ import { planets, SUN_LOOK } from '../3d/layout';
 import { createGlowTexture, GLOW_BLENDING } from '../3d/proceduralTextures';
 import { CameraDirector, type CameraPose } from './CameraDirector';
 import { GamePlanet, GameSun } from './GamePlanet';
-import { ascentPose, padThrottle, skyAmount } from './launchPath';
+import { gameStore, type LaunchCameraMode } from '@/game/gameStore';
+import { ascentPose, autoCameraAt, padThrottle, SEPARATION, shakeAmount, skyAmount } from './launchPath';
 import { Plume } from './Particles';
-import { RocketModel, ROCKET_LOOKS, type RocketClass } from './RocketModel';
+import { ALL_PARTS, RocketModel, rocketDims, ROCKET_LOOKS, type RocketClass, type RocketParts } from './RocketModel';
 import { ShipModel } from './ShipModel';
 
 const EARTH = planets.find((planet) => planet.id === 'earth')!;
@@ -58,6 +59,95 @@ function Gantry() {
   );
 }
 
+
+/* ---- separation: pieces that fall away from the climbing vehicle ---- */
+
+type PieceId = 'boosterL' | 'boosterR' | 'stage1' | 'fairingA' | 'fairingB';
+type Piece = { t0: number; p0: [number, number]; v: [number, number]; pitch: number; spin: number };
+const NO_PARTS: RocketParts = { stage1: false, upper: false, fairingA: false, fairingB: false, boosterL: false, boosterR: false };
+const PIECE_PARTS: Record<PieceId, RocketParts> = {
+  boosterL: { ...NO_PARTS, boosterL: true },
+  boosterR: { ...NO_PARTS, boosterR: true },
+  stage1: { ...NO_PARTS, stage1: true },
+  fairingA: { ...NO_PARTS, fairingA: true },
+  fairingB: { ...NO_PARTS, fairingB: true },
+};
+const PIECE_IDS = Object.keys(PIECE_PARTS) as PieceId[];
+/** Pieces keep falling for this long (scene seconds) and are then hidden. */
+const PIECE_LIFE = 9;
+const PIECE_GRAVITY = -6;
+
+/** Turns a vector in the vehicle's frame (x right, y along the nose) into the world, given its pitch. */
+const toWorld = (a: number, b: number, pitch: number): [number, number] => [a * Math.cos(pitch) + b * Math.sin(pitch), -a * Math.sin(pitch) + b * Math.cos(pitch)];
+
+function pieceSetup(rocket: RocketClass, id: PieceId) {
+  const d = rocketDims(rocket);
+  switch (id) {
+    case 'boosterL':
+    case 'boosterR': {
+      const side = id === 'boosterL' ? -1 : 1;
+      return { pivot: [side * (d.radius + d.boosterRadius * 1.02), d.engineBase + d.boosterHeight / 2] as const, impulse: [side * 7, -0.6] as const, spin: side * 0.55 };
+    }
+    case 'stage1':
+      return { pivot: [0, d.engineBase + d.firstStage / 2] as const, impulse: [0, -3.2] as const, spin: 0.22 };
+    case 'fairingA':
+    case 'fairingB': {
+      const side = id === 'fairingA' ? 1 : -1;
+      return { pivot: [0, d.engineBase + d.body + d.noseHeight * 0.35] as const, impulse: [side * 9, 2] as const, spin: -side * 0.9 };
+    }
+  }
+}
+
+/** One detached piece: an outer group at the pivot (moved and spun by the scene), the model inside offset by -pivot. */
+function DetachedPiece({ id, rocket, register }: { id: PieceId; rocket: RocketClass; register: (id: PieceId, group: Group | null) => void }) {
+  const { pivot } = pieceSetup(rocket, id);
+  return (
+    <group ref={(group) => register(id, group)} visible={false} scale={LAUNCH_SCALE}>
+      <group position={[-pivot[0], -pivot[1], 0]}>
+        <RocketModel rocket={rocket} parts={PIECE_PARTS[id]} />
+      </group>
+    </group>
+  );
+}
+
+/** Where the camera sits for each launch camera. `P` is the base of the vehicle, `U` its nose direction, `H` its drawn height. */
+function launchCameraPose(mode: Exclude<LaunchCameraMode, 'auto'>, o: { px: number; py: number; ux: number; uy: number; H: number; r: number; pre: boolean; follow: number; failed: boolean }): CameraPose {
+  const { px, py, ux, uy, H, r, pre, follow, failed } = o;
+  const at = (k: number): [number, number] => [px + ux * H * k, py + uy * H * k];
+  const mid = at(0.5);
+  const lookY = pre ? H * 0.5 : Math.max(H * 0.5, py * 0.92 + H * 0.4);
+  switch (mode) {
+    case 'side':
+      return { position: [26 + follow * 20, Math.max(3, mid[1] * 0.35 + 3), 40 + follow * 20], target: [mid[0], Math.max(H * 0.4, mid[1]), 0], fov: 50 };
+    case 'track':
+      // a long lens from the ground far to the side: the vehicle shrinks away like a real tracking-camera shot
+      return { position: [92, 2.5 + Math.min(40, py * 0.12), 120], target: [mid[0], Math.max(H * 0.5, mid[1] + 3), 0], fov: 22 };
+    case 'rear': {
+      const base = at(-0.9);
+      return { position: [base[0] + 7 + H * 0.28, Math.max(2.5, base[1]), H * 0.95], target: [at(0.1)[0], at(0.1)[1], 0], fov: 54, shake: 0 };
+    }
+    case 'onboard': {
+      // bolted to the side of the vehicle, looking down its body toward the engines
+      const cam = at(0.74);
+      return { position: [cam[0], cam[1], r * 1.5], target: [cam[0] - ux * 14, cam[1] - uy * 14 - 10, r * 1.5 + 60], fov: 70 };
+    }
+    case 'crew': {
+      // from the nose, the way the crew would look out of the window: forward, slightly to one side
+      const cam = at(1.04);
+      return { position: [cam[0], cam[1], 0.3], target: [cam[0] + ux * 50, cam[1] + uy * 50 - 42, 16], fov: 64 };
+    }
+    case 'chase':
+    default: {
+      const distance = 22 + H * 0.8 + follow * 40;
+      return { position: [distance * 0.45 + follow * 8, Math.max(3.5, lookY * 0.5 + 2), distance + (failed ? 8 : 0)], target: [pre ? 0 : px * 0.9, lookY, 0], fov: 46 };
+    }
+  }
+}
+
+/** How much each camera feels the vehicle's shaking. */
+const SHAKE_FACTOR: Record<Exclude<LaunchCameraMode, 'auto'>, number> = { side: 0.12, track: 0.08, chase: 0.25, rear: 0.4, onboard: 0.9, crew: 1.2 };
+const RIGID: ReadonlySet<string> = new Set(['onboard', 'crew']);
+
 /**
  * Pad, ascent and the explosion of a failed launch. `progress` is read through a getter every frame, so the
  * scene follows the simulation (pre-launch / launch stage progress) without re-rendering React.
@@ -83,19 +173,38 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   const debrisThrottle = useRef(0);
   const poseRef = useRef<CameraPose>({ position: [14, 4, 22], target: [0, 6, 0] });
 
+  // separation bookkeeping
+  const [parts, setParts] = useState<RocketParts>(ALL_PARTS);
+  const done = useRef({ boosters: false, stage1: false, fairing: false });
+  const sepAt = useRef(-1);
+  const pieces = useRef<Partial<Record<PieceId, Piece>>>({});
+  const pieceGroups = useRef<Partial<Record<PieceId, Group | null>>>({});
+  const sepEmitter = useRef<Object3D | null>(null);
+  const sepThrottle = useRef(0);
+  const sepLight = useRef<PointLight>(null);
+  const lastPose = useRef<{ x: number; y: number; t: number } | null>(null);
+  const velocity = useRef<[number, number]>([0, 0]);
+  const flameOffset = useRef(0);
+  const [camKey, setCamKey] = useState('pad');
+  const camKeyRef = useRef('pad');
+  const dims = useMemo(() => rocketDims(rocket), [rocket]);
+  const register = useMemo(() => (id: PieceId, group: Group | null) => { pieceGroups.current[id] = group; }, []);
+
   const sky = useMemo(
     () => new ShaderMaterial({ uniforms: { uTop: { value: new Color('#16356b') }, uHorizon: { value: new Color('#e9a27a') }, uAlpha: { value: 1 } }, vertexShader: SKY_VERTEX, fragmentShader: SKY_FRAGMENT, transparent: true, depthWrite: false, depthTest: false, side: BackSide }),
     [],
   );
   const glow = useMemo(() => createGlowTexture('#ffd9a0', 'rgba(255,140,40,0)'), []);
   useEffect(() => () => { sky.dispose(); glow.dispose(); }, [sky, glow]);
+  useEffect(() => () => gameStore.getState().setActiveCamera(null), []);
   const earthPlanetLook = EARTH.look;
   const topNight = useMemo(() => new Color('#02040a'), []);
   const topDay = useMemo(() => new Color('#16356b'), []);
   const horizonDay = useMemo(() => new Color('#e9a27a'), []);
   const horizonNight = useMemo(() => new Color('#05070d'), []);
 
-  useFrame(({ camera, clock }) => {
+  useFrame(({ camera, clock }, rawDelta) => {
+    const delta = Math.max(1e-3, Math.min(rawDelta, 0.1));
     const { stage, progress, failed } = read();
     const tau = stage === 'launch' ? progress : stage === 'later' ? 1 : 0;
     const pose = ascentPose(tau);
@@ -103,6 +212,66 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     const exploded = failed && stage !== 'pre-launch';
     if (exploded && failedAt.current === null) { failedAt.current = t; failPos.current = [pose.x, pose.y + 2]; }
     const sinceFail = failedAt.current === null ? -1 : t - failedAt.current;
+    const ux = Math.sin(pose.pitch);
+    const uy = Math.cos(pose.pitch);
+
+    // a restart (tau back near zero) puts every piece back on the vehicle
+    if (tau < 0.02 && (done.current.boosters || done.current.stage1 || done.current.fairing)) {
+      done.current = { boosters: false, stage1: false, fairing: false };
+      pieces.current = {};
+      sepAt.current = -1;
+      for (const id of PIECE_IDS) { const g = pieceGroups.current[id]; if (g) g.visible = false; }
+      setParts(ALL_PARTS);
+    }
+
+    // vehicle speed in the scene, used so a piece leaves with the speed it had
+    const previous = lastPose.current;
+    if (previous && t > previous.t) {
+      const dt = t - previous.t;
+      velocity.current = [velocity.current[0] * 0.75 + ((pose.x - previous.x) / dt) * 0.25, velocity.current[1] * 0.75 + ((pose.y - previous.y) / dt) * 0.25];
+    }
+    lastPose.current = { x: pose.x, y: pose.y, t };
+
+    // separation events, driven by how far the launch stage has come
+    if (sinceFail < 0) {
+      const spawn = (ids: PieceId[]) => {
+        sepAt.current = t;
+        for (const id of ids) {
+          const setup = pieceSetup(rocket, id);
+          const [wx, wy] = toWorld(setup.pivot[0] * LAUNCH_SCALE, setup.pivot[1] * LAUNCH_SCALE, pose.pitch);
+          const [ix, iy] = toWorld(setup.impulse[0], setup.impulse[1], pose.pitch);
+          pieces.current[id] = { t0: t, p0: [pose.x + wx, pose.y + wy], v: [velocity.current[0] + ix, velocity.current[1] + iy], pitch: pose.pitch, spin: setup.spin };
+        }
+        const first = pieces.current[ids[0]!]!;
+        if (sepEmitter.current) sepEmitter.current.position.set(first.p0[0], first.p0[1], 0);
+        sepThrottle.current = 1;
+        blip();
+      };
+      let changed = false;
+      if (!done.current.boosters && tau >= SEPARATION.boosters) {
+        done.current.boosters = true;
+        changed = true;
+        if (dims.boosters > 0) spawn(['boosterL', 'boosterR']);
+      }
+      if (!done.current.stage1 && tau >= SEPARATION.stage1) { done.current.stage1 = true; changed = true; spawn(['stage1']); }
+      if (!done.current.fairing && tau >= SEPARATION.fairing) { done.current.fairing = true; changed = true; spawn(['fairingA', 'fairingB']); }
+      if (changed) setParts({ stage1: !done.current.stage1, upper: true, fairingA: !done.current.fairing, fairingB: !done.current.fairing, boosterL: !done.current.boosters, boosterR: !done.current.boosters });
+    }
+    const sinceSep = sepAt.current < 0 ? -1 : t - sepAt.current;
+    if (sepThrottle.current > 0 && sinceSep > 0.12) sepThrottle.current = 0;
+    if (sepLight.current) sepLight.current.intensity = sinceSep >= 0 ? 2600 * Math.exp(-sinceSep * 7) : 0;
+    if (sepLight.current && sepEmitter.current) sepLight.current.position.copy(sepEmitter.current.position).setZ(6);
+
+    // the pieces fly on their own
+    for (const id of PIECE_IDS) {
+      const piece = pieces.current[id];
+      const group = pieceGroups.current[id];
+      if (!piece || !group) continue;
+      const dt = t - piece.t0;
+      group.visible = dt < PIECE_LIFE;
+      group.position.set(piece.p0[0] + piece.v[0] * dt, piece.p0[1] + piece.v[1] * dt + 0.5 * PIECE_GRAVITY * dt * dt, 0);
+      group.rotation.set(0, 0, -piece.pitch + piece.spin * dt);
+    }
 
     const group = rocketGroup.current;
     if (group) {
@@ -121,7 +290,10 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     if (burstEmitter.current) burstEmitter.current.position.set(sinceFail < 0 ? pose.x : failPos.current[0], sinceFail < 0 ? pose.y + 2 : failPos.current[1], 0);
     if (debrisEmitter.current) debrisEmitter.current.position.set(failPos.current[0], failPos.current[1], 0);
     debrisThrottle.current = sinceFail >= 0 && sinceFail < 0.2 ? 1 : 0;
-    if (flameEmitter.current) flameEmitter.current.position.set(pose.x, pose.y + 0.1, 0);
+    // after the first stage is gone the flame comes from the second-stage engine, higher up the vehicle
+    const targetOffset = done.current.stage1 ? (dims.engineBase + dims.firstStage + dims.interstage) * LAUNCH_SCALE : 0;
+    flameOffset.current += (targetOffset - flameOffset.current) * Math.min(1, delta * 14);
+    if (flameEmitter.current) flameEmitter.current.position.set(pose.x + ux * flameOffset.current, pose.y + 0.1 + uy * flameOffset.current, 0);
     if (smokeEmitter.current) smokeEmitter.current.position.set(pose.x * 0.3, Math.max(0.3, pose.y * 0.4), 0);
     const since = Math.max(0, sinceFail);
     if (smokeFlash.current) {
@@ -153,22 +325,30 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     if (dome.current) dome.current.position.copy(camera.position);
     if (ground.current) (ground.current.material as { opacity: number }).opacity = Math.min(1, 0.15 + amount * 1.1);
 
-    // camera: low and wide at the pad, then riding beside the rocket
-    const follow = Math.max(0, tau - 0.04);
+    // camera: the player's choice, or the broadcast schedule; a lost vehicle is always watched from outside
+    const chosen = gameStore.getState().launchCamera;
+    let mode: Exclude<LaunchCameraMode, 'auto'> = chosen === 'auto' ? autoCameraAt(tau) : chosen;
+    const pre = stage === 'pre-launch';
+    if (sinceFail >= 0) mode = 'chase';
+    if (pre && (mode === 'crew' || mode === 'onboard' || mode === 'rear')) mode = 'chase';
+    if (pre && chosen === 'auto') mode = 'chase';
+    const key = `launch-${mode}`;
+    if (key !== camKeyRef.current) {
+      camKeyRef.current = key;
+      setCamKey(key);
+      gameStore.getState().setActiveCamera(pre ? null : mode);
+    }
     const height = ROCKET_LOOKS[rocket].height * LAUNCH_SCALE;
-    const baseY = height * 0.5;
-    const targetY = stage === 'pre-launch' ? baseY : Math.max(baseY, pose.y * 0.92 + height * 0.4);
-    const targetX = stage === 'pre-launch' ? 0 : pose.x * 0.9;
-    const distance = 22 + height * 0.8 + follow * 40;
-    poseRef.current = {
-      position: [distance * 0.45 + follow * 8, Math.max(3.5, targetY * 0.5 + 2), distance + (failed && sinceFail > 0 ? 8 : 0)],
-      target: [targetX, targetY, 0],
-    };
+    const follow = Math.max(0, tau - 0.04);
+    const cameraPose = launchCameraPose(mode, { px: pose.x, py: pose.y, ux, uy, H: height, r: ROCKET_LOOKS[rocket].radius * LAUNCH_SCALE, pre, follow, failed: sinceFail > 0 });
+    const climbShake = sinceFail < 0 ? shakeAmount(tau, sinceSep) * (pre ? 0 : 1) : 0;
+    const padShake = pre ? padThrottle(progress) * 0.5 : 0;
+    poseRef.current = { ...cameraPose, shake: (climbShake + padShake) * SHAKE_FACTOR[mode] };
   });
 
   return (
     <>
-      <CameraDirector getPose={() => poseRef.current} damping={3.2} sway={0.18} snapKey="launch" />
+      <CameraDirector getPose={() => poseRef.current} damping={RIGID.has(camKey.slice(7)) ? 40 : camKey === 'launch-track' ? 9 : 3.2} sway={RIGID.has(camKey.slice(7)) ? 0 : 0.18} snapKey={camKey} />
       <fog attach="fog" args={['#8a5a4a', 40, 380]} />
       <ambientLight intensity={0.4} />
       <directionalLight position={[-20, 25, 30]} intensity={2.6} color="#ffd9b0" />
@@ -204,13 +384,17 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       </sprite>
 
       <group ref={rocketGroup} position={[0, 0.5, 0]}>
-        <RocketModel rocket={rocket} />
+        <RocketModel rocket={rocket} parts={parts} />
       </group>
+      {PIECE_IDS.map((id) => <DetachedPiece key={id} id={id} rocket={rocket} register={register} />)}
+      <object3D ref={sepEmitter} />
+      <pointLight ref={sepLight} intensity={0} distance={140} color="#ffd9a0" />
+      <Plume kind="burst" emitter={sepEmitter} throttle={sepThrottle} count={26} spread={1.3} speed={14} size={3.2} life={1.1} />
       <object3D ref={flameEmitter} />
       <object3D ref={smokeEmitter} />
       <object3D ref={burstEmitter} />
       <object3D ref={debrisEmitter} />
-      <Plume kind="flame" emitter={flameEmitter} throttle={flameThrottle} count={420} spread={1.2} speed={34} size={4.4} life={0.8} />
+      <Plume kind="flame" emitter={flameEmitter} throttle={flameThrottle} count={320} spread={1.1} speed={34} size={3.1} life={0.8} />
       <Plume kind="smoke" emitter={smokeEmitter} throttle={smokeThrottle} count={260} spread={6} speed={8} size={7} life={2.6} />
       <Plume kind="burst" emitter={debrisEmitter} throttle={debrisThrottle} count={140} spread={3.2} speed={44} size={2.2} life={2.4} />
       <Plume kind="burst" emitter={burstEmitter} throttle={burstThrottle} count={300} spread={1.6} speed={26} size={7} life={1.8} />
@@ -230,6 +414,8 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
 /* ------------------------------------------------------------------ the flight */
 
 const WORLD_EXTENT = 10;
+/** Seconds the solar panels take to unfold after the spacecraft leaves the rocket. Drawn, not simulated. */
+const UNFOLD_SECONDS = 4;
 const PATH_STYLE: Record<string, { color: string; width: number; opacity: number }> = {
   operational: { color: '#00f0ff', width: 2.6, opacity: 1 },
   transfer: { color: '#ffc14d', width: 2.6, opacity: 1 },
@@ -265,11 +451,19 @@ export function OrbitFrameView({ plan, frame, lost }: { plan: SimPlan; frame: Sc
   const shipRadius = overview ? 0.4 : 0.9;
 
   const visualClock = useRef(0);
+  // the first frame after the launch is where the spacecraft unfolds its solar panels
+  const unfolds = useMemo(() => {
+    const { sim, plan: livePlan } = simStore.getState();
+    return Boolean(sim && livePlan && sim.stageIndex === livePlan.stageIds.indexOf('launch') + 1);
+  }, []);
+  const unfoldClock = useRef(0);
+  const deploy = useMemo(() => (unfolds ? () => unfoldClock.current / UNFOLD_SECONDS : undefined), [unfolds]);
 
   useFrame(({ clock }, delta) => {
     const { plan: livePlan, sim, clockT, status } = simStore.getState();
     if (!livePlan || !sim) return;
     if (status !== 'paused') visualClock.current += Math.min(delta, 0.25);
+    if (unfolds) unfoldClock.current = Math.min(UNFOLD_SECONDS + 1, unfoldClock.current + Math.min(delta, 0.25));
     const stage = livePlan.stageIds[sim.stageIndex]!;
     const visual = usesVisualOrbit(livePlan, stage);
     const craft = visual ? operationalCraft(livePlan, sim, visualOrbitSeconds(livePlan, visualClock.current)) : craftState(livePlan, sim, clockT);
@@ -329,7 +523,7 @@ export function OrbitFrameView({ plan, frame, lost }: { plan: SimPlan; frame: Sc
       ) : null}
       <TrailLine source={trail} />
       <group ref={ship}>
-        <ShipModel shapes={layout.shapes} extent={layout.extent} radius={shipRadius} />
+        <ShipModel shapes={layout.shapes} extent={layout.extent} radius={shipRadius} deploy={deploy} />
       </group>
       <group ref={marker}>
         <sprite scale={[shipRadius * 1.7, shipRadius * 1.7, 1]} raycast={() => null}>

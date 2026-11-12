@@ -1462,7 +1462,18 @@
       "contactOff": "Aloqa yo'q",
       "sunlit": "Quyosh nurida",
       "eclipse": "Yer soyasida",
-      "log": "Missiya jurnali"
+      "log": "Missiya jurnali",
+      "camera": {
+        "label": "Kamera",
+        "auto": "Avto",
+        "side": "Maydon",
+        "track": "Kuzatuv",
+        "chase": "Orqasidan",
+        "rear": "Past",
+        "onboard": "Bortdan",
+        "crew": "Ekipaj",
+        "key": "Almashtirish: C"
+      }
     },
     "result": {
       "success": "MISSIYA MUVAFFAQIYATLI",
