@@ -9,7 +9,7 @@ import { INSTRUMENTS } from '@/mission/catalog';
 import { removePart, setPartQuantity } from '@/mission/edit';
 import { evaluateMission } from '@/mission/engine';
 import { CHECK_IDS, CHECK_GROUPS } from '@/mission/engine';
-import { setLaunchSite, setOrbit, setPropellantMass } from '@/mission/edit';
+import { setLaunchSite, setLauncher, setOrbit, setPropellantMass } from '@/mission/edit';
 import { DESTINATION_IDS } from '@/mission/models/catalog';
 import { LAUNCH_SITES, LAUNCHERS } from '@/mission/catalog';
 import { createBlankMission } from '@/mission/templates/blank';
@@ -22,6 +22,7 @@ import { OrbitSection } from './OrbitSection';
 import { OverviewSection } from './OverviewSection';
 import { ReadinessSection } from './ReadinessSection';
 import { PayloadSection } from './PayloadSection';
+import { SimulationSection } from './SimulationSection';
 import { RequirementsSection } from './RequirementsSection';
 import { ResourcesSection } from './ResourcesSection';
 import { SpacecraftSection } from './SpacecraftSection';
@@ -210,6 +211,30 @@ describe.each(['en', 'uz'] as const)('Orbit Designer, Launch Center and Readines
     expect(blocked).toMatch(locale === 'en' ? /How to fix/ : /Qanday tuzatish/);
   });
 
+  it('the Simulation tab shows the controls, every stage, the telemetry, the timeline and the model limits', () => {
+    missing.length = 0;
+    const html = render(locale, createElement(SimulationSection, { mission: sso, evaluation: evaluateMission(sso), editor }));
+    expect(missing).toEqual([]);
+    expect(html).toContain('data-simulation');
+    for (const action of ['start', 'pause', 'resume', 'restart', 'skip']) expect(html).toContain(`data-action="${action}"`);
+    for (const speed of ['x1', 'x60', 'x600', 'x3600', 'x21600', 'day', 'days10']) expect(html).toContain(`data-speed="${speed}"`);
+    for (const stage of ['pre-launch', 'launch', 'orbit-insertion', 'science-operations', 'data-transmission', 'mission-completion']) expect(html).toContain(`data-stage="${stage}"`);
+    expect(html).not.toContain('data-stage="cruise"');
+    for (const key of ['met', 'velocity', 'generation', 'battery', 'backlog', 'health', 'dv']) expect(html).toContain(`data-telemetry="${key}"`);
+    expect(html).toContain('data-timeline-empty');
+    expect(html).toContain('data-event-schedule');
+    expect(html).toContain('data-sim-assumptions');
+    expect(html).toContain('data-model="mission-simulation"');
+    expect(html).toMatch(locale === 'en' ? /Educational approximation/ : /Ta&#x27;limiy yaqinlashtirish/);
+    const mars = createDefaultMission('mars', { id: 'sm', now: NOW, title: 'Mars' });
+    const marsHtml = render(locale, createElement(SimulationSection, { mission: mars, evaluation: evaluateMission(mars), editor }));
+    expect(marsHtml).toContain('data-stage="cruise"');
+    expect(marsHtml).toContain('data-stage="destination-arrival"');
+    const held = setLauncher(mars, 'launcher-small').mission;
+    const heldHtml = render(locale, createElement(SimulationSection, { mission: held, evaluation: evaluateMission(held), editor }));
+    expect(heldHtml).toContain('data-hold');
+  });
+
   it('the report never hides a failing check: each one is on the page', () => {
     const broken = setLaunchSite(setPropellantMass(sso, 0).mission, 'site-cape-canaveral').mission;
     const evaluation = evaluateMission(broken);
@@ -262,6 +287,6 @@ describe('responsive contract', () => {
     expect(WORKSPACE_CLASSES.main).toContain('pb-28');
   });
   it('has the required sections, including the Phase 4 orbit, launch and readiness tabs', () => {
-    expect([...WORKSPACE_TABS]).toEqual(['overview', 'spacecraft', 'payload', 'orbit', 'launch', 'resources', 'requirements', 'readiness']);
+    expect([...WORKSPACE_TABS]).toEqual(['overview', 'spacecraft', 'payload', 'orbit', 'launch', 'resources', 'requirements', 'readiness', 'simulation']);
   });
 });

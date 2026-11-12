@@ -86,3 +86,14 @@ Phase 1 data changed in Phase 2 (so the defaults close): instrument `dataRate` n
 - `engine/deltaV.ts`: site inclination window `i_delivered = clamp(i, min, max)`; plane-change Δv merged into the insertion burn; helio Hohmann-type model.
 - `engine/readiness.ts`: 22 checks in 7 groups (PASS/WARNING/FAIL, reason + fix, EN/UZ). `launchReady` only when nothing fails; FAIL is never hidden.
 - Views: `orbitView.ts`, `launchView.ts`, `orbitLayout.ts` (pure, tested in `phase4.test.ts`).
+
+## Phase 5 additions (mission simulation, `sim/`)
+
+Pure TypeScript, no React or Three.js. Playback lives in `src/stores/simStore.ts`; the 3D view only draws what `sim/scene.ts` returns.
+
+- `sim/plan.ts`: `buildSimPlan(mission)` evaluates the document with the resource engine and takes mass, power, battery, Δv steps, link rate, storage, instruments and the launcher reliability from that evaluation. It also draws the launch outcome from the seed and builds the event schedule. Stage lists differ by class: an Earth-orbit mission has no cruise or arrival; geostationary, lunar, Mars and heliocentric missions do.
+- `sim/engine.ts`: `createSim`, `advanceSim` (whole steps only, so the result never depends on playback speed), `skipToNextStage`, `runToEnd`. Behaviour: pre-launch hold when mass exceeds the launcher capacity or the launcher does not fly from the site; launch failure from the seeded draw; Δv shortfall fails the insertion/capture or shortens stationkeeping; power shortage sheds instruments, then the downlink, then everything but essentials, and a brownout damages the spacecraft; the daily contact window drains the onboard queue, and a full store loses data; the end of design life or propellant stops operations; faults, outages and bonuses change science.
+- `sim/events.ts`, `sim/rng.ts`: seeded events (solar degradation, instrument malfunction, communication outage, observation opportunity, increased power demand). Each kind has its own random stream.
+- `sim/scene.ts`, `sim/telemetry.ts`: position, velocity and frame as pure functions of the plan and the state (Kepler paths from `src/physics/orbits.ts`; schematic ascent; half-ellipse transfers).
+- `modelCards.ts`: card `mission-simulation` documents the equations, assumptions and limits. It is an educational approximation, not professional flight dynamics.
+- Formulas: `P_gen = P_BOL·(P_EOL/P_BOL)^(t/T)·f_events·[sunlit]`; battery `E += (P_gen−P_load)·dt·η` (η when charging); queue `+= Σ rate·dt − rate_link·overlap`; science `= Σ value·(observed/planned)·(delivered/generated)`.

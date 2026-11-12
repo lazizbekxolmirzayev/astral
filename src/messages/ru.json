@@ -662,7 +662,8 @@
       "requirements": "Requirements",
       "orbit": "Orbit",
       "launch": "Launch",
-      "readiness": "Readiness"
+      "readiness": "Readiness",
+      "simulation": "Simulation"
     },
     "panel": {
       "title": "Live resources",
@@ -1161,6 +1162,191 @@
       "compatibilityTitle": "Compatibility checks",
       "compatibilityHint": "Vehicle capacity, target, departure energy, site and inclination, from the same report as the Readiness tab.",
       "unavailable": "Cannot be evaluated until the catalog problems are fixed. See Overview."
+    },
+    "sim": {
+      "title": "Mission simulation",
+      "eyebrow": "Phase 5",
+      "intro": "Fly the mission you designed, stage by stage. Everything here is computed from your mission document: the rocket, orbit, power, battery, Δv, link and instruments you chose decide what happens.",
+      "disclaimer": "Educational approximation, not professional flight dynamics. The simplifications are listed at the bottom of this page.",
+      "controls": {
+        "label": "Simulation controls",
+        "start": "Start",
+        "pause": "Pause",
+        "resume": "Resume",
+        "restart": "Restart",
+        "skip": "Skip stage",
+        "speed": "Speed",
+        "seed": "Seed",
+        "newSeed": "Random seed",
+        "seedHint": "The seed fixes every random event. The same design and seed always give the same result, at any speed."
+      },
+      "stale": "The design or the seed changed after this run started. This run still uses the old design; press Restart to fly the new one.",
+      "status": {
+        "idle": "Ready",
+        "running": "Running",
+        "paused": "Paused",
+        "finished": "Finished"
+      },
+      "speed": {
+        "x1": "1 s/s",
+        "x60": "1 min/s",
+        "x600": "10 min/s",
+        "x3600": "1 h/s",
+        "x21600": "6 h/s",
+        "day": "1 d/s",
+        "days10": "10 d/s"
+      },
+      "metFormat": "{d} d {h}:{m}:{s}",
+      "blocked": {
+        "title": "This design cannot be simulated"
+      },
+      "before": {
+        "title": "Before launch",
+        "eyebrow": "What this run will play out",
+        "intro": "The design has {fail} failing and {warning} warning checks. The simulation does not hide them: each one is flown and its consequence shown.",
+        "hold": "Launch hold: the vehicle will not be cleared to fly",
+        "clear": "The vehicle will be cleared to fly. Launch success is drawn from the seed against a reliability of {reliability} %.",
+        "risks": "Known problems and risks"
+      },
+      "class": {
+        "earth-orbit": "Earth-orbit mission",
+        "geostationary": "Geostationary mission",
+        "lunar": "Lunar mission",
+        "mars": "Mars mission",
+        "heliocentric": "Heliocentric mission"
+      },
+      "stages": {
+        "title": "Mission stages",
+        "planned": "planned",
+        "started": "started",
+        "ended": "ended",
+        "notStarted": "not started",
+        "progress": "Stage progress",
+        "result": {
+          "pending": "Pending",
+          "active": "In progress",
+          "ok": "Done",
+          "degraded": "Done with problems",
+          "failed": "Failed",
+          "skipped": "Skipped"
+        }
+      },
+      "outcome": {
+        "title": "Mission outcome",
+        "kind": {
+          "success": "Success",
+          "partial": "Partial success",
+          "failure": "Failure"
+        },
+        "endedIn": "Ended in: {stage}",
+        "why": "Why it ended this way",
+        "days": "days",
+        "points": "pt",
+        "ops": "Operations flown",
+        "science": "Science returned",
+        "delivered": "Data delivered",
+        "lost": "Data lost",
+        "met": "Met",
+        "notMet": "Not met",
+        "requirement": {
+          "max-cost": "Maximum cost",
+          "max-launch-mass": "Maximum launch mass",
+          "min-operations": "Minimum operations",
+          "min-science": "Minimum science",
+          "min-data-return": "Minimum data return",
+          "min-launch-success": "Minimum launch success"
+        }
+      },
+      "telemetry": {
+        "title": "Mission telemetry",
+        "eyebrow": "Live, from the simulation state",
+        "met": "Mission elapsed time",
+        "stage": "Stage",
+        "position": "Position",
+        "velocity": "Velocity",
+        "generation": "Power generation",
+        "load": "Power consumption",
+        "battery": "Battery",
+        "powerMode": "Power mode",
+        "generated": "Data generated",
+        "backlog": "Communication backlog",
+        "delivered": "Data delivered",
+        "lost": "Data lost",
+        "link": "Link",
+        "health": "Spacecraft health",
+        "dv": "Δv remaining",
+        "science": "Science returned",
+        "instruments": "Instruments",
+        "aboveSurface": "above the surface",
+        "fromSun": "from the Sun",
+        "sunlit": "sunlit",
+        "eclipse": "in eclipse",
+        "inContact": "in contact",
+        "noContact": "no contact"
+      },
+      "powerMode": {
+        "nominal": "Nominal",
+        "instruments-shed": "Instruments off",
+        "comms-limited": "Radio limited",
+        "essential-only": "Essential systems only",
+        "brownout": "Brownout"
+      },
+      "instrumentStatus": {
+        "off": "Off",
+        "idle": "Idle",
+        "observing": "Observing",
+        "unpowered": "No power",
+        "fault": "Fault"
+      },
+      "timeline": {
+        "title": "Event timeline",
+        "eyebrow": "Newest first",
+        "empty": "Nothing has happened yet. Press Start.",
+        "severity": {
+          "info": "Info",
+          "success": "Good",
+          "warning": "Warning",
+          "error": "Problem"
+        },
+        "because": "Because:"
+      },
+      "events": {
+        "title": "Seeded events",
+        "eyebrow": "Deterministic",
+        "hint": "Generated from seed {seed}. The same design and seed always produce this exact list.",
+        "none": "No events are scheduled for this mission.",
+        "kind": {
+          "solar-degradation": "Solar array degradation",
+          "instrument-malfunction": "Instrument malfunction",
+          "communication-outage": "Communication outage",
+          "observation-opportunity": "Observation opportunity",
+          "increased-power-demand": "Increased power demand"
+        },
+        "permanent": "permanent",
+        "happened": "happened",
+        "upcoming": "upcoming"
+      },
+      "model": {
+        "title": "Model and limitations",
+        "eyebrow": "Read before trusting a result",
+        "intro": "These assumptions are added on top of the resource engine. Anything physical (power, Δv, data, link) comes from the engine's evaluation of your mission.",
+        "limitations": "Limitations"
+      },
+      "scene": {
+        "label": "3D view of the simulated mission",
+        "unavailable": "3D view needs WebGL, which is not available here. All numbers still update.",
+        "error": "The 3D view could not start. All numbers still update.",
+        "loading": "Loading the 3D view…",
+        "resetView": "Reset view",
+        "legendCraft": "Spacecraft",
+        "legendTrail": "Recent path",
+        "legendOrbit": "Operational orbit",
+        "legendTransfer": "Transfer",
+        "legendTarget": "Arrival point",
+        "unitAu": "Scale: astronomical units; the Sun and planets are drawn larger than true size.",
+        "unitRadii": "Scale: radii of the central body.",
+        "hint": "Drag to rotate, scroll to zoom."
+      }
     }
   }
 }

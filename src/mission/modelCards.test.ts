@@ -28,7 +28,7 @@ describe('model cards', () => {
   it('are honest about status: implemented only where an engine exists', () => {
     // A card becomes "implemented" in the same change that adds and tests its engine.
     const implemented = MODEL_CARDS.filter((card) => card.status === 'implemented').map((card) => card.id).sort();
-    expect(implemented).toEqual(['communications-data', 'cost', 'delta-v', 'launch-fit', 'mass-budget', 'orbit-geometry', 'power-budget', 'transfer-approximation']);
+    expect(implemented).toEqual(['communications-data', 'cost', 'delta-v', 'launch-fit', 'mass-budget', 'mission-simulation', 'orbit-geometry', 'power-budget', 'transfer-approximation']);
     for (const card of MODEL_CARDS) {
       expect(Boolean(card.implementedIn), card.id).toBe(card.status === 'implemented');
       expect([2, 4, 5, 6]).toContain(card.phase);

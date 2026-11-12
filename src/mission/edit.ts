@@ -145,6 +145,12 @@ export function setSunSynchronousInclination(mission: Mission, context: Context 
   return setOrbit(mission, { inclinationDeg: Math.round(inclination * 100) / 100 }, context);
 }
 
+/** The seed that fixes every random event of the simulation: one design and one seed always play out the same way. */
+export function setSeed(mission: Mission, seed: number, context: Context = {}): EditResult {
+  if (!Number.isInteger(seed) || seed < 0 || seed > 0xffff_ffff) return refuse(mission, 'invalid-value');
+  return commit(mission, (m) => ({ ...m, seed }), context);
+}
+
 export function setOperationsDays(mission: Mission, days: number, context: Context = {}): EditResult {
   if (!Number.isInteger(days) || days < 1 || days > MAX_OPERATIONS_DAYS) return refuse(mission, 'invalid-value');
   return commit(mission, (m) => ({ ...m, plannedOperationsDays: days }), context);

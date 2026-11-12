@@ -20,6 +20,7 @@ export const MODEL_CARD_IDS = [
   'communications-data',
   'cost',
   'transfer-approximation',
+  'mission-simulation',
   'scoring',
 ] as const;
 export type ModelCardId = (typeof MODEL_CARD_IDS)[number];
@@ -255,6 +256,38 @@ export const MODEL_CARDS: readonly ModelCard[] = [
       L('Real mission design uses numerical trajectory optimisation; results here are within tens of percent at best.', "Haqiqiy missiya loyihasi sonli traektoriya optimallashtirishdan foydalanadi; bu yerdagi natijalar eng yaxshi holda o'nlab foiz aniqlikda."),
     ],
     references: [CURTIS, VALLADO],
+  },
+  {
+    id: 'mission-simulation',
+    phase: 5,
+    status: 'implemented',
+    implementedIn: 'sim/engine.ts',
+    title: L('Mission simulation (educational approximation)', "Missiya simulyatsiyasi (ta'limiy yaqinlashtirish)"),
+    scope: L(
+      'Steps the mission document through its stages in time, using the resource engine\'s numbers: launch, orbit insertion, cruise, arrival, science, data return. It shows what the design would do, and why.',
+      "Missiya hujjatini resurs dvigatelining sonlari bilan bosqichma-bosqich vaqt bo'yicha o'tkazadi: uchirish, orbitaga kirish, safar, yetib kelish, ilmiy ishlar, ma'lumot qaytarish. Dizayn nima qilishini va nima uchunligini ko'rsatadi."
+    ),
+    equations: [
+      'P_gen(t) = P_BOL · (P_EOL / P_BOL)^(t / T_degradation) · f_events · [sunlit]',
+      'E_battery(t+dt) = clamp(E + (P_gen − P_load) · dt · η_charge, 0, E_usable)   (η_charge only while charging)',
+      'queue(t+dt) = min(storage, queue + Σ rate_i · dt · [observing_i]) − rate_link · overlap(contact window, dt)',
+      'Δv_used grows with time in cruise (corrections) and operations (stationkeeping); insertion burns are impulsive',
+      'launch succeeds when draw(seed) < reliability;  science = Σ value_i · (observing time / planned) · (delivered / generated)',
+      'v(t) = |Δposition| / Δt along the drawn Kepler path (ascent speed is a schematic profile)',
+    ],
+    assumptions: [
+      L('Every random event comes from the mission seed (separate streams per kind), so one design and one seed always play out identically, at any playback speed.', "Har bir tasodifiy hodisa missiya seed'idan keladi (har tur uchun alohida oqim), shuning uchun bitta dizayn va seed har doim, har qanday tezlikda bir xil o'tadi."),
+      L('When power runs short the least important loads are shed first: instruments, then the radio\'s downlink, then everything but the essentials; a full brownout damages the spacecraft.', "Quvvat yetmasa avval eng muhim bo'lmagan yuklar o'chiriladi: asboblar, keyin radio uzatishi, keyin muhimdan boshqa hammasi; to'liq uzilish apparatni zararlaydi."),
+      L('Burns are impulsive and take the engine\'s Δv steps; a shortfall fails the insertion or shortens stationkeeping.', "Yoqishlar impulsli va dvigatel Δv qadamlarini oladi; yetishmovchilik orbitaga kirishni buzadi yoki ushlab turishni qisqartiradi."),
+      L('The daily contact time from the link model is flown as one window per day.', "Havola modelidagi kunlik aloqa vaqti kuniga bitta oyna sifatida o'tkaziladi."),
+    ],
+    limitations: [
+      L('This is an educational approximation, not professional flight dynamics: no perturbations, no launch windows, no real ephemerides, no attitude dynamics.', "Bu ta'limiy yaqinlashtirish, professional parvoz dinamikasi emas: bezovtaliklar, uchirish oynalari, haqiqiy efemeridalar va yo'nalish dinamikasi yo'q."),
+      L('Transfers are half ellipses with ideal planet phasing; the ascent is a schematic profile; the Earth does not rotate in the picture.', "O'tishlar ideal sayyora fazasidagi yarim ellipslar; ko'tarilish sxematik profil; rasmda Yer aylanmaydi."),
+      L('Pre-launch holds are limited to mass over the launcher\'s capacity and a launcher that does not fly from the site; every other problem is flown and its consequence simulated.', "Uchirishdan oldingi to'xtatish faqat raketa sig'imidan oshgan massa va joydan uchmaydigan raketa bilan cheklangan; qolgan muammolar uchiriladi va oqibati simulyatsiya qilinadi."),
+      L('Outcome rules (success, partial, failure) are game rules, not a measure of real mission value; scoring comes later.', "Natija qoidalari (muvaffaqiyat, qisman, muvaffaqiyatsizlik) o'yin qoidalari, haqiqiy missiya qiymati o'lchovi emas; ball tizimi keyinroq."),
+    ],
+    references: [CURTIS, SMAD],
   },
   {
     id: 'scoring',

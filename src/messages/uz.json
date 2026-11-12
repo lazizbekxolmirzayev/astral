@@ -662,7 +662,8 @@
       "requirements": "Talablar",
       "orbit": "Orbita",
       "launch": "Uchirish",
-      "readiness": "Tayyorgarlik"
+      "readiness": "Tayyorgarlik",
+      "simulation": "Simulyatsiya"
     },
     "panel": {
       "title": "Jonli resurslar",
@@ -1161,6 +1162,191 @@
       "compatibilityTitle": "Moslik tekshiruvlari",
       "compatibilityHint": "Raketa sig'imi, nuqta, ketish energiyasi, joy va og'ish — Tayyorgarlik bo'limidagi bilan bir hisobotdan.",
       "unavailable": "Katalog muammolari tuzatilmaguncha hisoblab bo'lmaydi. Umumiy ko'rinishga qarang."
+    },
+    "sim": {
+      "title": "Missiya simulyatsiyasi",
+      "eyebrow": "5-bosqich",
+      "intro": "O'zingiz loyihalagan missiyani bosqichma-bosqich uchiring. Bu yerdagi hamma narsa missiya hujjatidan hisoblanadi: tanlagan raketa, orbita, quvvat, batareya, Δv, aloqa va asboblar nima bo'lishini hal qiladi.",
+      "disclaimer": "Ta'limiy yaqinlashtirish, professional parvoz dinamikasi emas. Soddalashtirishlar sahifa pastida keltirilgan.",
+      "controls": {
+        "label": "Simulyatsiya boshqaruvi",
+        "start": "Boshlash",
+        "pause": "Pauza",
+        "resume": "Davom ettirish",
+        "restart": "Qayta boshlash",
+        "skip": "Bosqichni o'tkazish",
+        "speed": "Tezlik",
+        "seed": "Seed",
+        "newSeed": "Tasodifiy seed",
+        "seedHint": "Seed barcha tasodifiy hodisalarni belgilaydi. Bir xil dizayn va seed har qanday tezlikda bir xil natija beradi."
+      },
+      "stale": "Bu uchirish boshlangandan keyin dizayn yoki seed o'zgardi. Bu simulyatsiya hali eski dizaynda ishlayapti; yangisini uchirish uchun «Qayta boshlash»ni bosing.",
+      "status": {
+        "idle": "Tayyor",
+        "running": "Ishlayapti",
+        "paused": "Pauzada",
+        "finished": "Tugadi"
+      },
+      "speed": {
+        "x1": "1 s/s",
+        "x60": "1 daq/s",
+        "x600": "10 daq/s",
+        "x3600": "1 soat/s",
+        "x21600": "6 soat/s",
+        "day": "1 kun/s",
+        "days10": "10 kun/s"
+      },
+      "metFormat": "{d} kun {h}:{m}:{s}",
+      "blocked": {
+        "title": "Bu dizaynni simulyatsiya qilib bo'lmaydi"
+      },
+      "before": {
+        "title": "Uchirishdan oldin",
+        "eyebrow": "Bu uchirishda nimalar sodir bo'ladi",
+        "intro": "Dizaynda {fail} ta FAIL va {warning} ta WARNING tekshiruv bor. Simulyatsiya ularni yashirmaydi: har biri uchiriladi va oqibati ko'rsatiladi.",
+        "hold": "Uchirish to'xtatildi: raketa uchishga ruxsat olmaydi",
+        "clear": "Raketa uchishga ruxsat oladi. Uchirish muvaffaqiyati seed bo'yicha {reliability} % ishonchlilikka nisbatan tanlanadi.",
+        "risks": "Ma'lum muammolar va xavflar"
+      },
+      "class": {
+        "earth-orbit": "Yer orbitasi missiyasi",
+        "geostationary": "Geostatsionar missiya",
+        "lunar": "Oy missiyasi",
+        "mars": "Mars missiyasi",
+        "heliocentric": "Geliotsentrik missiya"
+      },
+      "stages": {
+        "title": "Missiya bosqichlari",
+        "planned": "reja",
+        "started": "boshlandi",
+        "ended": "tugadi",
+        "notStarted": "boshlanmagan",
+        "progress": "Bosqich jarayoni",
+        "result": {
+          "pending": "Kutilmoqda",
+          "active": "Jarayonda",
+          "ok": "Bajarildi",
+          "degraded": "Muammolar bilan bajarildi",
+          "failed": "Muvaffaqiyatsiz",
+          "skipped": "O'tkazib yuborildi"
+        }
+      },
+      "outcome": {
+        "title": "Missiya natijasi",
+        "kind": {
+          "success": "Muvaffaqiyat",
+          "partial": "Qisman muvaffaqiyat",
+          "failure": "Muvaffaqiyatsizlik"
+        },
+        "endedIn": "Tugagan joyi: {stage}",
+        "why": "Nega bunday tugadi",
+        "days": "kun",
+        "points": "ball",
+        "ops": "Uchilgan operatsiyalar",
+        "science": "Qaytgan ilmiy natija",
+        "delivered": "Yetkazilgan ma'lumot",
+        "lost": "Yo'qolgan ma'lumot",
+        "met": "Bajarildi",
+        "notMet": "Bajarilmadi",
+        "requirement": {
+          "max-cost": "Maksimal narx",
+          "max-launch-mass": "Maksimal uchirish massasi",
+          "min-operations": "Minimal operatsiya muddati",
+          "min-science": "Minimal ilmiy natija",
+          "min-data-return": "Minimal ma'lumot qaytarish",
+          "min-launch-success": "Minimal uchirish muvaffaqiyati"
+        }
+      },
+      "telemetry": {
+        "title": "Missiya telemetriyasi",
+        "eyebrow": "Jonli, simulyatsiya holatidan",
+        "met": "Missiya vaqti",
+        "stage": "Bosqich",
+        "position": "Joylashuv",
+        "velocity": "Tezlik",
+        "generation": "Quvvat ishlab chiqarish",
+        "load": "Quvvat sarfi",
+        "battery": "Batareya",
+        "powerMode": "Quvvat rejimi",
+        "generated": "Hosil bo'lgan ma'lumot",
+        "backlog": "Aloqa navbati",
+        "delivered": "Yetkazilgan ma'lumot",
+        "lost": "Yo'qolgan ma'lumot",
+        "link": "Aloqa",
+        "health": "Apparat holati",
+        "dv": "Qolgan Δv",
+        "science": "Qaytgan ilmiy natija",
+        "instruments": "Asboblar",
+        "aboveSurface": "sirtdan balandlikda",
+        "fromSun": "Quyoshdan",
+        "sunlit": "yorug'da",
+        "eclipse": "soyada",
+        "inContact": "aloqada",
+        "noContact": "aloqa yo'q"
+      },
+      "powerMode": {
+        "nominal": "Me'yoriy",
+        "instruments-shed": "Asboblar o'chiq",
+        "comms-limited": "Radio cheklangan",
+        "essential-only": "Faqat muhim tizimlar",
+        "brownout": "Quvvat uzilishi"
+      },
+      "instrumentStatus": {
+        "off": "O'chiq",
+        "idle": "Kutmoqda",
+        "observing": "Kuzatmoqda",
+        "unpowered": "Quvvat yo'q",
+        "fault": "Nosoz"
+      },
+      "timeline": {
+        "title": "Hodisalar chizig'i",
+        "eyebrow": "Yangilari tepada",
+        "empty": "Hali hech narsa bo'lmadi. «Boshlash»ni bosing.",
+        "severity": {
+          "info": "Ma'lumot",
+          "success": "Yaxshi",
+          "warning": "Ogohlantirish",
+          "error": "Muammo"
+        },
+        "because": "Sababi:"
+      },
+      "events": {
+        "title": "Seed asosidagi hodisalar",
+        "eyebrow": "Deterministik",
+        "hint": "{seed} seed'idan yaratilgan. Bir xil dizayn va seed har doim aynan shu ro'yxatni beradi.",
+        "none": "Bu missiya uchun hodisalar rejalashtirilmagan.",
+        "kind": {
+          "solar-degradation": "Quyosh panellarining eskirishi",
+          "instrument-malfunction": "Asbob nosozligi",
+          "communication-outage": "Aloqa uzilishi",
+          "observation-opportunity": "Kuzatish imkoniyati",
+          "increased-power-demand": "Quvvat talabining oshishi"
+        },
+        "permanent": "doimiy",
+        "happened": "bo'ldi",
+        "upcoming": "kutilmoqda"
+      },
+      "model": {
+        "title": "Model va cheklovlar",
+        "eyebrow": "Natijaga ishonishdan oldin o'qing",
+        "intro": "Bu taxminlar resurs dvigateli ustiga qo'shilgan. Jismoniy kattaliklar (quvvat, Δv, ma'lumot, aloqa) dvigatelning missiyangiz bahosidan olinadi.",
+        "limitations": "Cheklovlar"
+      },
+      "scene": {
+        "label": "Simulyatsiya qilinayotgan missiyaning 3D ko'rinishi",
+        "unavailable": "3D ko'rinish uchun WebGL kerak, bu yerda mavjud emas. Barcha raqamlar baribir yangilanadi.",
+        "error": "3D ko'rinishni ishga tushirib bo'lmadi. Barcha raqamlar baribir yangilanadi.",
+        "loading": "3D ko'rinish yuklanmoqda…",
+        "resetView": "Ko'rinishni tiklash",
+        "legendCraft": "Kosmik kema",
+        "legendTrail": "So'nggi yo'l",
+        "legendOrbit": "Ishchi orbita",
+        "legendTransfer": "O'tish",
+        "legendTarget": "Yetib borish nuqtasi",
+        "unitAu": "Masshtab: astronomik birliklar; Quyosh va sayyoralar haqiqiy o'lchamdan katta chizilgan.",
+        "unitRadii": "Masshtab: markaziy jism radiuslari.",
+        "hint": "Aylantirish uchun suring, kattalashtirish uchun g'ildirakni buring."
+      }
     }
   }
 }

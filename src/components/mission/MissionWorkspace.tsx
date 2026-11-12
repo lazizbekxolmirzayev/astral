@@ -14,6 +14,7 @@ import { LiveResourcePanel, ResourceBar } from './LiveResourcePanel';
 import { LaunchSection } from './LaunchSection';
 import { OrbitSection } from './OrbitSection';
 import { ReadinessSection } from './ReadinessSection';
+import { SimulationSection } from './SimulationSection';
 import { OverviewSection } from './OverviewSection';
 import { PayloadSection } from './PayloadSection';
 import { ToneIcon, useText } from './primitives';
@@ -23,7 +24,7 @@ import { SpacecraftSection } from './SpacecraftSection';
 import { TONE_STYLES } from './tone';
 import { buildIndicators } from '@/mission/view';
 
-export const WORKSPACE_TABS = ['overview', 'spacecraft', 'payload', 'orbit', 'launch', 'resources', 'requirements', 'readiness'] as const;
+export const WORKSPACE_TABS = ['overview', 'spacecraft', 'payload', 'orbit', 'launch', 'resources', 'requirements', 'readiness', 'simulation'] as const;
 export type WorkspaceTab = (typeof WORKSPACE_TABS)[number];
 
 /** Layout classes, exported so the responsive contract can be tested without a browser. */
@@ -105,6 +106,7 @@ function Workspace({ mission, initialTab }: { mission: Mission; initialTab: Work
             {tab === 'resources' ? <ResourcesSection evaluation={evaluation} /> : null}
             {tab === 'requirements' ? <RequirementsSection mission={mission} evaluation={evaluation} editor={editor} /> : null}
             {tab === 'readiness' ? <ReadinessSection evaluation={evaluation} /> : null}
+            {tab === 'simulation' ? <SimulationSection mission={mission} evaluation={evaluation} editor={editor} /> : null}
           </div>
         </div>
 

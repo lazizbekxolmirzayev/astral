@@ -36,24 +36,40 @@ export type OrbitLayout = {
 
 const SEGMENTS = 180;
 
-export function layoutOrbit(mission: Mission, catalog: CatalogLookup = DEFAULT_CATALOG): OrbitLayout {
+export type OperationalOrbit = {
+  body: BodyId;
+  /** Orbit elements in scene units (the central body's radius, or AU for the Sun); `period` is in seconds. */
+  elements: SpatialOrbitElements;
+  /** Metres per scene unit. */
+  unitLength: number;
+  helio: boolean;
+  geometry: ReturnType<typeof describeOrbit>;
+  eccentricity: number;
+};
+
+/** The operational orbit as Kepler elements in scene units. Shared by the orbit picture and the simulation scene. */
+export function operationalOrbit(mission: Mission, catalog: CatalogLookup = DEFAULT_CATALOG): OperationalOrbit {
   const destination = catalog.getDestination(mission.objective.destinationId);
   if (!destination) throw new Error(`catalog has no destination "${mission.objective.destinationId}"`);
   const body = destination.centralBody;
   const geometry = describeOrbit(body, mission.orbit);
   const helio = body === 'sun';
   const unitLength = helio ? SI_EXACT.astronomicalUnitM : geometry.radius;
-
-  const a = geometry.semiMajorAxis / unitLength;
   const eccentricity = (geometry.apoapsisRadius - geometry.periapsisRadius) / (geometry.apoapsisRadius + geometry.periapsisRadius);
   const tilt = (mission.orbit.inclinationDeg * Math.PI) / 180;
   const elements: SpatialOrbitElements = {
-    semiMajorAxis: a,
+    semiMajorAxis: geometry.semiMajorAxis / unitLength,
     eccentricity,
-    period: 1,
+    period: geometry.period,
     phase: 0,
     plane: { towardPerihelion: [1, 0, 0], quarterTurnAhead: [0, Math.sin(tilt), Math.cos(tilt)] },
   };
+  return { body, elements, unitLength, helio, geometry, eccentricity };
+}
+
+export function layoutOrbit(mission: Mission, catalog: CatalogLookup = DEFAULT_CATALOG): OrbitLayout {
+  const { body, elements: timed, unitLength, helio, geometry, eccentricity } = operationalOrbit(mission, catalog);
+  const elements: SpatialOrbitElements = { ...timed, period: 1 };
   const apoapsisAt = elements.period / 2;
   const apoapsis = spatialOrbitPosition(elements, apoapsisAt);
   const extent = geometry.apoapsisRadius / unitLength;
