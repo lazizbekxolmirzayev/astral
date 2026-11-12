@@ -1,6 +1,7 @@
 import { BODIES, SI_EXACT } from '../constants';
 import type { Quantity } from '../models/quantity';
 import { toBase, valueIn } from '../units';
+import type { LaunchSite } from '../models/catalog';
 import type { AssumptionReader } from './assumptions';
 import { derive, marginOf, type Derived } from './derived';
 import { circularSpeed, describeOrbit, visViva } from './orbit';
@@ -23,7 +24,26 @@ export type DeltaVResult = {
   departureC3: { required: Derived; provided: Derived } | null;
   /** The propulsion cannot make impulsive burns, but the trajectory needs some. */
   impulsiveBurnsImpossible: boolean;
+  /**
+   * What the launch site's inclination corridor does to an Earth-orbit mission; null for
+   * escape targets, where the site's inclination does not enter the model.
+   */
+  site: {
+    /** Inclination the launcher can deliver directly: the desired one, clamped into the site's corridor. */
+    deliveryInclinationDeg: number;
+    /** How far the desired inclination lies outside the corridor, degrees; 0 when it can be flown directly. */
+    shortfallDeg: number;
+    /** Extra Δv the plane change costs, compared with launching straight into the desired inclination. */
+    extra: Derived;
+  } | null;
 };
+
+/** Inclination (degrees) a launch from `site` can deliver directly when `desiredDeg` is wanted: the desired value clamped into the corridor. */
+export function deliveryInclinationDeg(site: LaunchSite, desiredDeg: number): number {
+  const min = valueIn(site.inclinationRange.min, 'deg');
+  const max = valueIn(site.inclinationRange.max, 'deg');
+  return Math.min(max, Math.max(min, desiredDeg));
+}
 
 /** Tsiolkovsky rocket equation: Δv = Isp · g0 · ln(m0 / mf). Masses in kg, result in m/s. */
 export function rocketDeltaV(ispSeconds: number, initialMassKg: number, finalMassKg: number): number {
@@ -61,7 +81,8 @@ const toRad = (degrees: number) => (degrees * Math.PI) / 180;
 
 type Insertion = { value: number; inputs: Quantity[]; basis: string; departure?: { requiredM2S2: number; providedM2S2: number; inputs: Quantity[] } };
 
-function insertion(design: ResolvedDesign, assume: AssumptionReader): Insertion {
+/** `deliveryDeg` overrides the inclination the launch delivers (used to price the site's plane change). */
+function insertion(design: ResolvedDesign, assume: AssumptionReader, deliveryDeg?: number): Insertion {
   const { destination, deliveryTarget, mission } = design;
   const body = BODIES[destination.centralBody];
   const gm = toBase(body.gm);
@@ -71,7 +92,8 @@ function insertion(design: ResolvedDesign, assume: AssumptionReader): Insertion 
   if (destination.id === 'leo' || destination.id === 'sso') {
     if (deliveryTarget.kind !== 'orbit') throw new Error(`${destination.id} must be served by an orbit delivery target`);
     const delivery = describeOrbit(deliveryTarget.centralBody, deliveryTarget);
-    const planeChange = Math.abs(toRad(mission.orbit.inclinationDeg - deliveryTarget.inclinationDeg));
+    const delivered = deliveryDeg ?? deliveryInclinationDeg(design.site, mission.orbit.inclinationDeg);
+    const planeChange = Math.abs(toRad(mission.orbit.inclinationDeg - delivered));
     return {
       value: hohmannWithPlaneChange(gm, delivery.semiMajorAxis, target.semiMajorAxis, planeChange),
       inputs: bodyInputs,
@@ -82,7 +104,8 @@ function insertion(design: ResolvedDesign, assume: AssumptionReader): Insertion 
   if (destination.id === 'geo') {
     if (deliveryTarget.kind !== 'orbit') throw new Error('geo must be served by an orbit delivery target');
     const gto = describeOrbit(deliveryTarget.centralBody, deliveryTarget);
-    const planeChange = Math.abs(toRad(mission.orbit.inclinationDeg - deliveryTarget.inclinationDeg));
+    const delivered = deliveryDeg ?? deliveryInclinationDeg(design.site, mission.orbit.inclinationDeg);
+    const planeChange = Math.abs(toRad(mission.orbit.inclinationDeg - delivered));
     // Circularise (and remove the inclination) at the transfer orbit's apoapsis, then Hohmann to the final radius if it differs.
     const vApogee = visViva(gm, gto.apoapsisRadius, gto.semiMajorAxis);
     const vCircular = circularSpeed(gm, gto.apoapsisRadius);
@@ -97,6 +120,46 @@ function insertion(design: ResolvedDesign, assume: AssumptionReader): Insertion 
       value: captureBurn(gm, target.periapsisRadius, target.semiMajorAxis, vInf),
       inputs: [...bodyInputs, assume.quantity('moon-arrival-vinf')],
       basis: 'capture burn at periapsis: √(v∞² + 2μ/rp) − v_orbit(rp)',
+    };
+  }
+
+  if (destination.id === 'helio') {
+    if (deliveryTarget.kind !== 'escape') throw new Error('helio must be served by an escape delivery target');
+    const sunBody = BODIES.sun;
+    const earthOrbit = BODIES.earth.orbit;
+    if (!earthOrbit) throw new Error('Earth needs heliocentric orbit data');
+    const gmSun = toBase(sunBody.gm);
+    const rE = toBase(earthOrbit.semiMajorAxis);
+    const vE = circularSpeed(gmSun, rE);
+    const { periapsisRadius: rp, apoapsisRadius: ra, semiMajorAxis: aOrbit } = target;
+    const inclination = toRad(mission.orbit.inclinationDeg);
+    const solarInputs = [sunBody.gm, sunBody.radius, earthOrbit.semiMajorAxis];
+    const provided = { providedM2S2: toBase(deliveryTarget.c3) };
+    if (rp <= rE && rE <= ra) {
+      // The target orbit crosses Earth's orbit: the launcher can inject straight onto it where the two meet.
+      const eccentricity = (ra - rp) / (ra + rp);
+      const vTangential = Math.sqrt(gmSun * aOrbit * (1 - eccentricity ** 2)) / rE;
+      const vRadialSquared = Math.max(0, visViva(gmSun, rE, aOrbit) ** 2 - vTangential ** 2);
+      const vInfSquared = vRadialSquared + vTangential ** 2 + vE ** 2 - 2 * vTangential * vE * Math.cos(inclination);
+      return {
+        value: 0,
+        inputs: solarInputs,
+        basis: 'the orbit crosses Earth\'s orbit, so the launcher injects directly onto it; v∞² = v_r² + v_t² + v_E² − 2·v_t·v_E·cos(i)',
+        departure: { requiredM2S2: vInfSquared, ...provided, inputs: [...solarInputs, deliveryTarget.c3] },
+      };
+    }
+    // The orbit lies wholly inside or outside Earth's. The launcher puts the spacecraft on a Hohmann-type ellipse between
+    // Earth's orbit and the target orbit's nearer extreme (perihelion if inside, aphelion if outside); the spacecraft then
+    // burns at that extreme to turn the ellipse into the target orbit. The limit of an orbit touching 1 AU is the crossing case above.
+    const rApsis = ra < rE ? rp : ra;
+    const aTransfer = (rE + rApsis) / 2;
+    const vDeparture = visViva(gmSun, rE, aTransfer);
+    const vInfSquared = vDeparture ** 2 + vE ** 2 - 2 * vDeparture * vE * Math.cos(inclination);
+    return {
+      value: Math.abs(visViva(gmSun, rApsis, aTransfer) - visViva(gmSun, rApsis, aOrbit)),
+      inputs: solarInputs,
+      basis: 'Hohmann-type ellipse from Earth\'s orbit to the target orbit\'s nearer extreme, then a burn there that reshapes it into the target orbit',
+      departure: { requiredM2S2: vInfSquared, ...provided, inputs: [...solarInputs, deliveryTarget.c3] },
     };
   }
 
@@ -123,14 +186,14 @@ function insertion(design: ResolvedDesign, assume: AssumptionReader): Insertion 
 
 /** Δv requirement and Δv capability. See the delta-v and transfer-approximation cards. */
 export function computeDeltaV(design: ResolvedDesign, assume: AssumptionReader, launchMassKg: number): DeltaVResult {
-  const { mission, destination, propulsion } = design;
+  const { mission, destination, propulsion, deliveryTarget } = design;
   const model = 'delta-v' as const;
   const transferModel = 'transfer-approximation' as const;
 
   const entry = insertion(design, assume);
   const insertionStep = derive(entry.value, 'm/s', transferModel, entry.basis, entry.inputs);
 
-  const correctionId = destination.id === 'moon' ? 'delta-v-correction-moon' : destination.id === 'mars' ? 'delta-v-correction-mars' : null;
+  const correctionId = destination.id === 'moon' ? 'delta-v-correction-moon' : destination.id === 'mars' ? 'delta-v-correction-mars' : destination.id === 'helio' ? 'delta-v-correction-helio' : null;
   const corrections = correctionId
     ? derive(assume.value(correctionId), 'm/s', model, 'reserve for trajectory corrections', [assume.quantity(correctionId)])
     : derive(0, 'm/s', model, 'no trajectory corrections for a launch directly into Earth orbit');
@@ -172,6 +235,17 @@ export function computeDeltaV(design: ResolvedDesign, assume: AssumptionReader, 
       }
     : null;
 
+  let site: DeltaVResult['site'] = null;
+  if (deliveryTarget.kind === 'orbit') {
+    const delivered = deliveryInclinationDeg(design.site, mission.orbit.inclinationDeg);
+    const direct = insertion(design, assume, mission.orbit.inclinationDeg).value;
+    site = {
+      deliveryInclinationDeg: delivered,
+      shortfallDeg: Math.abs(mission.orbit.inclinationDeg - delivered),
+      extra: derive(Math.max(0, entry.value - direct), 'm/s', transferModel, 'Δv with the site\'s inclination corridor minus Δv with a direct launch into the desired inclination', entry.inputs),
+    };
+  }
+
   return {
     steps,
     subtotal,
@@ -181,6 +255,7 @@ export function computeDeltaV(design: ResolvedDesign, assume: AssumptionReader, 
     requiredPropellant,
     departureC3,
     impulsiveBurnsImpossible: propulsion?.thrustClass === 'low-thrust' && insertionStep.value + corrections.value > 0,
+    site,
   };
 }
 

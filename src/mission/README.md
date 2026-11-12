@@ -75,3 +75,14 @@ Phase 1 data changed in Phase 2 (so the defaults close): instrument `dataRate` n
 - `view.ts` — `buildIndicators` (the seven live-panel indicators, display units, normal/warning/critical tones), `describePart` (parameter rows for the part cards). No physics here: everything comes from the engine.
 - `spacecraftLayout.ts` — pure schematic layout for the 3D preview. Panel area equals the catalog area; other sizes are display scaling only.
 - `format.ts` — locale-aware number and unit formatting.
+
+## Phase 4 additions (orbit designer, launch center, readiness)
+
+- `catalog/launchSites.ts`: 5 launch sites (coordinates sourced; Mahia estimated; launcher-to-site assignment is a fictional game rule). `launch` in the mission document is now `{ vehicleId, siteId }`.
+- `destinations.ts`: new `helio` destination (heliocentric orbit, C3 ≈ 10 km²/s² injection).
+- `engine/orbitReport.ts`: periapsis/apoapsis, a, e, period, speeds, sun-synchronous facts.
+  a=(rp+ra)/2, e=(ra−rp)/(ra+rp), T=2π√(a³/μ), v=√(μ(2/r−1/a)).
+- `engine/orbit.ts`: nodal precession Ω̇=−3/2·J2·(R/p)²·n·cos i; sun-sync cos i = −Ω̇sun·p²/(3/2·J2·R²·n).
+- `engine/deltaV.ts`: site inclination window `i_delivered = clamp(i, min, max)`; plane-change Δv merged into the insertion burn; helio Hohmann-type model.
+- `engine/readiness.ts`: 22 checks in 7 groups (PASS/WARNING/FAIL, reason + fix, EN/UZ). `launchReady` only when nothing fails; FAIL is never hidden.
+- Views: `orbitView.ts`, `launchView.ts`, `orbitLayout.ts` (pure, tested in `phase4.test.ts`).

@@ -47,9 +47,11 @@ const fraction = (used: number, limit: number | null): number | null => (limit =
  */
 export function buildIndicators(evaluation: Evaluation): Indicator[] {
   const { resources, details } = evaluation;
-  const errors = evaluation.referenceIssues.length + evaluation.issues.filter((issue) => issue.severity === 'error').length;
-  const warnings = evaluation.issues.filter((issue) => issue.severity === 'warning').length;
-  const readinessTone: Tone = evaluation.status === 'feasible' ? 'normal' : evaluation.status === 'marginal' ? 'warning' : 'critical';
+  // One source: the readiness report (PASS / WARNING / FAIL checks), the same list the Readiness tab shows.
+  const { counts, overall } = evaluation.readiness;
+  const errors = counts.fail;
+  const warnings = counts.warning;
+  const readinessTone: Tone = overall === 'pass' ? 'normal' : overall === 'warning' ? 'warning' : 'critical';
   const readiness: Indicator = { id: 'readiness', tone: readinessTone, used: null, limit: null, unit: '1', fraction: null, errors, warnings };
 
   if (!resources || !details) {

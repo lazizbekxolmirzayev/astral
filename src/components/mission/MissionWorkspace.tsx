@@ -11,6 +11,9 @@ import type { Mission } from '@/mission/models/mission';
 import { missionStore, useMissionStore } from '@/stores/missionStore';
 import { useEditor, useEvaluation, useMission } from './hooks';
 import { LiveResourcePanel, ResourceBar } from './LiveResourcePanel';
+import { LaunchSection } from './LaunchSection';
+import { OrbitSection } from './OrbitSection';
+import { ReadinessSection } from './ReadinessSection';
 import { OverviewSection } from './OverviewSection';
 import { PayloadSection } from './PayloadSection';
 import { ToneIcon, useText } from './primitives';
@@ -20,7 +23,7 @@ import { SpacecraftSection } from './SpacecraftSection';
 import { TONE_STYLES } from './tone';
 import { buildIndicators } from '@/mission/view';
 
-export const WORKSPACE_TABS = ['overview', 'spacecraft', 'payload', 'resources', 'requirements'] as const;
+export const WORKSPACE_TABS = ['overview', 'spacecraft', 'payload', 'orbit', 'launch', 'resources', 'requirements', 'readiness'] as const;
 export type WorkspaceTab = (typeof WORKSPACE_TABS)[number];
 
 /** Layout classes, exported so the responsive contract can be tested without a browser. */
@@ -97,8 +100,11 @@ function Workspace({ mission, initialTab }: { mission: Mission; initialTab: Work
             {tab === 'overview' ? <OverviewSection mission={mission} evaluation={evaluation} editor={editor} /> : null}
             {tab === 'spacecraft' ? <SpacecraftSection mission={mission} editor={editor} selectedPartId={selectedPartId} onSelectPart={selectPart} /> : null}
             {tab === 'payload' ? <PayloadSection mission={mission} evaluation={evaluation} editor={editor} selectedPartId={selectedPartId} onSelectPart={selectPart} /> : null}
+            {tab === 'orbit' ? <OrbitSection mission={mission} evaluation={evaluation} editor={editor} /> : null}
+            {tab === 'launch' ? <LaunchSection mission={mission} evaluation={evaluation} editor={editor} /> : null}
             {tab === 'resources' ? <ResourcesSection evaluation={evaluation} /> : null}
             {tab === 'requirements' ? <RequirementsSection mission={mission} evaluation={evaluation} editor={editor} /> : null}
+            {tab === 'readiness' ? <ReadinessSection evaluation={evaluation} /> : null}
           </div>
         </div>
 

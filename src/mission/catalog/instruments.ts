@@ -207,6 +207,6 @@ export const INSTRUMENTS: readonly Instrument[] = [
     scienceValue: game(20, 'pt'),
     requiredPointing: est(2, 'deg'),
     dataHandling: 'store-and-forward',
-    destinations: ['geo', 'moon', 'mars'],
+    destinations: ['geo', 'moon', 'mars', 'helio'],
   },
 ];

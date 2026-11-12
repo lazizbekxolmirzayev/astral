@@ -4,7 +4,7 @@ import type { Quantity } from '../models/quantity';
 import { dbToRatio, ratioToDb, toBase, valueIn } from '../units';
 import type { AssumptionReader } from './assumptions';
 import { derive, type Derived } from './derived';
-import { slantRange } from './orbit';
+import { describeOrbit, slantRange } from './orbit';
 import type { ResolvedDesign } from './resolve';
 
 export type LinkResult = {
@@ -28,7 +28,7 @@ export type LinkResult = {
 const ZERO = (model: 'communications-data', basis: string) => derive(0, 'bit/s', model, basis);
 
 export function groundSegment(destinationId: string): 'near-earth' | 'deep-space' {
-  return destinationId === 'moon' || destinationId === 'mars' ? 'deep-space' : 'near-earth';
+  return destinationId === 'moon' || destinationId === 'mars' || destinationId === 'helio' ? 'deep-space' : 'near-earth';
 }
 
 /**
@@ -45,7 +45,13 @@ export function computeLink(design: ResolvedDesign, assume: AssumptionReader): L
   // distance
   let distanceM: number;
   const distanceInputs: Quantity[] = [];
-  if (destination.earthDistance) {
+  if (destination.centralBody === 'sun') {
+    // Heliocentric orbit: at worst the spacecraft is at aphelion on the far side of the Sun from Earth, 1 AU from the Sun.
+    const earthOrbit = BODIES.earth.orbit;
+    if (!earthOrbit) throw new Error('Earth needs heliocentric orbit data');
+    distanceM = describeOrbit('sun', mission.orbit).apoapsisRadius + toBase(earthOrbit.semiMajorAxis);
+    distanceInputs.push(BODIES.sun.radius, earthOrbit.semiMajorAxis);
+  } else if (destination.earthDistance) {
     distanceM = toBase(destination.earthDistance.max);
     distanceInputs.push(destination.earthDistance.max);
   } else {

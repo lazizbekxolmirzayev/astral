@@ -13,7 +13,7 @@ import { quantityOf } from './quantity';
  * - fictional  game-balance values: prices, science points, operations cost
  */
 
-export const DESTINATION_IDS = ['leo', 'sso', 'geo', 'moon', 'mars'] as const;
+export const DESTINATION_IDS = ['leo', 'sso', 'geo', 'moon', 'mars', 'helio'] as const;
 export type DestinationId = (typeof DESTINATION_IDS)[number];
 export const destinationIdSchema = z.enum(DESTINATION_IDS);
 
@@ -222,6 +222,31 @@ export const launcherSchema = z
   })
   .strict();
 export type Launcher = z.infer<typeof launcherSchema>;
+
+/**
+ * A launch site: where the vehicle leaves Earth. Latitude and longitude are
+ * geographic facts (measured/estimated, with a source); which vehicle classes fly
+ * from which site, and the inclination corridor, are game rules (see `launchSites.ts`).
+ */
+export const launchSiteSchema = z
+  .object({
+    id: idSchema,
+    name: localizedSchema,
+    summary: localizedSchema,
+    country: localizedSchema,
+    /** Signed geodetic latitude, degrees (north positive). Sets the lowest inclination a launch can reach. */
+    latitude: quantityOf('angle'),
+    /** Signed longitude, degrees (east positive). */
+    longitude: quantityOf('angle'),
+    /** Orbit inclinations the range allows the vehicle to fly directly; anything outside costs a plane change. */
+    inclinationRange: z.object({ min: quantityOf('angle'), max: quantityOf('angle') }).strict(),
+    /** Vehicle ids that launch from this site. */
+    launcherIds: z.array(idSchema).min(1),
+    /** Practical limits of the site, shown to the player. */
+    restrictions: z.array(localizedSchema),
+  })
+  .strict();
+export type LaunchSite = z.infer<typeof launchSiteSchema>;
 
 /* -------------------------------- destinations ------------------------------- */
 

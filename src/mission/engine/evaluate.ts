@@ -13,6 +13,8 @@ import { computeDeltaV, type DeltaVResult } from './deltaV';
 import { marginOf, weakestProvenance } from './derived';
 import type { EngineIssue } from './issues';
 import { computeLink, type LinkResult } from './link';
+import { computeOrbitReport, type OrbitReport } from './orbitReport';
+import { buildReadiness, type ReadinessReport } from './readiness';
 import { computeMass, type MassResult } from './mass';
 import { computePower, type PowerResult } from './power';
 import { evaluateRequirements, computeScience, type RequirementResult, type ScienceResult } from './requirements';
@@ -43,7 +45,10 @@ export type Evaluation = {
     link: LinkResult;
     data: DataResult;
     science: ScienceResult;
+    orbit: OrbitReport;
   } | null;
+  /** Every check, grouped, with PASS / WARNING / FAIL, a reason and a way to fix it. Nothing is filtered out. */
+  readiness: ReadinessReport;
   requirements: RequirementResult[];
   /** Every engine assumption this evaluation used, so the UI can list them. */
   assumptionsUsed: Assumption[];
@@ -58,7 +63,17 @@ const SECONDS_PER_DAY = 86_400;
 export function evaluateMission(mission: Mission, catalog: CatalogLookup = DEFAULT_CATALOG): Evaluation {
   const resolution = resolveDesign(mission, catalog);
   if (!resolution.design) {
-    return { status: 'unresolvable', feasible: false, referenceIssues: resolution.referenceIssues, issues: [], resources: null, details: null, requirements: [], assumptionsUsed: [] };
+    return {
+      status: 'unresolvable',
+      feasible: false,
+      referenceIssues: resolution.referenceIssues,
+      issues: [],
+      resources: null,
+      details: null,
+      requirements: [],
+      assumptionsUsed: [],
+      readiness: buildReadiness({ design: null, referenceIssues: resolution.referenceIssues, issues: [], resources: null, details: null, requirements: [] }),
+    };
   }
   const { design, referenceIssues } = resolution;
   const assume = createAssumptionReader();
@@ -74,6 +89,7 @@ export function evaluateMission(mission: Mission, catalog: CatalogLookup = DEFAU
   const deltaV = computeDeltaV(design, assume, mass.launch.value);
   const data = computeData(design, link);
   const science = computeScience(design, data);
+  const orbit = computeOrbitReport(design);
 
   const statusOf = (margin: number | null): ResourceStatus => (margin === null || margin >= tight ? 'ok' : margin < 0 ? 'over' : 'tight');
   const line = (used: number, limit: number | null, unit: string, model: ModelCardId, basis: string, inputs: readonly Quantity[]): ResourceLine => {
@@ -178,6 +194,43 @@ export function evaluateMission(mission: Mission, catalog: CatalogLookup = DEFAU
       message: L(`Only ${pct(resources.time.margin ?? 0)}% design-life margin is left.`, `Xizmat muddati zaxirasi atigi ${pct(resources.time.margin ?? 0)}% qoldi.`) });
   }
 
+  /* ----------------------- launch site and orbit purpose ---------------------- */
+  if (!design.site.launcherIds.includes(launcher.id)) {
+    add({ code: 'launcher-not-at-site', severity: 'error', subject: 'design', values: { launcherId: launcher.id, siteId: design.site.id },
+      message: L(`${launcher.name.en} does not launch from ${design.site.name.en}.`, `${launcher.name.uz} ${design.site.name.uz} dan uchmaydi.`) });
+  }
+  const planeChangeLimit = assume.value('site-plane-change-limit');
+  const siteFacts = deltaV.site;
+  // Geostationary missions always change plane at the transfer-orbit apogee (already in the Δv); only direct-to-orbit launches can be unreachable.
+  if (siteFacts && destination.id !== 'geo' && siteFacts.shortfallDeg > 1e-9) {
+    const limitDeg = (planeChangeLimit * 180) / Math.PI;
+    const shortfall = Math.round(siteFacts.shortfallDeg * 10) / 10;
+    const extra = Math.round(siteFacts.extra.value);
+    if (siteFacts.shortfallDeg > limitDeg) {
+      add({ code: 'site-cannot-reach-inclination', severity: 'error', subject: 'design', values: { shortfallDeg: siteFacts.shortfallDeg, limitDeg, extraDeltaVMS: siteFacts.extra.value },
+        message: L(`${design.site.name.en} cannot fly directly within ${shortfall}° of ${mission.orbit.inclinationDeg}° inclination; the plane change would need ${extra} m/s.`, `${design.site.name.uz} ${mission.orbit.inclinationDeg}° og'ishga ${shortfall}° dan yaqin to'g'ridan-to'g'ri chiqa olmaydi; tekislikni o'zgartirish ${extra} m/s talab qiladi.`) });
+    } else {
+      add({ code: 'site-inclination-penalty', severity: 'warning', subject: 'delta-v', values: { shortfallDeg: siteFacts.shortfallDeg, extraDeltaVMS: siteFacts.extra.value },
+        message: L(`${design.site.name.en} cannot reach ${mission.orbit.inclinationDeg}° directly; a ${shortfall}° plane change costs about ${extra} m/s of Δv.`, `${design.site.name.uz} ${mission.orbit.inclinationDeg}° ga to'g'ridan-to'g'ri chiqa olmaydi; ${shortfall}° tekislik o'zgartirish taxminan ${extra} m/s Δv sarflaydi.`) });
+    }
+  }
+  const sunSync = orbit.sunSynchronous;
+  if (destination.inclinationRule === 'sun-synchronous' && sunSync) {
+    const tolerance = assume.value('sso-inclination-tolerance') * (180 / Math.PI);
+    const limit = assume.value('sso-inclination-limit') * (180 / Math.PI);
+    const drift = Math.round(sunSync.localTimeDriftMinPerDay * 100) / 100;
+    if (sunSync.inclinationErrorDeg === null) {
+      add({ code: 'orbit-not-sun-synchronous', severity: 'error', subject: 'design', values: { altitudeKm: mission.orbit.apoapsisAltKm },
+        message: L('No inclination makes an orbit this high sun-synchronous.', "Bunday balandlikdagi orbitani Quyosh-sinxron qiladigan og'ish mavjud emas.") });
+    } else if (Math.abs(sunSync.inclinationErrorDeg) > limit) {
+      add({ code: 'orbit-not-sun-synchronous', severity: 'error', subject: 'design', values: { errorDeg: sunSync.inclinationErrorDeg, requiredDeg: sunSync.requiredInclinationDeg ?? 0, driftMinPerDay: drift },
+        message: L(`Inclination ${mission.orbit.inclinationDeg}° is ${Math.abs(sunSync.inclinationErrorDeg).toFixed(2)}° from the sun-synchronous ${(sunSync.requiredInclinationDeg ?? 0).toFixed(2)}°: the crossing time drifts ${drift} min per day.`, `${mission.orbit.inclinationDeg}° og'ish Quyosh-sinxron ${(sunSync.requiredInclinationDeg ?? 0).toFixed(2)}° dan ${Math.abs(sunSync.inclinationErrorDeg).toFixed(2)}° farq qiladi: kesib o'tish vaqti kuniga ${drift} daqiqaga siljiydi.`) });
+    } else if (Math.abs(sunSync.inclinationErrorDeg) > tolerance) {
+      add({ code: 'orbit-sun-sync-drift', severity: 'warning', subject: 'design', values: { errorDeg: sunSync.inclinationErrorDeg, requiredDeg: sunSync.requiredInclinationDeg ?? 0, driftMinPerDay: drift },
+        message: L(`Inclination is ${Math.abs(sunSync.inclinationErrorDeg).toFixed(2)}° off the sun-synchronous value: the crossing time drifts ${drift} min per day.`, `Og'ish Quyosh-sinxron qiymatdan ${Math.abs(sunSync.inclinationErrorDeg).toFixed(2)}° farq qiladi: kesib o'tish vaqti kuniga ${drift} daqiqaga siljiydi.`) });
+    }
+  }
+
   const requirements = evaluateRequirements(mission.objective.requirements, {
     cost: cost.total,
     launchMass: mass.launch,
@@ -195,14 +248,16 @@ export function evaluateMission(mission: Mission, catalog: CatalogLookup = DEFAU
 
   const hasError = referenceIssues.length > 0 || issues.some((issue) => issue.severity === 'error');
   const status: EvaluationStatus = hasError ? 'infeasible' : issues.length > 0 ? 'marginal' : 'feasible';
+  const details = { mass, power, cost, deltaV, link, data, science, orbit };
   return {
     status,
     feasible: !hasError,
     referenceIssues,
     issues,
     resources,
-    details: { mass, power, cost, deltaV, link, data, science },
+    details,
     requirements,
     assumptionsUsed: assume.used(),
+    readiness: buildReadiness({ design, referenceIssues, issues, resources, details, requirements }),
   };
 }

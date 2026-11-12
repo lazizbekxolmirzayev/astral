@@ -85,7 +85,7 @@ export const missionSchema = z
       })
       .strict(),
     spacecraft: spacecraftDesignSchema,
-    launch: z.object({ vehicleId: idSchema }).strict(),
+    launch: z.object({ vehicleId: idSchema, siteId: idSchema }).strict(),
     orbit: orbitSpecSchema,
     /** How long the mission operates after arriving; cruise time is added by the destination. */
     plannedOperationsDays: z.number().int().min(1).max(10_000),

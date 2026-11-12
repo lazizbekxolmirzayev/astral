@@ -1,4 +1,4 @@
-import { BODIES, type BodyId } from '../constants';
+import { BODIES, EARTH_J2, TROPICAL_YEAR, type BodyId } from '../constants';
 import type { OrbitSpec } from '../models/catalog';
 import { valueIn } from '../units';
 
@@ -69,4 +69,41 @@ export function describeOrbit(body: BodyId, orbit: OrbitSpec): OrbitGeometry {
     meanAltitude: semiMajorAxis - radius,
     period: orbitPeriod(gm, semiMajorAxis),
   };
+}
+
+/**
+ * Nodal precession rate of the orbit plane caused by the central body's oblateness
+ * (J2), rad/s: Ω̇ = −(3/2) · J2 · (R/p)² · n · cos(i), with p = a(1 − e²) and n = √(μ/a³).
+ * Negative for prograde orbits (the plane regresses westward).
+ */
+export function nodalPrecessionRate(gm: number, radius: number, j2: number, a: number, eccentricity: number, inclination: number): number {
+  const p = a * (1 - eccentricity ** 2);
+  const n = Math.sqrt(gm / (a * a * a));
+  return -1.5 * j2 * (radius / p) ** 2 * n * Math.cos(inclination);
+}
+
+/** Rate at which the Sun moves along the ecliptic as seen from Earth, rad/s: 2π per tropical year. */
+export const SUN_NODAL_RATE = (2 * Math.PI) / valueIn(TROPICAL_YEAR, 's');
+
+/**
+ * Inclination (radians) at which the orbit plane precesses with the Sun, so the orbit
+ * keeps the same local solar time at every crossing: cos i = −Ω̇_sun · p² / (3/2 · J2 · R² · n).
+ * Null when no inclination does it (the orbit is too high: about 5,975 km for a circular orbit).
+ */
+export function sunSynchronousInclination(gm: number, radius: number, j2: number, a: number, eccentricity: number): number | null {
+  const p = a * (1 - eccentricity ** 2);
+  const n = Math.sqrt(gm / (a * a * a));
+  const cosine = -(SUN_NODAL_RATE * p * p) / (1.5 * j2 * radius * radius * n);
+  if (!Number.isFinite(cosine) || Math.abs(cosine) > 1) return null;
+  return Math.acos(cosine);
+}
+
+export type EarthOrbitFacts = { a: number; eccentricity: number };
+
+/** Sun-synchronous inclination in degrees for an Earth orbit with these apsis altitudes, or null if none exists. */
+export function sunSynchronousInclinationDeg(periapsisAltKm: number, apoapsisAltKm: number): number | null {
+  const geometry = describeOrbit('earth', { periapsisAltKm, apoapsisAltKm, inclinationDeg: 0 });
+  const eccentricity = (geometry.apoapsisRadius - geometry.periapsisRadius) / (geometry.apoapsisRadius + geometry.periapsisRadius);
+  const inclination = sunSynchronousInclination(geometry.gm, geometry.radius, valueIn(EARTH_J2, '1'), geometry.semiMajorAxis, eccentricity);
+  return inclination === null ? null : (inclination * 180) / Math.PI;
 }

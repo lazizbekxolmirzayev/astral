@@ -18,6 +18,7 @@ export type MissionIssueCode =
   | 'unknown-propulsion'
   | 'unknown-part'
   | 'unknown-launcher'
+  | 'unknown-launch-site'
   | 'wrong-category'
   | 'duplicate-part'
   | 'bus-not-for-destination'
@@ -30,7 +31,7 @@ export type MissionIssueCode =
 export type MissionIssue = { code: MissionIssueCode; path: string; message: string };
 
 /** Issues after which the design cannot be resolved to catalog items, so nothing can be computed. */
-export const FATAL_ISSUE_CODES: readonly MissionIssueCode[] = ['unknown-bus', 'unknown-propulsion', 'unknown-part', 'unknown-launcher', 'wrong-category'];
+export const FATAL_ISSUE_CODES: readonly MissionIssueCode[] = ['unknown-bus', 'unknown-propulsion', 'unknown-part', 'unknown-launcher', 'unknown-launch-site', 'wrong-category'];
 
 const EPSILON = 1e-6;
 
@@ -88,6 +89,8 @@ export function validateMissionReferences(mission: Mission, catalog: CatalogLook
   else if (launcher.capacity[destination.deliveryTarget] === undefined) {
     add('launcher-cannot-reach-target', 'launch.vehicleId', `"${launcher.id}" cannot deliver to ${destination.deliveryTarget}`);
   }
+
+  if (!catalog.getLaunchSite(mission.launch.siteId)) add('unknown-launch-site', 'launch.siteId', `no launch site "${mission.launch.siteId}"`);
 
   // Orbit limits
   const { altitudeKm, inclinationDeg } = destination.orbitLimits;

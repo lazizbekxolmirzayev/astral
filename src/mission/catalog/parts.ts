@@ -60,13 +60,13 @@ export const BUSES: readonly Bus[] = [
     id: 'bus-deepspace-1500',
     category: 'bus',
     name: L('Deep-space bus', "Chuqur kosmos platformasi"),
-    summary: L('A radiation-tolerant bus for the Moon and Mars.', "Oy va Mars uchun radiatsiyaga chidamli platforma."),
+    summary: L('A radiation-tolerant bus for the Moon, Mars and heliocentric orbit.', "Oy, Mars va geliosentrik orbita uchun radiatsiyaga chidamli platforma."),
     mass: est(650, 'kg'),
     cost: game(70, 'MUSD'),
     basePowerDraw: est(250, 'W'),
     payloadMassLimit: est(400, 'kg'),
     designLife: est(6, 'yr'),
-    destinations: ['moon', 'mars'],
+    destinations: ['moon', 'mars', 'helio'],
   },
 ];
 

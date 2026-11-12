@@ -8,7 +8,7 @@ import { est, game } from './provenance';
  * for the game; C3 targets are typical departure energies:
  * - TLI C3 ≈ −2 km²/s² is the usual trans-lunar value (the Moon is still bound to Earth).
  * - TMI C3 = 10 km²/s² is a representative Earth–Mars opportunity; the minimum-energy
- *   (Hohmann) transfer needs about 8.7 km²/s².
+ *   (Hohmann) transfer needs about 8.7 km²/s². It also serves heliocentric missions.
  */
 export const LAUNCH_TARGETS: readonly LaunchTarget[] = [
   {
@@ -48,7 +48,7 @@ export const LAUNCH_TARGETS: readonly LaunchTarget[] = [
   {
     id: 'tmi',
     kind: 'escape',
-    name: L('Trans-Mars injection (C3 ≈ 10 km²/s²)', "Marsga uchish traektoriyasiga chiqish (C3 ≈ 10 km²/s²)"),
+    name: L('Interplanetary injection (C3 ≈ 10 km²/s², Earth–Mars class)', "Sayyoralararo traektoriyaga chiqish (C3 ≈ 10 km²/s², Yer–Mars sinfi)"),
     centralBody: 'earth',
     c3: q(10, 'km^2/s^2', 'estimated', 'Representative Earth–Mars opportunity; Hohmann minimum is about 8.7 km²/s² (cf. Curtis; Vallado)'),
   },

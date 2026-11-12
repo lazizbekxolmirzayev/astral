@@ -1,5 +1,5 @@
 import { DEFAULT_CATALOG, type CatalogLookup } from '../catalog';
-import type { Adcs, Battery, Bus, Comms, Destination, Instrument, Launcher, LaunchTarget, Obc, Propulsion, SolarArray } from '../models/catalog';
+import type { Adcs, Battery, Bus, Comms, Destination, Instrument, Launcher, LaunchSite, LaunchTarget, Obc, Propulsion, SolarArray } from '../models/catalog';
 import type { Mission } from '../models/mission';
 import { FATAL_ISSUE_CODES, validateMissionReferences, type MissionIssue } from '../validation';
 
@@ -11,6 +11,7 @@ export type ResolvedDesign = {
   destination: Destination;
   deliveryTarget: LaunchTarget;
   launcher: Launcher;
+  site: LaunchSite;
   bus: Bus;
   propulsion: Propulsion | null;
   solarArrays: Selected<SolarArray>[];
@@ -36,8 +37,9 @@ export function resolveDesign(mission: Mission, catalog: CatalogLookup = DEFAULT
   const destination = catalog.getDestination(mission.objective.destinationId);
   const deliveryTarget = destination && catalog.getLaunchTarget(destination.deliveryTarget);
   const launcher = catalog.getLauncher(mission.launch.vehicleId);
+  const site = catalog.getLaunchSite(mission.launch.siteId);
   const bus = catalog.getPart(mission.spacecraft.busId);
-  if (!destination || !deliveryTarget || !launcher || bus?.category !== 'bus') return { design: null, referenceIssues };
+  if (!destination || !deliveryTarget || !launcher || !site || bus?.category !== 'bus') return { design: null, referenceIssues };
 
   const propulsionPart = mission.spacecraft.propulsionId ? catalog.getPart(mission.spacecraft.propulsionId) : null;
   const design: ResolvedDesign = {
@@ -45,6 +47,7 @@ export function resolveDesign(mission: Mission, catalog: CatalogLookup = DEFAULT
     destination,
     deliveryTarget,
     launcher,
+    site,
     bus,
     propulsion: propulsionPart?.category === 'propulsion' ? propulsionPart : null,
     solarArrays: [],

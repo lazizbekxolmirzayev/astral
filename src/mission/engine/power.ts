@@ -44,10 +44,16 @@ export function computePower(design: ResolvedDesign, assume: AssumptionReader, c
   const model = 'power-budget' as const;
 
   // --- sunlight ---
+  const heliocentric = destination.centralBody === 'sun';
   const host = BODIES[sunHostBody(destination.centralBody)];
-  if (!host.orbit?.eccentricity) throw new Error(`body ${host.id} has no heliocentric orbit data`);
-  const aphelionM = toBase(host.orbit.semiMajorAxis) * (1 + toBase(host.orbit.eccentricity));
-  const sunDistance = derive(aphelionM, 'm', model, `aphelion distance of ${host.id}: a·(1+e)`, [host.orbit.semiMajorAxis, host.orbit.eccentricity]);
+  if (!heliocentric && !host.orbit?.eccentricity) throw new Error(`body ${host.id} has no heliocentric orbit data`);
+  // Around a planet the worst case is the planet's aphelion; on a heliocentric orbit it is the orbit's own aphelion.
+  const aphelionM = heliocentric
+    ? describeOrbit('sun', mission.orbit).apoapsisRadius
+    : toBase(host.orbit!.semiMajorAxis) * (1 + toBase(host.orbit!.eccentricity!));
+  const sunDistance = heliocentric
+    ? derive(aphelionM, 'm', model, 'aphelion distance of the heliocentric orbit: R_sun + apoapsis altitude', [BODIES.sun.radius])
+    : derive(aphelionM, 'm', model, `aphelion distance of ${host.id}: a·(1+e)`, [host.orbit!.semiMajorAxis, host.orbit!.eccentricity!]);
   const irradianceValue = toBase(SOLAR_CONSTANT) * (SI_EXACT.astronomicalUnitM / aphelionM) ** 2;
   const irradiance = derive(irradianceValue, 'W/m^2', model, 'S = S0 · (1 AU / r)²', [SOLAR_CONSTANT, sunDistance]);
 
@@ -104,7 +110,8 @@ export function computePower(design: ResolvedDesign, assume: AssumptionReader, c
 
   // --- orbit and eclipse ---
   const geometry = describeOrbit(destination.centralBody, mission.orbit);
-  const fraction = eclipseFraction(geometry.radius, geometry.semiMajorAxis);
+  // The Sun itself casts no shadow on a heliocentric orbit.
+  const fraction = heliocentric ? 0 : eclipseFraction(geometry.radius, geometry.semiMajorAxis);
   const bodyInputs = [BODIES[destination.centralBody].gm, BODIES[destination.centralBody].radius];
   const orbitPeriod = derive(geometry.period, 's', 'orbit-geometry', 'T = 2π·√(a³/μ), a = mean of periapsis and apoapsis radius', bodyInputs);
   const eclipseSeconds = fraction * geometry.period;
@@ -144,7 +151,7 @@ export function computePower(design: ResolvedDesign, assume: AssumptionReader, c
     eclipseDuration,
     eclipseEnergy,
     batteryUsable,
-    batteryMargin: marginOf(usableJ, eclipseEnergy.value),
+    batteryMargin: eclipseEnergy.value === 0 ? 1 : marginOf(usableJ, eclipseEnergy.value),
     requiredGeneration,
     generationMargin: marginOf(eol, requiredW),
     degradationYears: years,

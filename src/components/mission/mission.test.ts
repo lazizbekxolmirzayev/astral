@@ -1,4 +1,4 @@
-import { createElement, type ReactElement } from 'react';
+import { createElement, type ComponentType, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';
@@ -8,12 +8,19 @@ import uz from '@/messages/uz.json';
 import { INSTRUMENTS } from '@/mission/catalog';
 import { removePart, setPartQuantity } from '@/mission/edit';
 import { evaluateMission } from '@/mission/engine';
+import { CHECK_IDS, CHECK_GROUPS } from '@/mission/engine';
+import { setLaunchSite, setOrbit, setPropellantMass } from '@/mission/edit';
+import { DESTINATION_IDS } from '@/mission/models/catalog';
+import { LAUNCH_SITES, LAUNCHERS } from '@/mission/catalog';
 import { createBlankMission } from '@/mission/templates/blank';
 import { createDefaultMission } from '@/mission/templates/defaults';
 import type { Editor } from './hooks';
 import { LiveResourcePanel, ResourceBar } from './LiveResourcePanel';
 import { IssueList } from './IssueList';
+import { LaunchSection } from './LaunchSection';
+import { OrbitSection } from './OrbitSection';
 import { OverviewSection } from './OverviewSection';
+import { ReadinessSection } from './ReadinessSection';
 import { PayloadSection } from './PayloadSection';
 import { RequirementsSection } from './RequirementsSection';
 import { ResourcesSection } from './ResourcesSection';
@@ -36,14 +43,14 @@ const missing: string[] = [];
 function render(locale: Locale, element: ReactElement): string {
   return renderToStaticMarkup(
     createElement(
-      NextIntlClientProvider,
+      NextIntlClientProvider as unknown as ComponentType<Record<string, unknown>>,
       {
         locale,
         messages: MESSAGES[locale] as never,
         timeZone: 'UTC',
         onError: (error: { message: string }) => void missing.push(error.message),
-        children: element,
       },
+      element,
     ),
   );
 }
@@ -67,6 +74,15 @@ describe('translations', () => {
     for (const [key, value] of Object.entries(uzbek)) expect(/[Ѐ-ӿ]/.test(value), key).toBe(false);
     const same = Object.keys(uzbek).filter((key) => uzbek[key] === mission[key] && /[a-z]{4,}/i.test(mission[key] ?? ''));
     expect(same.length / Object.keys(uzbek).length).toBeLessThan(0.1);
+  });
+
+  it('every readiness check, group and status has a label in every language', () => {
+    for (const locale of ['uz', 'en', 'ru'] as const) {
+      const m = (MESSAGES[locale] as unknown as { mission: Record<string, Record<string, string>> }).mission;
+      for (const id of CHECK_IDS) expect(m.check?.[id]?.length ?? 0, `${locale}:${id}`).toBeGreaterThan(0);
+      for (const group of CHECK_GROUPS) expect(m.group?.[group]?.length ?? 0, `${locale}:${group}`).toBeGreaterThan(0);
+      for (const status of ['pass', 'warning', 'fail']) expect(m.checkStatus?.[status]?.length ?? 0, `${locale}:${status}`).toBeGreaterThan(0);
+    }
   });
 
   it('the navigation has the missions link in every language', () => {
@@ -129,6 +145,81 @@ describe.each(['en', 'uz'] as const)('workspace rendering (%s)', (locale) => {
   });
 });
 
+describe.each(['en', 'uz'] as const)('Orbit Designer, Launch Center and Readiness (%s)', (locale) => {
+  const sso = createDefaultMission('sso', { id: 'p4', now: NOW, title: 'P4' });
+
+  it.each(DESTINATION_IDS)('the Orbit tab renders for %s with no missing message', (id) => {
+    const mission = createDefaultMission(id, { id: `o-${id}`, now: NOW, title: 'O' });
+    missing.length = 0;
+    const html = render(locale, createElement(OrbitSection, { mission, evaluation: evaluateMission(mission), editor }));
+    expect(missing).toEqual([]);
+    for (const type of DESTINATION_IDS) expect(html).toContain(`data-orbit-type="${type}"`);
+    expect(html).toContain('data-orbit-preview');
+    expect(html).toContain('data-delta-v');
+    expect(html).toContain('data-model="orbit-geometry"');
+    expect(html).not.toMatch(/mission\.orbit\./);
+  });
+
+  it('only a sun-synchronous-capable orbit offers the sun-synchronous button', () => {
+    const earth = render(locale, createElement(OrbitSection, { mission: sso, evaluation: evaluateMission(sso), editor }));
+    expect(earth).toContain('data-sun-sync');
+    const mars = createDefaultMission('mars', { id: 'm', now: NOW, title: 'M' });
+    expect(render(locale, createElement(OrbitSection, { mission: mars, evaluation: evaluateMission(mars), editor }))).not.toContain('data-sun-sync');
+  });
+
+  it('the heliocentric editor speaks AU, the others km', () => {
+    const helio = createDefaultMission('helio', { id: 'h', now: NOW, title: 'H' });
+    expect(render(locale, createElement(OrbitSection, { mission: helio, evaluation: evaluateMission(helio), editor }))).toContain('AU');
+    expect(render(locale, createElement(OrbitSection, { mission: sso, evaluation: evaluateMission(sso), editor }))).toContain('km');
+  });
+
+  it('the Launch tab lists the four vehicles and the five sites with a select button each', () => {
+    missing.length = 0;
+    const html = render(locale, createElement(LaunchSection, { mission: sso, evaluation: evaluateMission(sso), editor }));
+    expect(missing).toEqual([]);
+    for (const launcher of LAUNCHERS) expect(html).toContain(`data-launcher="${launcher.id}"`);
+    for (const site of LAUNCH_SITES) {
+      expect(html).toContain(`data-site="${site.id}"`);
+      expect(html).toContain(`data-map-site="${site.id}"`);
+    }
+    expect(LAUNCHERS).toHaveLength(4);
+    expect(LAUNCH_SITES).toHaveLength(5);
+    expect(html).toContain('data-site-map');
+    expect(html).toContain('data-check="launch-mass"');
+  });
+
+  it('the Launch tab shows the effect of the site on the orbit, including a failing one', () => {
+    const wrongSite = setLaunchSite(sso, 'site-cape-canaveral').mission;
+    const html = render(locale, createElement(LaunchSection, { mission: wrongSite, evaluation: evaluateMission(wrongSite), editor }));
+    expect(html).toContain('data-check="site-inclination"');
+    expect(html).toContain('data-status="fail"');
+    expect(html).toContain('data-site-effect="orbit"');
+  });
+
+  it('the Readiness tab shows every group, PASS/WARNING/FAIL, and the launch-ready verdict', () => {
+    missing.length = 0;
+    const ready = render(locale, createElement(ReadinessSection, { evaluation: evaluateMission(sso) }));
+    expect(missing).toEqual([]);
+    expect(ready).toContain('data-launch-ready="true"');
+    for (const group of ['spacecraft', 'payload', 'resources', 'orbit', 'launch-vehicle', 'launch-site', 'budget']) expect(ready).toContain(`data-group="${group}"`);
+    const broken = setPropellantMass(setOrbit(setLaunchSite(sso, 'site-mahia').mission, { inclinationDeg: 99.5 }).mission, 0).mission;
+    const blocked = render(locale, createElement(ReadinessSection, { evaluation: evaluateMission(broken) }));
+    expect(blocked).toContain('data-launch-ready="false"');
+    expect(blocked).toContain('data-overall="fail"');
+    expect(blocked).toContain('data-status="fail"');
+    expect(blocked).toMatch(locale === 'en' ? /How to fix/ : /Qanday tuzatish/);
+  });
+
+  it('the report never hides a failing check: each one is on the page', () => {
+    const broken = setLaunchSite(setPropellantMass(sso, 0).mission, 'site-cape-canaveral').mission;
+    const evaluation = evaluateMission(broken);
+    const html = render(locale, createElement(ReadinessSection, { evaluation }));
+    const failing = evaluation.readiness.groups.flatMap((group) => group.checks).filter((check) => check.status === 'fail');
+    expect(failing.length).toBeGreaterThan(1);
+    for (const check of failing) expect(html).toContain(`data-check="${check.id}"`);
+  });
+});
+
 describe('warnings stay visible after edits', () => {
   it('an invalid configuration renders its issues in both languages', () => {
     const broken = removePart(setPartQuantity(createDefaultMission('sso', { id: 'w', now: NOW, title: 'W' }), 'comms-x-band-medium', 0).mission, 'obc-standard').mission;
@@ -170,7 +261,7 @@ describe('responsive contract', () => {
     expect(bar).toContain('lg:hidden');
     expect(WORKSPACE_CLASSES.main).toContain('pb-28');
   });
-  it('has the five required sections', () => {
-    expect([...WORKSPACE_TABS]).toEqual(['overview', 'spacecraft', 'payload', 'resources', 'requirements']);
+  it('has the required sections, including the Phase 4 orbit, launch and readiness tabs', () => {
+    expect([...WORKSPACE_TABS]).toEqual(['overview', 'spacecraft', 'payload', 'orbit', 'launch', 'resources', 'requirements', 'readiness']);
   });
 });

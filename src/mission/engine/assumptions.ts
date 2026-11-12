@@ -44,6 +44,7 @@ const CONTACT_S: Record<string, [number, string, string]> = {
   geo: [86_400, 'continuous contact (the satellite is always in view)', "uzluksiz aloqa (yo'ldosh doim ko'rinadi)"],
   moon: [21_600, 'about 6 hours of contact per day, allowing for Earth rotation and passes behind the Moon', "kuniga taxminan 6 soat aloqa (Yer aylanishi va Oy orqasidan o'tish hisobga olingan)"],
   mars: [18_000, 'about 5 hours of contact per day, allowing for ground-network sharing and occultation', "kuniga taxminan 5 soat aloqa (tarmoqni bo'lishish va yopilish hisobga olingan)"],
+  helio: [18_000, 'about 5 hours of contact per day, allowing for ground-network sharing (deep-space network)', "kuniga taxminan 5 soat aloqa (chuqur kosmos tarmog'ini bo'lishish hisobga olingan)"],
 };
 for (const [destination, [seconds, en, uz]] of Object.entries(CONTACT_S)) {
   add(`contact-time-${destination}`, 'communications-data', est(seconds, 's'), L(`Downlink time per day: ${en}.`, `Kunlik uzatish vaqti: ${uz}.`));
@@ -72,6 +73,12 @@ add('delta-v-margin', 'delta-v', est(0.1, '1'), L('Margin added on top of the co
 add('moon-arrival-vinf', 'delta-v', est(800, 'm/s'), L('Hyperbolic excess speed relative to the Moon on a direct trans-lunar transfer.', "To'g'ridan-to'g'ri Oyga uchishda Oyga nisbatan giperbolik ortiqcha tezlik."))
 add('delta-v-correction-moon', 'delta-v', est(30, 'm/s'), L('Reserve for trajectory corrections on the way to the Moon.', "Oyga yo'lda traektoriyani tuzatish uchun zaxira."));
 add('delta-v-correction-mars', 'delta-v', est(50, 'm/s'), L('Reserve for trajectory corrections on the way to Mars.', "Marsga yo'lda traektoriyani tuzatish uchun zaxira."));
+add('delta-v-correction-helio', 'delta-v', est(40, 'm/s'), L('Reserve for trajectory corrections on the way to a heliocentric orbit.', "Geliosentrik orbitaga yo'lda traektoriyani tuzatish uchun zaxira."));
+
+/* ------------------------- orbit and launch-site fit ------------------------ */
+add('site-plane-change-limit', 'launch-fit', game(20, 'deg'), L('A launch site that must change the orbit plane by more than this after launch is treated as unable to reach the orbit.', "Uchirishdan keyin orbita tekisligini shu qiymatdan ko'proq o'zgartirishi kerak bo'lgan uchirish joyi orbitaga yeta olmaydi deb hisoblanadi."));
+add('sso-inclination-tolerance', 'orbit-geometry', game(0.5, 'deg'), L('A sun-synchronous orbit may be this far from the exact inclination and still pass; the crossing time then drifts by a few minutes a day.', "Quyosh-sinxron orbita aniq og'ishdan shuncha chetlashsa ham o'tadi; kesib o'tish vaqti kuniga bir necha daqiqaga siljiydi."));
+add('sso-inclination-limit', 'orbit-geometry', game(1.5, 'deg'), L('Beyond this inclination error the orbit is no longer sun-synchronous in any useful sense.', "Shu og'ish xatosidan keyin orbita endi hech qanday foydali ma'noda Quyosh-sinxron emas."));
 
 /* -------------------------------- thresholds ------------------------------- */
 add('tight-margin', 'mass-budget', game(0.1, '1'), L('A resource with less than this margin is shown as "tight".', "Zaxirasi shu qiymatdan kam resurs «tang» deb ko'rsatiladi."));

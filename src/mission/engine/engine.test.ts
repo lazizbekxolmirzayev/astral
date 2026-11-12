@@ -272,7 +272,7 @@ describe('invalid and insufficient configurations are reported, not hidden', () 
   });
 
   it('a launcher that cannot reach the target is a reference error with zero capacity', () => {
-    const evaluation = evaluateMission({ ...mission('moon'), launch: { vehicleId: 'launcher-small' } });
+    const evaluation = evaluateMission({ ...mission('moon'), launch: { ...mission('moon').launch, vehicleId: 'launcher-small' } });
     expect(evaluation.referenceIssues.map((issue) => issue.code)).toContain('launcher-cannot-reach-target');
     expect(evaluation.resources!.mass.limit).toBe(0);
     expect(evaluation.feasible).toBe(false);
@@ -378,6 +378,7 @@ describe('units and provenance', () => {
     getPart: (id) => rewrite(DEFAULT_CATALOG.getPart(id)) as Part | undefined,
     getLauncher: (id) => rewrite(DEFAULT_CATALOG.getLauncher(id)),
     getDestination: (id) => rewrite(DEFAULT_CATALOG.getDestination(id)),
+    getLaunchSite: (id) => rewrite(DEFAULT_CATALOG.getLaunchSite(id)),
     getLaunchTarget: (id) => rewrite(DEFAULT_CATALOG.getLaunchTarget(id)),
   };
 

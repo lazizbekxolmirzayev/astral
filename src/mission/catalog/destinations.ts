@@ -3,6 +3,11 @@ import type { Destination } from '../models/catalog';
 import { q } from '../models/quantity';
 import { game } from './provenance';
 
+const AU_KM = 149_597_870.7;
+const SUN_RADIUS_KM = 695_700;
+/** Altitude above the Sun's nominal surface of a heliocentric orbit at `au` astronomical units. */
+const sunAltitudeKm = (au: number) => Math.round(au * AU_KM - SUN_RADIUS_KM);
+
 const FACTSHEET = 'NASA NSSDC Planetary Fact Sheet';
 const ROUND_VALUE = 'Educational round value from mission-design practice; not taken from a specific mission.';
 
@@ -86,5 +91,19 @@ export const DESTINATIONS: readonly Destination[] = [
     cruiseDuration: q(260, 'd', 'estimated', 'The minimum-energy Earth–Mars transfer takes about 259 days (textbook value).'),
     operationsCostPerDay: game(120_000, 'USD'),
     stationkeepingDvPerYear: estimated(15, 'm/s'),
+  },
+  {
+    id: 'helio',
+    name: L('Heliocentric orbit', "Geliosentrik orbita"),
+    summary: L('An orbit around the Sun, near Earth\'s distance. The spacecraft leaves Earth altogether, so the launcher must supply departure energy and the link to Earth is long.', "Quyosh atrofidagi, Yer masofasiga yaqin orbita. Apparat Yerni butunlay tark etadi, shuning uchun raketa ketish energiyasini berishi kerak va Yer bilan aloqa uzoq bo'ladi."),
+    centralBody: 'sun',
+    deliveryTarget: 'tmi',
+    // Altitudes above the Sun's nominal surface; the UI shows these as distances from the Sun in AU.
+    defaultOrbit: { periapsisAltKm: sunAltitudeKm(0.95), apoapsisAltKm: sunAltitudeKm(1.1), inclinationDeg: 1 },
+    orbitLimits: { altitudeKm: { min: sunAltitudeKm(0.5), max: sunAltitudeKm(2) }, inclinationDeg: { min: 0, max: 30 } },
+    inclinationRule: 'free',
+    cruiseDuration: q(60, 'd', 'estimated', 'Phasing and cruise to the operational orbit; the real time depends on the orbit and the launch date, which are not modelled.'),
+    operationsCostPerDay: game(60_000, 'USD'),
+    stationkeepingDvPerYear: estimated(10, 'm/s'),
   },
 ];

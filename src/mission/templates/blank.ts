@@ -1,4 +1,4 @@
-import { BUSES, LAUNCHERS, getDestination } from '../catalog';
+import { BUSES, LAUNCHERS, LAUNCH_SITES, getDestination } from '../catalog';
 import type { DestinationId } from '../models/catalog';
 import { MISSION_SCHEMA_VERSION, missionSchema, type Mission } from '../models/mission';
 import type { DefaultMissionOptions } from './defaults';
@@ -20,6 +20,10 @@ export function createBlankMission(destinationId: DestinationId, options: Defaul
     .sort((a, b) => a.cost.value - b.cost.value)[0];
   if (!launcher) throw new Error(`no launcher can reach ${destination.deliveryTarget}`);
 
+  // First site that hosts the launcher; the player can change it in the Launch tab.
+  const site = LAUNCH_SITES.find((candidate) => candidate.launcherIds.includes(launcher.id)) ?? LAUNCH_SITES[0];
+  if (!site) throw new Error('the catalog has no launch site');
+
   return missionSchema.parse({
     schemaVersion: MISSION_SCHEMA_VERSION,
     id: options.id,
@@ -32,7 +36,7 @@ export function createBlankMission(destinationId: DestinationId, options: Defaul
     seed: options.seed ?? 1,
     objective: { destinationId, requirements: [] },
     spacecraft: { busId: bus.id, propulsionId: null, propellantMassKg: 0, parts: [] },
-    launch: { vehicleId: launcher.id },
+    launch: { vehicleId: launcher.id, siteId: site.id },
     orbit: { ...destination.defaultOrbit },
     plannedOperationsDays: 180,
   });

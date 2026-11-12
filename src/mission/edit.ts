@@ -1,4 +1,5 @@
 import { DEFAULT_CATALOG, type CatalogLookup } from './catalog';
+import { sunSynchronousInclinationDeg } from './engine/orbit';
 import type { DestinationId, OrbitSpec } from './models/catalog';
 import { MAX_PART_QUANTITY, REQUIREMENT_KINDS, type Mission, type RequirementKind } from './models/mission';
 
@@ -13,7 +14,7 @@ import { MAX_PART_QUANTITY, REQUIREMENT_KINDS, type Mission, type RequirementKin
  * visible rather than silently blocked or corrected.
  */
 
-export type EditError = 'not-draft' | 'unknown-part' | 'wrong-category' | 'unknown-launcher' | 'invalid-value' | 'too-many-parts' | 'not-installed';
+export type EditError = 'not-draft' | 'unknown-part' | 'wrong-category' | 'unknown-launcher' | 'unknown-site' | 'invalid-value' | 'too-many-parts' | 'not-installed';
 export type EditResult = { mission: Mission; error?: EditError };
 
 export const MAX_PART_LINES = 40;
@@ -103,7 +104,14 @@ function addPartWithQuantity(mission: Mission, itemId: string, quantity: number,
 
 export function setLauncher(mission: Mission, vehicleId: string, context: Context = {}): EditResult {
   if (!(context.catalog ?? DEFAULT_CATALOG).getLauncher(vehicleId)) return refuse(mission, 'unknown-launcher');
-  return commit(mission, (m) => ({ ...m, launch: { vehicleId } }), context);
+  return commit(mission, (m) => ({ ...m, launch: { ...m.launch, vehicleId } }), context);
+}
+
+/** Chooses where the vehicle launches from. Whether the site hosts the vehicle and reaches the orbit is reported by the engine, not refused here. */
+export function setLaunchSite(mission: Mission, siteId: string, context: Context = {}): EditResult {
+  if (!(context.catalog ?? DEFAULT_CATALOG).getLaunchSite(siteId)) return refuse(mission, 'unknown-site');
+  if (siteId === mission.launch.siteId) return { mission };
+  return commit(mission, (m) => ({ ...m, launch: { ...m.launch, siteId } }), context);
 }
 
 /**
@@ -122,6 +130,19 @@ export function setOrbit(mission: Mission, orbit: Partial<OrbitSpec>, context: C
   const finite = [next.periapsisAltKm, next.apoapsisAltKm, next.inclinationDeg].every(Number.isFinite);
   if (!finite || next.periapsisAltKm < 0 || next.apoapsisAltKm < next.periapsisAltKm || next.inclinationDeg < 0 || next.inclinationDeg > 180) return refuse(mission, 'invalid-value');
   return commit(mission, (m) => ({ ...m, orbit: next }), context);
+}
+
+/**
+ * Sets the inclination to the sun-synchronous value for the current apsis altitudes.
+ * Refused for destinations that are not Earth orbits and for altitudes where no
+ * sun-synchronous inclination exists (above about 6,000 km).
+ */
+export function setSunSynchronousInclination(mission: Mission, context: Context = {}): EditResult {
+  const destination = (context.catalog ?? DEFAULT_CATALOG).getDestination(mission.objective.destinationId);
+  if (!destination || destination.centralBody !== 'earth') return refuse(mission, 'invalid-value');
+  const inclination = sunSynchronousInclinationDeg(mission.orbit.periapsisAltKm, mission.orbit.apoapsisAltKm);
+  if (inclination === null) return refuse(mission, 'invalid-value');
+  return setOrbit(mission, { inclinationDeg: Math.round(inclination * 100) / 100 }, context);
 }
 
 export function setOperationsDays(mission: Mission, days: number, context: Context = {}): EditResult {

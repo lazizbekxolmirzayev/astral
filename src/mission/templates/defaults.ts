@@ -19,11 +19,13 @@ export const DEFAULT_MISSION_TITLES: Record<DestinationId, Localized> = {
   geo: L('Geostationary communications satellite', "Geostatsionar aloqa yo'ldoshi"),
   moon: L('Lunar orbiter', "Oy orbital apparati"),
   mars: L('Mars orbiter', "Mars orbital apparati"),
+  helio: L('Solar-wind observatory', "Quyosh shamoli observatoriyasi"),
 };
 
 type Template = {
   spacecraft: SpacecraftDesign;
   vehicleId: string;
+  siteId: string;
   plannedOperationsDays: number;
   requirements: Requirement[];
 };
@@ -44,6 +46,7 @@ const TEMPLATES: Record<DestinationId, Template> = {
       ],
     },
     vehicleId: 'launcher-small',
+    siteId: 'site-cape-canaveral',
     plannedOperationsDays: 365,
     requirements: [
       { id: 'req-cost', kind: 'max-cost', limit: 15e6 },
@@ -66,6 +69,7 @@ const TEMPLATES: Record<DestinationId, Template> = {
       ],
     },
     vehicleId: 'launcher-small',
+    siteId: 'site-vandenberg',
     plannedOperationsDays: 730,
     requirements: [
       { id: 'req-cost', kind: 'max-cost', limit: 40e6 },
@@ -88,6 +92,7 @@ const TEMPLATES: Record<DestinationId, Template> = {
       ],
     },
     vehicleId: 'launcher-heavy',
+    siteId: 'site-cape-canaveral',
     plannedOperationsDays: 3650,
     requirements: [
       { id: 'req-cost', kind: 'max-cost', limit: 400e6 },
@@ -111,6 +116,7 @@ const TEMPLATES: Record<DestinationId, Template> = {
       ],
     },
     vehicleId: 'launcher-medium',
+    siteId: 'site-cape-canaveral',
     plannedOperationsDays: 365,
     requirements: [
       { id: 'req-cost', kind: 'max-cost', limit: 200e6 },
@@ -134,11 +140,35 @@ const TEMPLATES: Record<DestinationId, Template> = {
       ],
     },
     vehicleId: 'launcher-heavy',
+    siteId: 'site-cape-canaveral',
     plannedOperationsDays: 687,
     requirements: [
       { id: 'req-cost', kind: 'max-cost', limit: 500e6 },
       { id: 'req-ops', kind: 'min-operations', limit: 687 },
       { id: 'req-science', kind: 'min-science', limit: 120 },
+    ],
+  },
+  helio: {
+    spacecraft: {
+      busId: 'bus-deepspace-1500',
+      propulsionId: 'prop-biprop-small',
+      propellantMassKg: 60,
+      parts: [
+        { itemId: 'solar-wing-16', quantity: 1 },
+        { itemId: 'battery-100wh', quantity: 1 },
+        { itemId: 'comms-x-band-hga', quantity: 1 },
+        { itemId: 'obc-rad-hard', quantity: 1 },
+        { itemId: 'adcs-3axis-fine', quantity: 1 },
+        { itemId: 'inst-particle-suite', quantity: 1 },
+      ],
+    },
+    vehicleId: 'launcher-medium',
+    siteId: 'site-cape-canaveral',
+    plannedOperationsDays: 1095,
+    requirements: [
+      { id: 'req-cost', kind: 'max-cost', limit: 250e6 },
+      { id: 'req-ops', kind: 'min-operations', limit: 1095 },
+      { id: 'req-science', kind: 'min-science', limit: 15 },
     ],
   },
 };
@@ -170,7 +200,7 @@ export function createDefaultMission(destinationId: DestinationId, options: Defa
     seed: options.seed ?? 1,
     objective: { destinationId, requirements: structuredClone(template.requirements) },
     spacecraft: structuredClone(template.spacecraft),
-    launch: { vehicleId: template.vehicleId },
+    launch: { vehicleId: template.vehicleId, siteId: template.siteId },
     orbit: { ...destination.defaultOrbit },
     plannedOperationsDays: template.plannedOperationsDays,
   });
