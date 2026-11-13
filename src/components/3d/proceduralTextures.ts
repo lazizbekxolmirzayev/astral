@@ -30,6 +30,8 @@ export type TextureLook = {
   seaLevel?: number;
   /** Overlay cloud cover 0..1 (white, soft). */
   clouds?: number;
+  /** No polar caps (an airless rock such as the Moon). */
+  noIce?: boolean;
   /** A long-lived oval atmosphere storm, positioned in equirectangular radians. */
   storm?: { longitude: number; latitude: number; radius: number; color: string };
 };
@@ -124,7 +126,7 @@ function paintSurface(look: TextureLook): SurfacePaint {
         glossy = 0.9;
       } else {
         const n = fbm3(x * scale, y * scale, z * scale, look.seed, 6) * 0.9 + detail * 0.1;
-        const iceCap = Math.abs(y) > 0.86 ? (Math.abs(y) - 0.86) / 0.14 : 0;
+        const iceCap = !look.noIce && Math.abs(y) > 0.86 ? (Math.abs(y) - 0.86) / 0.14 : 0;
         const isOcean = n < seaLevel;
         const t = isOcean ? (n / seaLevel) * 0.45 : 0.5 + ((n - seaLevel) / (1 - seaLevel)) * 0.5;
         color = sample(colors, t);

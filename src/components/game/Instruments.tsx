@@ -91,7 +91,7 @@ export function FlightInstruments() {
         <Dial testId="dial-battery" label={t('battery')} fraction={tm.batteryFraction} value={`${formatNumber(tm.batteryFraction * 100, locale)}%`} tone={tm.batteryFraction < 0.25 ? '#f87171' : '#34d399'} />
       </div>
 
-      <aside data-testid="equipment" className="pointer-events-none absolute left-3 top-[112px] z-20 hidden w-[210px] rounded-2xl border border-white/10 bg-[linear-gradient(170deg,rgba(8,14,26,0.78),rgba(8,10,20,0.62))] p-3 backdrop-blur-md min-[1060px]:block">
+      <aside data-testid="equipment" data-climb={climbing} className="pointer-events-none absolute right-3 top-[124px] data-[climb=true]:top-[230px] z-20 hidden w-[210px] rounded-2xl border border-white/10 bg-[linear-gradient(170deg,rgba(8,14,26,0.78),rgba(8,10,20,0.62))] p-3 backdrop-blur-md min-[1060px]:block">
         <p className="text-[10px] uppercase tracking-[0.24em] text-cyan-300/80">{t('equipment')}</p>
         {tm.instruments.length === 0 ? (
           <p className="mt-2 text-[11px] leading-snug text-white/50">{t('noInstruments')}</p>

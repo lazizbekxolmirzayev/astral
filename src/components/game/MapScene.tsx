@@ -14,7 +14,7 @@ import { LabelAnchor } from './labels';
 
 const EARTH_LOOK = planets.find((planet) => planet.id === 'earth')!;
 const MARS_LOOK = planets.find((planet) => planet.id === 'mars')!;
-const MOON_LOOK = { mode: 'blobs' as const, palette: ['#3b3b3d', '#6d6d70', '#9c9c9f', '#c4c4c6'], seed: 77, scale: 5, seaLevel: 0.45 };
+const MOON_LOOK = { mode: 'blobs' as const, palette: ['#3b3b3d', '#6d6d70', '#9c9c9f', '#c4c4c6'], seed: 77, scale: 5, seaLevel: 0.45, noIce: true };
 
 const RING_COLOR: Record<'leo' | 'sso' | 'geo', string> = { leo: '#5cf2ff', sso: '#9d8bff', geo: '#ffd166' };
 

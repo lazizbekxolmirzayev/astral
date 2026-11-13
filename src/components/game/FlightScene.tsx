@@ -29,7 +29,7 @@ const EARTH = planets.find((planet) => planet.id === 'earth')!;
 const MARS = planets.find((planet) => planet.id === 'mars')!;
 /** The rocket is drawn larger than life on the pad so it reads on screen next to the tower. */
 const LAUNCH_SCALE = 2.3;
-const MOON_LOOK = { mode: 'blobs' as const, palette: ['#3b3b3d', '#6d6d70', '#9c9c9f', '#c4c4c6'], seed: 77, scale: 5, seaLevel: 0.45 };
+const MOON_LOOK = { mode: 'blobs' as const, palette: ['#3b3b3d', '#6d6d70', '#9c9c9f', '#c4c4c6'], seed: 77, scale: 5, seaLevel: 0.45, noIce: true };
 
 /** Advances the simulation from the frame clock; the only place that drives time in the game. */
 export function SimDriver() {
