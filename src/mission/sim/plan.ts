@@ -61,7 +61,8 @@ export type SimPlan = {
   stagePlannedS: Partial<Record<StageId, number>>;
   /** Pre-launch hold reasons; empty when the vehicle may be launched. */
   blockers: Localized[];
-  launch: { reliability: number; draw: number; success: boolean };
+  /** `pilot` is set when a person flew the ascent by hand: the flight, not the seeded draw, decides the launch. */
+  launch: { reliability: number; draw: number; success: boolean; pilot?: { failure: 'ground' | 'stress' | 'fuel' | null; grade: 'perfect' | 'good' | 'rough' | null } };
   /** Departure energy C3 in km²/s² (the engine works in m²/s²). */
   departure: { requiredC3: number; providedC3: number } | null;
   dv: { available: number; insertion: number; corrections: number; stationkeeping: number; impulsiveImpossible: boolean };

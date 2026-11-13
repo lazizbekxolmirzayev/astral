@@ -215,6 +215,18 @@ function dvText(plan: SimPlan, s: SimState, needed: number): Localized {
   return L(`Δv needed ${num(needed)} m/s, only ${num(have)} m/s left.`, `Kerak Δv ${num(needed)} m/s, faqat ${num(have)} m/s qoldi.`);
 }
 
+/** How a launch flown by hand ended (the texts carry no numbers, so they can be translated one to one). */
+export const PILOT_FAILURE: Record<'ground' | 'stress' | 'fuel', { headline: Localized; cause: Localized }> = {
+  ground: { headline: L('Launch failure: the vehicle fell back and hit the ground.', "Uchirish muvaffaqiyatsiz: raketa qaytib yerga tushdi."), cause: L('The climb was not steep or powerful enough to leave the ground behind.', "Ko'tarilish yerni tark etish uchun yetarlicha tik yoki kuchli bo'lmadi.") },
+  stress: { headline: L('Launch failure: the vehicle broke up in flight.', "Uchirish muvaffaqiyatsiz: raketa havoda parchalanib ketdi."), cause: L('It was turned too sharply while the air pressure on it was high (max-Q), so the structure failed.', "Havo bosimi baland paytda (max-Q) u juda keskin burildi va konstruksiya buzildi.") },
+  fuel: { headline: L('Launch failure: the vehicle ran out of propellant before reaching orbit.', "Uchirish muvaffaqiyatsiz: raketa orbitaga chiqmasdan yoqilg'isi tugadi."), cause: L('The speed gained was not enough to stay in orbit, so the vehicle falls back into the atmosphere.', "Olingan tezlik orbitada qolish uchun yetmadi, shuning uchun raketa atmosferaga qaytib tushadi.") },
+};
+export const PILOT_SUCCESS: Record<'perfect' | 'good' | 'rough', Localized> = {
+  perfect: L('Reached the parking orbit under manual control: a perfect insertion.', "Qo'lda boshqarib to'xtash orbitasiga chiqdi: a'lo darajadagi chiqish."),
+  good: L('Reached the parking orbit under manual control: a good insertion.', "Qo'lda boshqarib to'xtash orbitasiga chiqdi: yaxshi chiqish."),
+  rough: L('Reached a stable orbit under manual control, but far from the planned parking orbit.', "Qo'lda boshqarib barqaror orbitaga chiqdi, ammo rejalangan to'xtash orbitasidan uzoqda."),
+};
+
 function finishStage(plan: SimPlan, s: SimState) {
   const id = plan.stageIds[s.stageIndex]!;
   switch (id) {
@@ -224,7 +236,12 @@ function finishStage(plan: SimPlan, s: SimState) {
       return;
     }
     case 'launch': {
-      const { reliability, draw, success } = plan.launch;
+      const { reliability, draw, success, pilot } = plan.launch;
+      if (pilot) {
+        if (pilot.failure) { const text = PILOT_FAILURE[pilot.failure]; lose(plan, s, text.headline, text.cause); return; }
+        leaveStage(plan, s, 'ok', PILOT_SUCCESS[pilot.grade ?? 'good']);
+        return;
+      }
       if (!success) { lose(plan, s, L('Launch failure: the vehicle was lost during ascent.', "Uchirish muvaffaqiyatsiz: raketa ko'tarilishda yo'qotildi."), L(`The vehicle's reliability is ${num(reliability * 100, 1)} %; this mission's seeded draw was ${num(draw * 100, 1)} %, which is not below it.`, `Raketa ishonchliligi ${num(reliability * 100, 1)} %; bu missiyaning seed bo'yicha tanlovi ${num(draw * 100, 1)} % bo'lib, undan past emas.`)); return; }
       leaveStage(plan, s, 'ok', L(`Reached the delivery target (reliability ${num(reliability * 100, 1)} %, draw ${num(draw * 100, 1)} %).`, `Yetkazish nuqtasiga chiqdi (ishonchlilik ${num(reliability * 100, 1)} %, tanlov ${num(draw * 100, 1)} %).`));
       return;

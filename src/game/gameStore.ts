@@ -6,6 +6,7 @@ import { simStore } from '@/stores/simStore';
 import type { MissionOutcome, StageRecord } from '@/mission/sim';
 import type { Localized } from '@/mission';
 import { cinematicRate, type AscentSpeed } from './cinematic';
+import { pilotStore } from './pilotStore';
 import { crewStore, type AbortInfo, type CrewLogEntry } from './crewStore';
 import { collectMistakes, type Mistake } from './mistakes';
 import { REPLAY_ASCENT_SPEED, type ReplaySpeed } from './replay';
@@ -97,6 +98,7 @@ export function createGameStore(): StoreApi<GameState> {
       const { record, missionId } = get();
       const mission = missionId ? missionStore.getState().missions[missionId] : undefined;
       if (!record || !mission) return false;
+      pilotStore.getState().reset();
       simStore.getState().setRateModel((plan, stage, stageElapsedS) => cinematicRate(plan, stage, { stageElapsedS, speed: REPLAY_ASCENT_SPEED }) * get().replaySpeed);
       simStore.getState().restart(mission);
       set({ phase: 'replay' });
@@ -136,8 +138,11 @@ export function createGameStore(): StoreApi<GameState> {
       const mission = missionId ? missionStore.getState().missions[missionId] : undefined;
       if (phase !== 'hangar' || !mission) return false;
       crewStore.getState().reset();
+      pilotStore.getState().reset();
       // while a crew job is open the slow stages play almost in slow motion, so the crew can answer
       simStore.getState().setRateModel((plan, stage, stageElapsedS) => {
+        // while a person flies the ascent the mission clock waits at lift-off; the flight itself runs in the pilot store
+        if (stage === 'launch' && pilotStore.getState().flight) return 0;
         const rate = cinematicRate(plan, stage, { stageElapsedS, speed: get().ascentSpeed });
         return crewStore.getState().holding && !ASCENT_STAGES.has(stage) ? Math.max(1, rate * HOLD_FACTOR) : rate;
       });

@@ -1890,6 +1890,65 @@
       "fairing": "Fairing jettison",
       "meco": "Engine cut-off",
       "orbit": "Orbit reached"
+    },
+    "pilot": {
+      "title": "Pilot console",
+      "modeLabel": "Ascent",
+      "mode": {
+        "assist": "Assisted",
+        "manual": "Manual",
+        "auto": "Autopilot",
+        "off": "Film"
+      },
+      "modeHint": {
+        "assist": "The first stage turns itself and separates; you set the throttle and steer the second stage.",
+        "manual": "You fly everything: throttle, pitch and stage separation.",
+        "auto": "The reference pilot flies the whole ascent.",
+        "off": "Watch the scripted ascent, no controls."
+      },
+      "throttle": "Throttle",
+      "altitude": "Altitude",
+      "speed": "Speed",
+      "climb": "Climb rate",
+      "apogee": "High point",
+      "perigee": "Low point",
+      "target": "Target orbit",
+      "fuel1": "Stage 1 fuel",
+      "fuel2": "Stage 2 fuel",
+      "stress": "Air stress",
+      "pitch": "Above horizon",
+      "downrange": "Downrange",
+      "time": "Flight time",
+      "pitchUp": "Point more upward",
+      "pitchDown": "Point toward the horizon",
+      "stage": "Stage",
+      "cut": "Cut",
+      "full": "Full",
+      "warp": "Speed",
+      "keys": "W/S throttle · A/D pitch · E stage · X cut · Z full",
+      "hint": {
+        "liftoff": "Engines are lit. Hold full throttle and lift off.",
+        "climb": "Climb straight up and leave the tower behind.",
+        "turn": "Let the rocket lean over into the gravity turn. Do not turn it sharply while the air is thick.",
+        "stage": "The first stage is nearly empty: separate it now (E).",
+        "stress": "Too much air stress! Stop turning until it drops.",
+        "second": "Second stage: point toward the horizon and keep the climb rate low.",
+        "coast": "The high point is set. Cut the engine and coast up to it.",
+        "circularize": "At the high point: burn along the horizon to raise the low point.",
+        "cut": "Stable orbit! Cut the engine (X) to finish.",
+        "fuelLow": "Fuel is low. Burn smartly.",
+        "orbit": "You are in orbit!"
+      },
+      "result": {
+        "perfect": "Orbit reached: perfect!",
+        "good": "Orbit reached: good",
+        "rough": "Orbit reached, but far from the target"
+      },
+      "fail": {
+        "ground": "The rocket fell back to the ground",
+        "stress": "The rocket broke up in flight",
+        "fuel": "Out of fuel before orbit"
+      }
     }
   }
 }

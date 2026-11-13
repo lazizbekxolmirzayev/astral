@@ -20,7 +20,9 @@ import { triggerSceneFade } from '@/game/sceneFade';
 import { GamePlanet, GameSun } from './GamePlanet';
 import { removeAnchors, setAnchor } from './labels';
 import { gameStore, type LaunchCameraMode } from '@/game/gameStore';
-import { ascentPose, ASCENT_DISTANCE, autoCameraAt, EARTH_SCENE_RADIUS, padThrottle, padWindowProgress, SEPARATION, shakeAmount, skyAmount } from './launchPath';
+import { ascentPose, ASCENT_DISTANCE, autoCameraAt, EARTH_SCENE_RADIUS, padThrottle, padWindowProgress, poseOfFlight, SEPARATION, shakeAmount, skyAmount, skyAmountAltitude, tauOfAltitude, type AscentPose } from './launchPath';
+import { pilotStore } from '@/game/pilotStore';
+import { altitudeOf, downrangeOf } from '@/game/pilot/model';
 import { Plume } from './Particles';
 import { ALL_PARTS, RocketModel, rocketDims, ROCKET_LOOKS, type RocketClass, type RocketParts } from './RocketModel';
 import { ShipModel } from './ShipModel';
@@ -223,9 +225,9 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
 
   useFrame(({ camera, clock }, rawDelta) => {
     const delta = Math.max(1e-3, Math.min(rawDelta, 0.1));
-    const { stage, progress, failed } = read();
+    const { stage, progress, failed, pilot } = read();
     const tau = stage === 'launch' ? progress : stage === 'later' ? 1 : 0;
-    const pose = ascentPose(tau);
+    const pose = pilot ? pilot.pose : ascentPose(tau);
     const t = clock.elapsedTime;
     const exploded = failed && stage !== 'pre-launch';
     if (exploded && failedAt.current === null) { failedAt.current = t; failPos.current = [pose.x, pose.y + 2]; }
@@ -266,13 +268,14 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
         blip();
       };
       let changed = false;
-      if (!done.current.boosters && tau >= SEPARATION.boosters) {
+      const due = pilot ? pilot.separated : { boosters: tau >= SEPARATION.boosters, stage1: tau >= SEPARATION.stage1, fairing: tau >= SEPARATION.fairing };
+      if (!done.current.boosters && due.boosters) {
         done.current.boosters = true;
         changed = true;
         if (dims.boosters > 0) spawn(['boosterL', 'boosterR']);
       }
-      if (!done.current.stage1 && tau >= SEPARATION.stage1) { done.current.stage1 = true; changed = true; spawn(['stage1']); }
-      if (!done.current.fairing && tau >= SEPARATION.fairing) { done.current.fairing = true; changed = true; spawn(['fairingA', 'fairingB']); }
+      if (!done.current.stage1 && due.stage1) { done.current.stage1 = true; changed = true; spawn(['stage1']); }
+      if (!done.current.fairing && due.fairing) { done.current.fairing = true; changed = true; spawn(['fairingA', 'fairingB']); }
       if (changed) setParts({ stage1: !done.current.stage1, upper: true, fairingA: !done.current.fairing, fairingB: !done.current.fairing, boosterL: !done.current.boosters, boosterR: !done.current.boosters });
     }
     const sinceSep = sepAt.current < 0 ? -1 : t - sepAt.current;
@@ -299,7 +302,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       group.scale.setScalar(LAUNCH_SCALE);
       group.visible = sinceFail < 0 && !(stage === 'later');
     }
-    const throttle = stage === 'pre-launch' ? padThrottle(progress) : stage === 'launch' ? (tau < 0.96 ? 1 : 1 - (tau - 0.96) / 0.04) : 0;
+    const throttle = stage === 'pre-launch' ? padThrottle(progress) : pilot ? pilot.thrust : stage === 'launch' ? (tau < 0.96 ? 1 : 1 - (tau - 0.96) / 0.04) : 0;
     flameThrottle.current = sinceFail < 0 ? throttle : 0;
     setThrust(flameThrottle.current);
     if (sinceFail >= 0 && sinceFail < 0.05) blast();
@@ -332,7 +335,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     }
 
     // sky colour follows the climb; the dome rides with the camera so it is always around it
-    const amount = skyAmount(tau);
+    const amount = pilot ? skyAmountAltitude(pilot.altitudeKm) : skyAmount(tau);
     const skyMaterial = skyRef.current;
     if (skyMaterial) {
       (skyMaterial.uniforms.uTop!.value as Color).copy(topNight).lerp(topDay, amount);
@@ -349,7 +352,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     }
     if (dome.current) dome.current.position.copy(camera.position);
     if (ground.current) {
-      const groundAlpha = Math.min(1, Math.max(0, 1 - (ascentPose(tau).y - 30) / 90));
+      const groundAlpha = Math.min(1, Math.max(0, 1 - (pose.y - 30) / 90));
       (ground.current.material as { opacity: number }).opacity = groundAlpha;
       // a fully faded transparent disc would still write depth and hide the Earth behind it
       ground.current.visible = groundAlpha > 0.01;
@@ -638,12 +641,29 @@ function TrailLine({ source }: { source: { current: Vec3Like[] } }) {
   return <Line ref={ref as never} points={[[0, 0, 0], [0.001, 0, 0]]} color="#ff7ad9" lineWidth={2.4} raycast={() => null} />;
 }
 
-type LaunchRead = { stage: 'pre-launch' | 'launch' | 'later'; progress: number; failed: boolean };
+type LaunchRead = {
+  stage: 'pre-launch' | 'launch' | 'later';
+  progress: number;
+  failed: boolean;
+  /** Set while a person flies the ascent: the drawn pose, the stage fraction the schedules follow, and what the vehicle is doing. */
+  pilot?: { pose: AscentPose; tau: number; altitudeKm: number; thrust: number; separated: { boosters: boolean; stage1: boolean; fairing: boolean } };
+};
 
 /** Reads how far the simulation is through the launch stages; called every frame by the launch scene. */
 function readLaunch(): LaunchRead {
   const { sim, plan, clockT } = simStore.getState();
   if (!sim || !plan) return { stage: 'pre-launch', progress: 0, failed: false };
+  const flown = pilotStore.getState().flight;
+  if (flown && plan.stageIds[sim.stageIndex] === 'launch' && !sim.ended) {
+    const altitudeKm = altitudeOf(flown) / 1000;
+    const pose = poseOfFlight(altitudeKm, downrangeOf(flown) / 1000, flown.pitch);
+    return {
+      stage: 'launch',
+      progress: tauOfAltitude(altitudeKm),
+      failed: flown.status === 'crashed' || flown.status === 'broke-up' || flown.status === 'suborbital',
+      pilot: { pose, tau: tauOfAltitude(altitudeKm), altitudeKm, thrust: flown.thrust, separated: { boosters: flown.boostersGone || flown.stage === 2, stage1: flown.stage === 2, fairing: flown.fairingGone } },
+    };
+  }
   const id = plan.stageIds[sim.stageIndex]!;
   if (id !== 'pre-launch' && id !== 'launch') return { stage: 'later', progress: 1, failed: false };
   const planned = plan.stagePlannedS[id] ?? 0;

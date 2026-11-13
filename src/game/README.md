@@ -123,3 +123,21 @@ truthfully: GO on a healthy system, NO-GO on a real design fault (which scrubs t
 `LaunchSkyBodies` (Cosmos.tsx) rides with the launch camera: the Sun with its glare, a pale Moon, and by night the planets
 at their real directions. In the cosmos view `Cosmos` draws the planets, their names, the asteroid belt (dust plus 260 rocks)
 and the camera backs off so the belt is in view. Sizes are exaggerated; positions are approximate mean longitudes.
+
+## Flying the ascent by hand
+
+During the launch stage a person flies the rocket (`src/game/pilot/model.ts`, pure and deterministic): a planar two-stage
+ascent with inverse-square gravity, an exponential atmosphere with drag, engines whose Isp rises with altitude, stage
+separation, a turn-rate limit on the vehicle and an aerodynamic stress limit (dynamic pressure times angle of attack:
+turning hard in thick air breaks the vehicle up). The vehicle is a class-typical kerolox two-stager sized from the
+launcher's catalog capacity; the payload is the design's launch mass, so a lighter spacecraft leaves more propellant.
+Not modelled: wind, a third dimension, engine gimbal dynamics, heating. It is an educational approximation.
+
+- Modes (`pilotStore`): `assist` (gravity turn and separation automatic, the person sets the throttle and steers the
+  second stage), `manual`, `auto` (the reference pilot, which the tests prove reaches orbit for every default mission) and
+  `off` (the old scripted film). Keys: W/S throttle, A/D pitch, E stage, X cut, Z full; on screen: buttons and a slider.
+- While the flight runs the mission clock waits (the rate model returns 0); when it ends the result is written into the
+  plan (`plan.launch.pilot`) and the simulation takes it: orbit reached continues the mission, a crash, break-up or an
+  empty tank ends it at launch with the reason. Success needs a perigee above 150 km; the grade comes from how close the
+  orbit is to the 300 km parking orbit.
+- Online rooms fly the scripted film (the flight is not synchronised between devices).

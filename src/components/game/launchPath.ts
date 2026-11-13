@@ -15,7 +15,7 @@ export const EARTH_RADIUS_KM = 6378.137;
 /** Earth radius in scene units, so the gap between the ground and the orbit is in true proportion. */
 export const EARTH_SCENE_RADIUS = (ASCENT_DISTANCE * EARTH_RADIUS_KM) / PARKING_KM;
 /** Downrange distance at orbit, in scene units (a real ascent covers roughly 8x its altitude; compressed so the view stays usable). */
-const DOWNRANGE = ASCENT_DISTANCE * 3;
+export const DOWNRANGE = ASCENT_DISTANCE * 3;
 
 export type AscentPose = { x: number; y: number; pitch: number; distance: number };
 
@@ -110,4 +110,32 @@ export const PAD_WINDOW_S = 10;
 /** Progress 0..1 through the final `PAD_WINDOW_S` seconds of the countdown, from the seconds left on the pad. */
 export function padWindowProgress(remainingS: number): number {
   return Math.min(1, Math.max(0, 1 - remainingS / PAD_WINDOW_S));
+}
+
+/** Sky amount 1 (day) .. 0 (space) at an altitude in km (used when a person flies the ascent). */
+export function skyAmountAltitude(altitudeKm: number): number {
+  return 1 - smooth(altitudeKm / 105);
+}
+
+/** Downrange distance of a typical ascent at orbit, km (a flown ascent is drawn against this). */
+const FLOWN_DOWNRANGE_KM = 2200;
+
+/** The drawn pose of a vehicle that a person flies: same scale, same exaggeration of the first kilometres as the scripted climb. */
+export function poseOfFlight(altitudeKm: number, downrangeKm: number, pitch: number): AscentPose {
+  const altitude = ASCENT_DISTANCE * Math.pow(Math.max(0, altitudeKm) / PARKING_KM, 0.4);
+  const x = DOWNRANGE * Math.min(2, Math.max(0, downrangeKm) / FLOWN_DOWNRANGE_KM);
+  const y = altitude + (x * x) / (2 * EARTH_SCENE_RADIUS);
+  return { x, y, pitch, distance: Math.hypot(x, y) };
+}
+
+/** The stage fraction (0..1) at which the scripted climb has this altitude: lets the scene's schedules (cameras, shaking, max-Q) follow a flown ascent. */
+export function tauOfAltitude(altitudeKm: number): number {
+  const target = Math.min(1, Math.max(0, altitudeKm / PARKING_KM));
+  let low = 0;
+  let high = 1;
+  for (let i = 0; i < 24; i += 1) {
+    const mid = (low + high) / 2;
+    if (ascentAltitudeFraction(mid) < target) low = mid; else high = mid;
+  }
+  return (low + high) / 2;
 }

@@ -1890,6 +1890,65 @@
       "fairing": "Qoplama tashlandi",
       "meco": "Dvigatel o‘chdi",
       "orbit": "Orbitaga chiqildi"
+    },
+    "pilot": {
+      "title": "Uchuvchi pulti",
+      "modeLabel": "Ko'tarilish",
+      "mode": {
+        "assist": "Yordam bilan",
+        "manual": "Qo'lda",
+        "auto": "Avtopilot",
+        "off": "Film"
+      },
+      "modeHint": {
+        "assist": "Birinchi bosqich o'zi burilib ajraladi; siz gazni boshqarasiz va ikkinchi bosqichni yo'naltirasiz.",
+        "manual": "Hammasini o'zingiz boshqarasiz: gaz, burilish va bosqich ajratish.",
+        "auto": "Namunaviy uchuvchi butun ko'tarilishni o'zi bajaradi.",
+        "off": "Tayyor ko'tarilishni tomosha qilasiz, boshqaruvsiz."
+      },
+      "throttle": "Gaz",
+      "altitude": "Balandlik",
+      "speed": "Tezlik",
+      "climb": "Ko'tarilish tezligi",
+      "apogee": "Yuqori nuqta",
+      "perigee": "Past nuqta",
+      "target": "Maqsad orbita",
+      "fuel1": "1-bosqich yoqilg'i",
+      "fuel2": "2-bosqich yoqilg'i",
+      "stress": "Havo bosimi yuki",
+      "pitch": "Ufqdan balandligi",
+      "downrange": "Masofa",
+      "time": "Parvoz vaqti",
+      "pitchUp": "Yuqoriroq yo‘naltirish",
+      "pitchDown": "Ufq tomon yo'naltirish",
+      "stage": "Ajratish",
+      "cut": "O'chirish",
+      "full": "To‘liq",
+      "warp": "Tezlik",
+      "keys": "W/S gaz · A/D burilish · E ajratish · X o'chirish · Z to'liq",
+      "hint": {
+        "liftoff": "Dvigatellar yoqildi. To'liq gazni ushlab turing va ko'tariling.",
+        "climb": "Tik ko'tariling va minoradan uzoqlashing.",
+        "turn": "Raketa asta-sekin egilib tortishish burilishiga o'tsin. Havo quyuq paytda keskin burmang.",
+        "stage": "Birinchi bosqich deyarli bo'sh: uni hozir ajrating (E).",
+        "stress": "Havo bosimi yuki juda baland! U pasayguncha burmang.",
+        "second": "Ikkinchi bosqich: ufq tomon yo'naltiring va ko'tarilish tezligini kichik tuting.",
+        "coast": "Yuqori nuqta tayyor. Dvigatelni o'chiring va unga qadar suzib boring.",
+        "circularize": "Yuqori nuqtada: past nuqtani ko'tarish uchun ufq bo'ylab yoqing.",
+        "cut": "Barqaror orbita! Tugatish uchun dvigatelni o'chiring (X).",
+        "fuelLow": "Yoqilg'i oz qoldi. Ehtiyot bo'ling.",
+        "orbit": "Siz orbitadasiz!"
+      },
+      "result": {
+        "perfect": "Orbitaga chiqdingiz: a'lo!",
+        "good": "Orbitaga chiqdingiz: yaxshi",
+        "rough": "Orbitaga chiqdingiz, lekin maqsaddan uzoqda"
+      },
+      "fail": {
+        "ground": "Raketa qaytib yerga tushdi",
+        "stress": "Raketa havoda parchalanib ketdi",
+        "fuel": "Orbitaga chiqmasdan yoqilg'i tugadi"
+      }
     }
   }
 }

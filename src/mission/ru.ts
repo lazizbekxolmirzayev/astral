@@ -4,6 +4,15 @@
  * which carry numbers, are not translated yet).
  */
 export const RU_TEXT: Readonly<Record<string, string>> = {
+  "Launch failure: the vehicle fell back and hit the ground.": "Сбой запуска: ракета упала обратно на землю.",
+  "The climb was not steep or powerful enough to leave the ground behind.": "Подъём был недостаточно крутым и мощным, чтобы оторваться от земли.",
+  "Launch failure: the vehicle broke up in flight.": "Сбой запуска: ракета разрушилась в полёте.",
+  "It was turned too sharply while the air pressure on it was high (max-Q), so the structure failed.": "Её слишком резко повернули при высоком давлении воздуха (max-Q), и конструкция не выдержала.",
+  "Launch failure: the vehicle ran out of propellant before reaching orbit.": "Сбой запуска: у ракеты закончилось топливо до выхода на орбиту.",
+  "The speed gained was not enough to stay in orbit, so the vehicle falls back into the atmosphere.": "Набранной скорости не хватило, чтобы удержаться на орбите, и ракета падает в атмосферу.",
+  "Reached the parking orbit under manual control: a perfect insertion.": "Выход на орбиту ожидания в ручном управлении: идеальный.",
+  "Reached the parking orbit under manual control: a good insertion.": "Выход на орбиту ожидания в ручном управлении: хороший.",
+  "Reached a stable orbit under manual control, but far from the planned parking orbit.": "Выход на устойчивую орбиту в ручном управлении, но далеко от плановой орбиты ожидания.",
   "Transfer-orbit injection": "Выход на переходную орбиту",
   "Geostationary insertion": "Выход на геостационарную орбиту",
   "Lunar orbit capture": "Захват на лунную орбиту",

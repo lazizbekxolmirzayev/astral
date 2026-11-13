@@ -16,6 +16,8 @@ import { crewStore } from '@/game/crewStore';
 import { CrewDirector } from './CrewDirector';
 import { CrewPanel } from './CrewPanel';
 import { FlightInstruments } from './Instruments';
+import { PilotClock, PilotConsole, PilotModeChips } from './PilotConsole';
+import { pilotStore } from '@/game/pilotStore';
 import { ReplayBar } from './ReplayBar';
 import type { RocketClass } from './RocketModel';
 import { Subtitles, VoiceDirector } from './VoiceDirector';
@@ -39,6 +41,7 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
   const launchCamera = useStore(gameStore, (state) => state.launchCamera);
   const activeCamera = useStore(gameStore, (state) => state.activeCamera);
   const ascentSpeed = useStore(gameStore, (state) => state.ascentSpeed);
+  const pilotFlying = useStore(pilotStore, (state) => state.flight !== null);
   const onAscent = Boolean(plan && sim && (plan.stageIds[sim.stageIndex] === 'pre-launch' || plan.stageIds[sim.stageIndex] === 'launch') && !sim.ended);
   // C cycles through the launch cameras
   useEffect(() => {
@@ -79,7 +82,7 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
   const showCountdown = stageId === 'pre-launch' && !sim.ended;
   const elapsedInStage = sim.stageElapsedS + Math.max(0, sim.ended ? 0 : clockT - sim.t);
   const seconds = countdownSeconds(padWindowProgress(planned - elapsedInStage));
-  const liftoff = stageId === 'launch' && elapsedInStage < 5 && !sim.ended;
+  const liftoff = stageId === 'launch' && elapsedInStage < 5 && !sim.ended && !pilotFlying;
   const ascent = stageId === 'pre-launch' || stageId === 'launch';
 
   return (
@@ -93,7 +96,7 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
         </ol>
         <p data-testid="stage-title" className="text-sm font-semibold uppercase tracking-[0.22em] text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.8)]">{pickText(stageTitle(plan, stageId), locale)}</p>
         {stageId === 'cruise' || stageId === 'destination-arrival' ? <p data-testid="cruise-note" className="max-w-[min(520px,88vw)] text-center text-[11px] leading-snug text-white/60">{t('cruiseNote')}</p> : null}
-        <p className="font-mono text-[11px] tracking-wider text-cyan-200/80" data-testid="mission-clock">{formatLiftoffTime(tm.elapsedS - (plan.stagePlannedS['pre-launch'] ?? 0))}</p>
+        {pilotFlying ? <PilotClock /> : <p className="font-mono text-[11px] tracking-wider text-cyan-200/80" data-testid="mission-clock">{formatLiftoffTime(tm.elapsedS - (plan.stagePlannedS['pre-launch'] ?? 0))}</p>}
       </div>
 
       {/* countdown / liftoff / lost */}
@@ -112,10 +115,11 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
         </>
       )}
       <Subtitles />
-      {replay ? null : <FlightInstruments />}
+      {replay ? null : <PilotConsole />}
+      {replay || pilotFlying ? null : <FlightInstruments />}
 
       {/* telemetry */}
-      <aside data-testid="telemetry" className="absolute bottom-3 left-3 z-20 w-[210px] rounded-2xl border border-white/10 bg-[linear-gradient(170deg,rgba(8,14,26,0.82),rgba(8,10,20,0.7))] p-3 backdrop-blur-md sm:w-[250px]">
+      {pilotFlying ? null : <aside data-testid="telemetry" className="absolute bottom-3 left-3 z-20 w-[210px] rounded-2xl border border-white/10 bg-[linear-gradient(170deg,rgba(8,14,26,0.82),rgba(8,10,20,0.7))] p-3 backdrop-blur-md sm:w-[250px]">
         <p className="text-[10px] uppercase tracking-[0.24em] text-cyan-300/80">{t('telemetry')}</p>
         <dl className="mt-2 space-y-1.5 text-[11px]">
           <div className="flex justify-between gap-2"><dt className="text-white/50">{tm.altitudeM !== null ? t('altitude') : t('distance')}</dt><dd className="font-medium text-white" data-testid="tm-distance">{ascent && tm.altitudeM !== null ? formatDistance(tm.altitudeM, locale) : formatDistance(tm.altitudeM ?? tm.distanceM, locale)}</dd></div>
@@ -133,10 +137,10 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
           <div className="flex justify-between gap-2"><dt className="text-white/50">{t('contact')}</dt><dd className={`font-medium ${tm.inContact ? 'text-emerald-300' : 'text-white/60'}`}>{tm.inContact ? t('contactOn') : t('contactOff')}</dd></div>
         </dl>
         {tm.powerMode !== 'nominal' ? <p className="mt-2 rounded-md border border-amber-300/40 bg-amber-400/10 px-2 py-1 text-[10px] uppercase tracking-[0.14em] text-amber-200" data-testid="power-mode">{t(`powerMode.${tm.powerMode}`)}</p> : null}
-      </aside>
+      </aside>}
 
       {/* log */}
-      {replay ? null : <aside data-testid="mission-log" className="pointer-events-none absolute bottom-3 right-3 z-20 hidden w-[320px] sm:block">
+      {replay || pilotFlying ? null : <aside data-testid="mission-log" className="pointer-events-none absolute bottom-3 right-3 z-20 hidden w-[320px] sm:block">
         <p className="mb-1 text-right text-[10px] uppercase tracking-[0.24em] text-cyan-300/70">{t('log')}</p>
         <ul className="space-y-1">
           {log.map((entry, index) => (
@@ -160,7 +164,8 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
           <button type="button" data-action={running ? 'pause' : 'resume'} disabled={sim.ended} onClick={() => (running ? simStore.getState().pause() : simStore.getState().resume())} className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:text-white disabled:opacity-30">{running ? t('pause') : t('resume')}</button>
         {replay ? null : <button type="button" data-action="skip-stage" title={t('skipHint')} disabled={sim.ended} onClick={() => { crewStore.getState().cancelAll(); simStore.getState().skipStage(); }} className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:text-white disabled:opacity-30">{t('skip')} ⏭</button>}
         </div>
-        {onAscent && !replay ? (
+        {onAscent && !replay ? <PilotModeChips /> : null}
+        {onAscent && !replay && !pilotFlying ? (
           <div role="group" aria-label={t('ascentSpeed.label')} className="flex items-center justify-center gap-1 sm:justify-end">
             <span className="mr-1 text-[10px] uppercase tracking-[0.14em] text-white/45">{t('ascentSpeed.label')}</span>
             {ASCENT_SPEEDS.map((value) => (
