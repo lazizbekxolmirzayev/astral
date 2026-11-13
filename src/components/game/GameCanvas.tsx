@@ -7,6 +7,7 @@ import { capDprForTier, detectQualityTier } from '@/lib/performance';
 import { LAUNCHERS } from '@/mission';
 import { blip, unlock } from '@/game/audio';
 import { gameStore, useGameStore } from '@/game/gameStore';
+import { skyLevel } from '@/game/skyLevel';
 import { useMissionStore, missionStore } from '@/stores/missionStore';
 import { useSimStore } from '@/stores/simStore';
 import { setLauncher } from '@/mission';
@@ -28,7 +29,11 @@ function Backdrop({ visible }: { visible: boolean }) {
   const tints = useMemo(() => [createGlowTexture('#6b4bd6', 'rgba(40,20,90,0)'), createGlowTexture('#1f7fd0', 'rgba(10,40,90,0)'), createGlowTexture('#d6568a', 'rgba(90,20,50,0)')], []);
   useEffect(() => () => tints.forEach((texture) => texture.dispose()), [tints]);
   useFrame(({ camera }) => {
-    if (group.current) group.current.position.copy(camera.position);
+    if (group.current) {
+      group.current.position.copy(camera.position);
+      // no stars in the daytime sky of the launch
+      group.current.visible = visible && skyLevel.value < 0.55;
+    }
   });
   return (
     <group ref={group} visible={visible}>

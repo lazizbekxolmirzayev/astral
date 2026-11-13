@@ -1873,6 +1873,15 @@
         "network": "Xona xizmatiga ulanib bo‘lmadi.",
         "closed": "Boshlovchi xonani yopdi."
       }
+    },
+    "banner": {
+      "liftoff": "Uchirish",
+      "maxq": "Maks-Q",
+      "boosters": "Boosterlar ajraldi",
+      "stage": "Pog‘ona ajraldi",
+      "fairing": "Qoplama tashlandi",
+      "meco": "Dvigatel o‘chdi",
+      "orbit": "Orbitaga chiqildi"
     }
   }
 }

@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
+import { Countdown } from './Countdown';
+import { FlightBanner } from './FlightBanner';
 import { useLocale, useTranslations } from 'next-intl';
 import { useStore } from 'zustand';
 import { pickText } from '@/mission';
@@ -83,7 +85,7 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
   return (
     <>
       {/* stage track */}
-      <div className="pointer-events-none absolute inset-x-0 top-[64px] z-10 flex flex-col items-center gap-1.5 px-3">
+      <div className="pointer-events-none absolute inset-x-0 top-[64px] z-10 flex flex-col items-center gap-1.5 px-3 [text-shadow:0_1px_10px_rgba(0,12,40,0.85),0_0_2px_rgba(0,12,40,0.9)]">
         <ol className="flex items-center gap-1.5" aria-label={t('stage', { current: sim.stageIndex + 1, total: plan.stageIds.length })}>
           {plan.stageIds.map((id, index) => (
             <li key={id} title={pickText(stageTitle(plan, id), locale)} className={`h-1.5 rounded-full transition-all ${index < sim.stageIndex ? 'w-6 bg-emerald-400' : index === sim.stageIndex ? 'w-10 bg-cyan-300 shadow-[0_0_10px_rgba(0,240,255,0.9)]' : 'w-4 bg-white/20'}`} />
@@ -96,11 +98,12 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
 
       {/* countdown / liftoff / lost */}
       <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
-        {showCountdown && seconds > 0 ? <p data-testid="countdown" className="font-mono text-7xl font-bold text-white drop-shadow-[0_0_30px_rgba(255,180,90,0.7)] sm:text-9xl">{t('tMinus', { seconds })}</p> : null}
+        {showCountdown && seconds > 0 ? <Countdown seconds={seconds} label={t('tMinus', { seconds })} /> : null}
         {liftoff ? <p className="animate-pulse text-5xl font-extrabold uppercase tracking-[0.3em] text-orange-200 drop-shadow-[0_0_30px_rgba(255,140,60,0.9)] sm:text-7xl">{t('liftoff')}</p> : null}
         {lost ? <p data-testid="mission-lost" className="text-4xl font-extrabold uppercase tracking-[0.25em] text-red-300 drop-shadow-[0_0_30px_rgba(255,60,60,0.8)] sm:text-6xl">{t('lost')}</p> : null}
       </div>
 
+      <FlightBanner />
       <VoiceDirector rocket={rocket} replay={replay} />
       {replay ? <ReplayBar /> : (
         <>

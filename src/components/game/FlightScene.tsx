@@ -13,6 +13,9 @@ import { planets, SUN_LOOK } from '../3d/layout';
 import { createGlowTexture, GLOW_BLENDING } from '../3d/proceduralTextures';
 import { CameraDirector, type CameraPose } from './CameraDirector';
 import { Cosmos, SkyPlanets } from './Cosmos';
+import { CloudField, Contrail } from './LaunchAtmosphere';
+import { createGroundTexture } from './groundTexture';
+import { skyLevel } from '@/game/skyLevel';
 import { triggerSceneFade } from '@/game/sceneFade';
 import { GamePlanet, GameSun } from './GamePlanet';
 import { removeAnchors, setAnchor } from './labels';
@@ -203,16 +206,17 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   const register = useMemo(() => (id: PieceId, group: Group | null) => { pieceGroups.current[id] = group; }, []);
 
   const sky = useMemo(
-    () => new ShaderMaterial({ uniforms: { uTop: { value: new Color('#16356b') }, uHorizon: { value: new Color('#e9a27a') }, uAlpha: { value: 1 } }, vertexShader: SKY_VERTEX, fragmentShader: SKY_FRAGMENT, transparent: false, depthWrite: false, depthTest: false, side: BackSide }),
+    () => new ShaderMaterial({ uniforms: { uTop: { value: new Color('#1d5fc0') }, uHorizon: { value: new Color('#cfe3f4') }, uAlpha: { value: 1 } }, vertexShader: SKY_VERTEX, fragmentShader: SKY_FRAGMENT, transparent: false, depthWrite: false, depthTest: false, side: BackSide }),
     [],
   );
   const glow = useMemo(() => createGlowTexture('#ffd9a0', 'rgba(255,140,40,0)'), []);
-  useEffect(() => () => { sky.dispose(); glow.dispose(); }, [sky, glow]);
+  const groundMap = useMemo(() => createGroundTexture(384), []);
+  useEffect(() => () => { sky.dispose(); glow.dispose(); groundMap.dispose(); skyLevel.value = 0; }, [sky, glow, groundMap]);
   useEffect(() => () => gameStore.getState().setActiveCamera(null), []);
   const earthPlanetLook = EARTH.look;
   const topNight = useMemo(() => new Color('#02040a'), []);
-  const topDay = useMemo(() => new Color('#16356b'), []);
-  const horizonDay = useMemo(() => new Color('#e9a27a'), []);
+  const topDay = useMemo(() => new Color('#1d5fc0'), []);
+  const horizonDay = useMemo(() => new Color('#cfe3f4'), []);
   const horizonNight = useMemo(() => new Color('#05070d'), []);
   const fogRef = useRef<Fog>(null);
 
@@ -333,6 +337,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       (skyMaterial.uniforms.uTop!.value as Color).copy(topNight).lerp(topDay, amount);
       (skyMaterial.uniforms.uHorizon!.value as Color).copy(horizonNight).lerp(horizonDay, amount);
       skyMaterial.uniforms.uAlpha!.value = Math.min(1, amount * 1.15);
+      skyLevel.value = amount;
       const fog = fogRef.current;
       if (fog) {
         fog.color.copy(skyMaterial.uniforms.uHorizon!.value as Color).multiplyScalar(0.6);
@@ -380,7 +385,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   return (
     <>
       <CameraDirector freeLook getPose={() => poseRef.current} damping={RIGID.has(camKey.slice(7)) ? 40 : camKey === 'launch-track' ? 9 : 3.2} sway={RIGID.has(camKey.slice(7)) ? 0 : 0.18} snapKey={camKey} />
-      <fog ref={fogRef} attach="fog" args={['#8a5a4a', 160, 1300]} />
+      <fog ref={fogRef} attach="fog" args={['#a9c4de', 160, 1300]} />
       <ambientLight intensity={0.22} />
       <directionalLight position={[-24, 18, 30]} intensity={1.7} color="#ffe9d0" />
       <directionalLight position={[30, 8, -20]} intensity={0.6} color="#9fc2ff" />
@@ -395,7 +400,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       {/* ground and the planet below it, which shows once the ground fades out at altitude */}
       <mesh ref={ground} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} raycast={() => null}>
         <circleGeometry args={[420, 64]} />
-        <meshStandardMaterial color="#1b2430" metalness={0.2} roughness={0.9} transparent opacity={1} />
+        <meshStandardMaterial map={groundMap} color="#ffffff" metalness={0} roughness={0.95} transparent opacity={1} />
       </mesh>
       {/* the pad sits at a mid latitude of the Earth, not at the texture's pole (a pole would pinch the picture into one grey patch) */}
       <group position={[0, -EARTH_SCENE_RADIUS - 0.4, 0]} rotation={[Math.PI / 2 - 0.49, 0, 0]}>
@@ -410,6 +415,9 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
         <torusGeometry args={[EARTH_SCENE_RADIUS + ASCENT_DISTANCE, 0.5, 6, 600, 0.6]} />
         <meshBasicMaterial color="#5ee6ff" transparent opacity={0.7} depthWrite={false} />
       </mesh>
+
+      <CloudField />
+      <Contrail source={rocketGroup} active={() => readLaunch().stage === 'launch' && !isLost()} />
 
       {/* the pad */}
       <mesh position={[0, 0.25, 0]} raycast={() => null}>

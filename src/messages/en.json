@@ -1873,6 +1873,15 @@
         "network": "No connection to the room service.",
         "closed": "The host closed the room."
       }
+    },
+    "banner": {
+      "liftoff": "Liftoff",
+      "maxq": "Max-Q",
+      "boosters": "Booster separation",
+      "stage": "Stage separation",
+      "fairing": "Fairing jettison",
+      "meco": "Engine cut-off",
+      "orbit": "Orbit reached"
     }
   }
 }

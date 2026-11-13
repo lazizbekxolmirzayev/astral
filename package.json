@@ -18,6 +18,7 @@
     "@upstash/ratelimit": "^2.2.0",
     "@upstash/redis": "^1.39.0",
     "argon2": "^0.45.1",
+    "gsap": "^3.15.1",
     "idb": "^8.0.4",
     "lucide-react": "^1.57.0",
     "mongodb": "^6.21.0",

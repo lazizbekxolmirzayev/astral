@@ -103,3 +103,8 @@ A player can open **Online** in the top bar, create a room (5-letter code, up to
 - **Uzbek voice:** browsers rarely have an Uzbek voice. When none is installed the line is read by the Google Translate Uzbek text-to-speech voice (an unofficial public endpoint, played through an `<audio>` element); if it cannot be reached the browser's fallback voice is used. English and Russian use the best installed browser voice.
 - The HUD layers no longer sit over the canvas (`[&>*:not(.pointer-events-none)]`), which is what lets the drag and wheel reach the 3D view.
 - Earth/Moon flights show the Sun's glare and the planets as points at their approximate real directions (`SkyPlanets`).
+
+## Launch look and GSAP
+
+- Stack: Next.js + React Three Fiber (Three.js) for the scene, **GSAP** for the interface animation: the pad countdown punch-in (`Countdown`), the title cards for liftoff / max-Q / separations / orbit (`FlightBanner`, driven by the voice-line ids), and the dip through black between flight scenes (`SceneFade`).
+- The launch sky is a daytime gradient that goes black with altitude (`skyLevel`); the star backdrop is hidden in daylight. `CloudField` (sprites) makes the speed readable, `Contrail` draws the exhaust trail, and the ground is a procedural terrain tile (`groundTexture.ts`, artistic, not a real place).
