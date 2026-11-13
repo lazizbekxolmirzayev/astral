@@ -84,6 +84,27 @@ export function blast(): void {
   void master;
 }
 
+/** The click-and-hiss of a radio opening before someone speaks. */
+export function radioClick(): void {
+  if (!engine || muted) return;
+  const { context, master } = engine;
+  const now = context.currentTime;
+  const length = Math.floor(context.sampleRate * 0.14);
+  const buffer = context.createBuffer(1, length, context.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let index = 0; index < length; index += 1) data[index] = (Math.random() * 2 - 1) * (1 - index / length) ** 2;
+  const source = context.createBufferSource();
+  source.buffer = buffer;
+  const band = context.createBiquadFilter();
+  band.type = 'bandpass';
+  band.frequency.value = 2400;
+  band.Q.value = 0.8;
+  const gain = context.createGain();
+  gain.gain.value = 0.35;
+  source.connect(band).connect(gain).connect(master);
+  source.start(now);
+}
+
 export function isMuted(): boolean {
   return muted;
 }

@@ -13,8 +13,9 @@ import { planets, SUN_LOOK } from '../3d/layout';
 import { createGlowTexture, GLOW_BLENDING } from '../3d/proceduralTextures';
 import { CameraDirector, type CameraPose } from './CameraDirector';
 import { GamePlanet, GameSun } from './GamePlanet';
+import { removeAnchors, setAnchor } from './labels';
 import { gameStore, type LaunchCameraMode } from '@/game/gameStore';
-import { ascentPose, autoCameraAt, padThrottle, SEPARATION, shakeAmount, skyAmount } from './launchPath';
+import { ascentPose, autoCameraAt, padThrottle, padWindowProgress, SEPARATION, shakeAmount, skyAmount } from './launchPath';
 import { Plume } from './Particles';
 import { ALL_PARTS, RocketModel, rocketDims, ROCKET_LOOKS, type RocketClass, type RocketParts } from './RocketModel';
 import { ShipModel } from './ShipModel';
@@ -461,6 +462,7 @@ export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; f
     return Boolean(sim && livePlan && sim.stageIndex === livePlan.stageIds.indexOf('launch') + 1);
   }, []);
   const unfoldClock = useRef(0);
+  useEffect(() => () => removeAnchors('flight:'), []);
   // the spent upper stage the spacecraft just left: it stays where it was released while the spacecraft flies on
   const spent = useRef<Group>(null);
   const spentStart = useRef<Vec3Like | null>(null);
@@ -481,6 +483,12 @@ export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; f
       ship.current.visible = !lost();
     }
     if (marker.current) marker.current.position.set(...world);
+    if (overview) {
+      // names for what is on screen: the Sun and planets, the arrival point and the spacecraft
+      setAnchor('flight:craft', [world[0], world[1] + shipRadius * 1.3, world[2]]);
+      for (const body of frame.bodies) setAnchor(`flight:body-${body.id}`, [body.position[0] * scale, body.position[1] * scale + Math.max(0.5, body.radius * scale) + 0.45, body.position[2] * scale]);
+      if (frame.target) setAnchor('flight:target', [frame.target[0] * scale, frame.target[1] * scale - 1.3, frame.target[2] * scale]);
+    }
     if (spent.current) {
       if (unfolds && !spentStart.current) spentStart.current = [world[0], world[1], world[2]];
       const start = spentStart.current;
@@ -583,7 +591,8 @@ function readLaunch(): LaunchRead {
   if (id !== 'pre-launch' && id !== 'launch') return { stage: 'later', progress: 1, failed: false };
   const planned = plan.stagePlannedS[id] ?? 0;
   const elapsed = Math.min(planned > 0 ? planned : 1, sim.stageElapsedS + Math.max(0, sim.ended ? 0 : clockT - sim.t));
-  const progress = planned > 0 ? Math.min(1, elapsed / planned) : 1;
+  // on the pad only the last seconds matter: the engines spool up and the big countdown runs
+  const progress = id === 'pre-launch' ? padWindowProgress(planned - elapsed) : planned > 0 ? Math.min(1, elapsed / planned) : 1;
   const failed = Boolean(sim.ended && sim.outcome?.kind === 'failure' && sim.outcome.endedIn === 'launch');
   return { stage: id, progress, failed };
 }

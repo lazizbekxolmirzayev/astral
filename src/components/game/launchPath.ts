@@ -59,3 +59,11 @@ export function shakeAmount(tau: number, secondsSinceSeparation: number): number
   const jolt = secondsSinceSeparation >= 0 ? Math.exp(-secondsSinceSeparation * 5) * 1.1 : 0;
   return Math.min(1.2, lift + maxQ + cruise + jolt);
 }
+
+/** Seconds of the countdown shown as the big number and during which the engines spool up. */
+export const PAD_WINDOW_S = 10;
+
+/** Progress 0..1 through the final `PAD_WINDOW_S` seconds of the countdown, from the seconds left on the pad. */
+export function padWindowProgress(remainingS: number): number {
+  return Math.min(1, Math.max(0, 1 - remainingS / PAD_WINDOW_S));
+}

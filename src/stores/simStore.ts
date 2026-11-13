@@ -30,7 +30,7 @@ export type SimStatus = 'idle' | 'running' | 'paused' | 'finished';
 export const MAX_TICK_REAL_SECONDS = 0.25;
 
 /** Replaces the speed presets with a rate chosen per stage (the game's cinematic pacing). */
-export type RateModel = (plan: SimPlan, stage: StageId) => number;
+export type RateModel = (plan: SimPlan, stage: StageId, stageElapsedS: number) => number;
 
 export type SimStoreState = {
   missionId: string | null;
@@ -107,7 +107,7 @@ export function createSimStore(): StoreApi<SimStoreState> {
       tick: (realSeconds) => {
         const { plan, sim, status, speed, clockT, rateModel } = get();
         if (status !== 'running' || !plan || !sim) return;
-        const factor = rateModel ? rateModel(plan, plan.stageIds[sim.stageIndex]!) : factorOf(speed);
+        const factor = rateModel ? rateModel(plan, plan.stageIds[sim.stageIndex]!, sim.stageElapsedS) : factorOf(speed);
         const target = clockT + Math.min(Math.max(0, realSeconds), MAX_TICK_REAL_SECONDS) * factor;
         const next = advanceSim(plan, sim, target - sim.t);
         set({ sim: next, clockT: next.ended ? next.t : target, status: next.ended ? 'finished' : 'running' });

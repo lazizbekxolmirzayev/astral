@@ -1473,7 +1473,26 @@
         "onboard": "Bortdan",
         "crew": "Ekipaj",
         "key": "Almashtirish: C"
-      }
+      },
+      "ascentSpeed": {
+        "label": "Tezlik",
+        "real": "Real vaqt"
+      },
+      "bodies": {
+        "sun": "Quyosh",
+        "mercury": "Merkuriy",
+        "venus": "Venera",
+        "earth": "Yer",
+        "moon": "Oy",
+        "mars": "Mars",
+        "jupiter": "Yupiter",
+        "saturn": "Saturn"
+      },
+      "labels": {
+        "craft": "Kosmik apparat",
+        "target": "Yetib borish nuqtasi"
+      },
+      "cruiseNote": "Kosmik apparat o‘tish orbitasi bo‘ylab uchadi: Yer bilan mo‘ljal orasidagi egri yo‘l. Sayyoralar ko‘rinishi uchun kattalashtirib chizilgan; yo‘lning shakli hisoblangan."
     },
     "result": {
       "success": "MISSIYA MUVAFFAQIYATLI",
@@ -1506,7 +1525,11 @@
         "off": "O'chiq",
         "unpowered": "Quvvat yo'q",
         "fault": "Nosoz"
-      }
+      },
+      "attitude": "Holat (gorizont)",
+      "accel": "Tezlanish",
+      "toOrbit": "Orbitagacha",
+      "profileNote": "Balandlik, tezlik va tezlanish simulyatsiyadan olinadi. Ko‘tarilish profili sxematik, gorizont holati shundan chizilgan."
     },
     "help": {
       "title": "Yordam",
@@ -1586,6 +1609,34 @@
         }
       },
       "honest": "Bosqichlar vaqti, silkinish va xarita joylashuvi ko'rinish uchun chizilgan. Siferblat, ko'rsatkich va natijadagi raqamlar missiya hisob-kitobidan olinadi."
+    },
+    "voice": {
+      "cd60": "Uchirishga oltmish soniya qoldi.",
+      "cd30": "O‘ttiz soniya. Barcha postlar uchirishga tayyor.",
+      "count": "{n}",
+      "liftoff": "Uchdik! Raketa ko‘tarildi.",
+      "tower": "Minora oshib o‘tildi.",
+      "roll": "Burilish dasturi bajarildi.",
+      "maxqApproach": "Maksimal bosim yaqin. Tortishni kamaytiryapmiz.",
+      "maxqPass": "Maksimal bosimdan o‘tdik. Tortishni oshiryapmiz.",
+      "boosterSep": "Yon boosterlar ajraldi.",
+      "stageSep": "Birinchi bosqich ajraldi. Ikkinchi bosqich ishga tushdi.",
+      "fairingSep": "Fairing ajraldi. Yuk ochildi.",
+      "progress": "Balandlik {altitude} kilometr, tezlik soniyasiga {speed} kilometr.",
+      "toOrbit": "Orbitagacha {distance} kilometr qoldi.",
+      "secondsToOrbit": "Orbitagacha {seconds} soniya. Dvigatel tez orada o‘chadi.",
+      "meco": "Dvigatel o‘chdi. Biz orbitadamiz.",
+      "orbitConfirmed": "Orbita tasdiqlandi, balandlik {altitude} kilometr.",
+      "lost": "Avariya. Raketani yo‘qotdik.",
+      "cruise": "Jo‘nash dvigateli ishladi. Mo‘ljal tomon uchyapmiz.",
+      "arrival": "Mo‘ljalga yaqinlashyapmiz. Tormozlash dvigatelini tayyorlayapmiz.",
+      "science": "Joyimizdamiz. Ilmiy ishlar boshlandi.",
+      "data": "Aloqa o‘rnatildi. Ma‘lumotni Yerga yuboryapmiz.",
+      "done": "Missiya yakunlandi. Barakalla, jamoa.",
+      "speakers": {
+        "mcc": "Missiya boshqaruvi",
+        "crew": "Ekipaj"
+      }
     }
   }
 }

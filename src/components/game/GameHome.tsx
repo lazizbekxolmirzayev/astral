@@ -4,6 +4,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { BODY_IDS } from '@/mission/constants';
 import { DEFAULT_MISSION_TITLES, DESTINATION_IDS, DESTINATIONS, LAUNCHERS, pickText } from '@/mission';
 import { blip, isMuted, setMuted, setThrust, subscribeMuted, unlock } from '@/game/audio';
 import { gameStore, useGameStore, type GamePhase } from '@/game/gameStore';
@@ -72,8 +73,16 @@ export function GameHome() {
   const labels = useMemo<LabelSpec[]>(() => {
     if (phase === 'map') return DESTINATION_IDS.map((id) => ({ id: `dest:${id}`, testId: 'data-destination-label', text: pickText(DESTINATIONS.find((entry) => entry.id === id)!.name, locale), selected: focus === id }));
     if (phase === 'hangar') return LAUNCHERS.map((launcher) => ({ id: `rocket:${launcher.id}`, testId: 'data-rocket-label', text: pickText(launcher.name, locale), selected: rocketId === launcher.id }));
+    if (phase === 'flight') {
+      const names = [
+        { id: 'flight:craft', text: t('flight.labels.craft') },
+        { id: 'flight:target', text: t('flight.labels.target') },
+        ...BODY_IDS.map((body) => ({ id: `flight:body-${body}`, text: t(`flight.bodies.${body}`) })),
+      ];
+      return names.map((entry) => ({ ...entry, testId: 'data-flight-label', selected: entry.id === 'flight:craft' }));
+    }
     return [];
-  }, [phase, locale, focus, rocketId]);
+  }, [phase, locale, focus, rocketId, t]);
 
   // When the flight ends, let the last moments play, then show the result.
   useEffect(() => {
@@ -151,7 +160,7 @@ export function GameHome() {
             <div className="pointer-events-none absolute inset-0 [&>*]:pointer-events-auto [&_[data-nopointer]]:pointer-events-none">
               {phase === 'map' ? <MapPanel focus={focus} onBuild={build} /> : null}
               {phase === 'hangar' && mission ? <HangarPanel mission={mission} view={hangarView} onLaunch={launch} /> : null}
-              {phase === 'flight' ? <FlightHud /> : null}
+              {phase === 'flight' ? <FlightHud rocket={LAUNCHERS.find((launcher) => launcher.id === rocketId)?.sizeClass ?? 'medium'} /> : null}
               {phase === 'result' ? <ResultPanel missionId={missionId} /> : null}
             </div>
           </div>

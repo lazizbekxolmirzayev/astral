@@ -26,6 +26,17 @@ export function LabelAnchor({ id, position }: { id: string; position: readonly [
   return null;
 }
 
+/** Moves an anchor every frame without a React render (for things that move). */
+export function setAnchor(id: string, position: readonly [number, number, number]): void {
+  const existing = anchors.get(id);
+  if (existing) { existing[0] = position[0]; existing[1] = position[1]; existing[2] = position[2]; } else anchors.set(id, [position[0], position[1], position[2]]);
+}
+
+/** Removes every anchor whose id starts with `prefix`. */
+export function removeAnchors(prefix: string): void {
+  for (const id of Array.from(anchors.keys())) if (id.startsWith(prefix)) { anchors.delete(id); screen.delete(id); }
+}
+
 const scratch = new Vector3();
 
 /** Projects every anchor to the screen once per frame. Render it once inside the `<Canvas>`. */

@@ -90,7 +90,7 @@ describe('game screens render with real data', () => {
     const id = game.getState().confirmDestination('Test');
     expect(id).not.toBeNull();
     expect(game.getState().launch()).toBe(true);
-    expect(simStore.getState().rateModel).toBe(cinematicRate);
+    expect(typeof simStore.getState().rateModel).toBe('function');
     const hud = render('en', createElement(FlightHud));
     expect(hud).toContain('data-testid="countdown"');
     expect(hud).toContain('data-testid="telemetry"');
@@ -126,4 +126,19 @@ describe('help box and instruments', () => {
       expect(problems).toEqual([]);
     });
   }
+});
+
+describe('real instruments', () => {
+  it('renders the attitude indicator, tapes, g meter and chart with their values', async () => {
+    const { AttitudeIndicator, Tape, GMeter, StripChart } = await import('./FlightPanel');
+    const html = renderToStaticMarkup(createElement('div', null,
+      createElement(AttitudeIndicator, { pitchDeg: 42 }),
+      createElement(Tape, { testId: 'tape-x', label: 'Altitude', unit: 'km', value: 120.4, span: 60, major: 10 }),
+      createElement(GMeter, { g: 3.2, label: 'Acceleration' }),
+      createElement(StripChart, { samples: [{ t: 0, altitudeKm: 0, speedKms: 0 }, { t: 100, altitudeKm: 80, speedKms: 2 }], length: 540, altitudeMax: 300, speedMax: 8, labels: { altitude: 'Altitude', speed: 'Speed' } })));
+    expect(html).toContain('data-pitch="42.0"');
+    expect(html).toContain('data-value="120.400"');
+    expect(html).toContain('data-g="3.20"');
+    expect(html).toContain('data-samples="2"');
+  });
 });

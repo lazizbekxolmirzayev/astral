@@ -60,3 +60,18 @@ Separating pieces (boosters of the heavy-lift vehicle, the first stage, the two 
 `RocketModel` drawn with only that piece on (`RocketParts`), so each one leaves from exactly where it was attached,
 keeps the vehicle's speed, then falls and spins on its own. After the first stage is gone the flame comes from the
 second-stage engine.
+
+## Real-time launch, voices and instruments
+
+- **Pacing of the launch.** The hour-long hold on the pad is skipped through, but the last 60 seconds of the countdown and the
+  whole climb (the simulation's 540 s ascent) play in real time. The player can speed them up (x2, x4, x8). Other stages are
+  still compressed to a few seconds each. The mission clock shows `T-` before liftoff and `T+` after it.
+- **Voices.** `voice.ts` decides what mission control and the crew say (countdown, liftoff, max-Q, separations, altitude and
+  "km to orbit", orbit confirmed, and one line per later stage) from the simulation state, each line once. Lines are shown as
+  subtitles and spoken with the browser's speech synthesis (Uzbek falls back to Turkish or Russian voices, which read Latin
+  Uzbek best), with a radio click before each line. The mute button silences speech too. No audio files are used.
+- **Instruments.** During the ascent: an attitude indicator, altitude and speed tapes, an acceleration meter and a strip chart of the
+  flown altitude and speed. Altitude, speed and acceleration come from the simulation's telemetry (acceleration is the change of
+  speed per mission second). The attitude is *drawn* from the schematic ascent profile; the panel says so. After the ascent
+  the panel shows dials for distance/altitude, speed, delta-v left and battery.
+- **Transfer view.** The Sun, Earth, the destination, the arrival point and the spacecraft are named on screen.

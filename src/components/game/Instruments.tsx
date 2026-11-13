@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { pickText } from '@/mission';
 import { readTelemetry } from '@/mission/sim';
 import { formatDistance, formatNumber, formatSpeed } from '@/game/format';
+import { AscentPanel } from './FlightPanel';
 import { useSimSnapshot } from './useSimSnapshot';
 
 const SWEEP = 240; // degrees of the dial arc
@@ -78,9 +79,12 @@ export function FlightInstruments() {
   const tm = readTelemetry(plan, sim, clockT);
   const dvFraction = plan.dv.available > 0 ? tm.dvRemaining / plan.dv.available : 0;
   const altitude = tm.altitudeM ?? tm.distanceM;
+  const stageNow = plan.stageIds[sim.stageIndex]!;
+  const climbing = stageNow === 'pre-launch' || stageNow === 'launch' || stageNow === 'orbit-insertion';
   return (
     <>
-      <div data-testid="instrument-dials" className="pointer-events-none absolute bottom-3 left-1/2 z-20 hidden -translate-x-1/2 gap-1 rounded-2xl border border-white/10 bg-[linear-gradient(170deg,rgba(8,14,26,0.78),rgba(8,10,20,0.62))] px-2 py-1.5 backdrop-blur-md min-[1060px]:flex">
+      {climbing ? <AscentPanel /> : null}
+      <div data-testid="instrument-dials" data-hide={climbing} className="pointer-events-none absolute bottom-3 left-1/2 z-20 hidden -translate-x-1/2 gap-1 data-[hide=true]:!hidden rounded-2xl border border-white/10 bg-[linear-gradient(170deg,rgba(8,14,26,0.78),rgba(8,10,20,0.62))] px-2 py-1.5 backdrop-blur-md min-[1060px]:flex">
         <Dial testId="dial-altitude" label={t(tm.altitudeM !== null ? 'altitude' : 'distance')} fraction={logFraction(altitude, 4e11, 1e5)} value={formatDistance(altitude, locale)} />
         <Dial testId="dial-speed" label={t('speed')} fraction={logFraction(tm.speedMps, 45000, 500)} value={formatSpeed(tm.speedMps, locale)} tone="#a78bfa" />
         <Dial testId="dial-dv" label={t('dv')} fraction={dvFraction} value={`${formatNumber(tm.dvRemaining, locale)} m/s`} tone={dvFraction < 0.25 ? '#f87171' : '#fbbf24'} />

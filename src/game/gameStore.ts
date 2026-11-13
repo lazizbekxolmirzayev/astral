@@ -3,7 +3,7 @@ import { createStore, type StoreApi } from 'zustand/vanilla';
 import type { DestinationId } from '@/mission';
 import { missionStore } from '@/stores/missionStore';
 import { simStore } from '@/stores/simStore';
-import { cinematicRate } from './cinematic';
+import { cinematicRate, type AscentSpeed } from './cinematic';
 
 /**
  * The flow of the game: choose a destination on the map, build and equip the spacecraft in the hangar,
@@ -27,6 +27,9 @@ export type GameState = {
   /** Which camera shows the launch; `auto` cuts between the others like a broadcast. */
   launchCamera: LaunchCameraMode;
   setLaunchCamera: (mode: LaunchCameraMode) => void;
+  /** How much faster than real time the countdown and the climb play (1 = a real launch). */
+  ascentSpeed: AscentSpeed;
+  setAscentSpeed: (speed: AscentSpeed) => void;
   /** The camera actually in use right now (differs from `launchCamera` while it is `auto`); null outside the launch. */
   activeCamera: Exclude<LaunchCameraMode, 'auto'> | null;
   setActiveCamera: (mode: Exclude<LaunchCameraMode, 'auto'> | null) => void;
@@ -55,6 +58,8 @@ export function createGameStore(): StoreApi<GameState> {
     missionId: null,
     hangarView: 'ship',
     launchCamera: 'auto',
+    ascentSpeed: 1,
+    setAscentSpeed: (ascentSpeed) => set({ ascentSpeed }),
     setLaunchCamera: (launchCamera) => set({ launchCamera }),
     activeCamera: null,
     setActiveCamera: (activeCamera) => set((state) => (state.activeCamera === activeCamera ? state : { activeCamera })),
@@ -71,7 +76,7 @@ export function createGameStore(): StoreApi<GameState> {
       const { missionId, phase } = get();
       const mission = missionId ? missionStore.getState().missions[missionId] : undefined;
       if (phase !== 'hangar' || !mission) return false;
-      simStore.getState().setRateModel(cinematicRate);
+      simStore.getState().setRateModel((plan, stage, stageElapsedS) => cinematicRate(plan, stage, { stageElapsedS, speed: get().ascentSpeed }));
       simStore.getState().restart(mission);
       const { plan, status } = simStore.getState();
       if (!plan || plan.unresolvable || status === 'idle') return false;

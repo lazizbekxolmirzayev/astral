@@ -1473,7 +1473,26 @@
         "onboard": "Onboard",
         "crew": "Crew",
         "key": "Press C to switch"
-      }
+      },
+      "ascentSpeed": {
+        "label": "Speed",
+        "real": "Real time"
+      },
+      "bodies": {
+        "sun": "Sun",
+        "mercury": "Mercury",
+        "venus": "Venus",
+        "earth": "Earth",
+        "moon": "Moon",
+        "mars": "Mars",
+        "jupiter": "Jupiter",
+        "saturn": "Saturn"
+      },
+      "labels": {
+        "craft": "Spacecraft",
+        "target": "Arrival point"
+      },
+      "cruiseNote": "The spacecraft coasts along a transfer orbit, the curved path between Earth and the target. Planets are drawn larger than life; the shape of the path is computed."
     },
     "result": {
       "success": "MISSION SUCCESS",
@@ -1506,7 +1525,11 @@
         "off": "Off",
         "unpowered": "No power",
         "fault": "Fault"
-      }
+      },
+      "attitude": "Attitude",
+      "accel": "Acceleration",
+      "toOrbit": "To orbit",
+      "profileNote": "Altitude, speed and acceleration come from the simulation. The ascent profile is schematic and the attitude is drawn from it."
     },
     "help": {
       "title": "Help",
@@ -1586,6 +1609,34 @@
         }
       },
       "honest": "Staging times, shaking and the map layout are drawn for effect. The numbers on the dials, gauges and result come from the mission calculations."
+    },
+    "voice": {
+      "cd60": "T-minus sixty seconds.",
+      "cd30": "Thirty seconds. All stations report go for launch.",
+      "count": "{n}",
+      "liftoff": "Liftoff! We have liftoff.",
+      "tower": "Tower is clear.",
+      "roll": "Roll program complete.",
+      "maxqApproach": "Approaching max-Q. Throttling down.",
+      "maxqPass": "Passed max-Q. Throttle up.",
+      "boosterSep": "Booster separation confirmed.",
+      "stageSep": "Stage separation. Second stage ignition.",
+      "fairingSep": "Fairing separation. The payload is exposed.",
+      "progress": "Altitude {altitude} kilometres, speed {speed} kilometres per second.",
+      "toOrbit": "{distance} kilometres to orbit.",
+      "secondsToOrbit": "{seconds} seconds to orbit. Engine cut-off soon.",
+      "meco": "Engine cut-off. We are in orbit.",
+      "orbitConfirmed": "Orbit confirmed, {altitude} kilometres.",
+      "lost": "Anomaly. We have lost the vehicle.",
+      "cruise": "Departure burn complete. Cruising to the target.",
+      "arrival": "Approaching the target. Preparing the arrival burn.",
+      "science": "In position. Science operations begin.",
+      "data": "Downlink acquired. Sending the data to Earth.",
+      "done": "Mission complete. Well done, team.",
+      "speakers": {
+        "mcc": "Mission control",
+        "crew": "Crew"
+      }
     }
   }
 }

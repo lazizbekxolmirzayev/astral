@@ -33,7 +33,7 @@ describe('cinematic pacing', () => {
       const rate = cinematicRate(plan, stage);
       expect(rate).toBeGreaterThanOrEqual(1);
       expect(rate).toBeLessThanOrEqual(MAX_CINEMATIC_RATE);
-      if (length > 0 && rate < MAX_CINEMATIC_RATE && rate > 1) expect(length / rate).toBeCloseTo(CINEMATIC_SECONDS[stage], 6);
+      if (stage !== 'launch' && stage !== 'pre-launch' && length > 0 && rate < MAX_CINEMATIC_RATE && rate > 1) expect(length / rate).toBeCloseTo(CINEMATIC_SECONDS[stage], 6);
     }
     expect(Object.keys(CINEMATIC_SECONDS).sort()).toEqual([...STAGE_IDS].sort());
   });
@@ -158,5 +158,76 @@ describe('instrument dials', () => {
     expect(logFraction(5000, 1000, 10)).toBe(1);
     let previous = -1;
     for (const value of [1, 10, 100, 500, 1000]) { const f = logFraction(value, 1000, 10); expect(f).toBeGreaterThan(previous); previous = f; }
+  });
+});
+
+describe('real-time launch pacing', () => {
+  it('plays the climb in real time and only the last minute of the countdown, at the chosen speed', () => {
+    const mission = missionStore.getState().createFromTemplate('geo', 'x');
+    const plan = buildSimPlan(missionStore.getState().missions[mission]!);
+    expect(cinematicRate(plan, 'launch')).toBe(1);
+    expect(cinematicRate(plan, 'launch', { speed: 4 })).toBe(4);
+    const hold = stageSeconds(plan, 'pre-launch');
+    expect(cinematicRate(plan, 'pre-launch', { stageElapsedS: 0 })).toBeGreaterThan(50);
+    expect(cinematicRate(plan, 'pre-launch', { stageElapsedS: hold - 30 })).toBe(1);
+    expect(cinematicRate(plan, 'pre-launch', { stageElapsedS: hold - 30, speed: 2 })).toBe(2);
+    // a launch lasts about as long as a real ascent (nine minutes)
+    expect(stageSeconds(plan, 'launch') / cinematicRate(plan, 'launch')).toBeGreaterThan(400);
+  });
+});
+
+describe('voice announcer', () => {
+  const base = { stage: 'pre-launch' as const, stageElapsedS: 0, stageLengthS: 3600, altitudeKm: 0, speedKms: 0, parkingKm: 300, hasBoosters: true, separation: { boosters: 0.38, stage1: 0.62, fairing: 0.8 }, lost: false };
+  it('counts down once each, in order, and calls liftoff', async () => {
+    const { createAnnouncer } = await import('./voice');
+    const announcer = createAnnouncer();
+    const said: string[] = [];
+    for (let remaining = 3600; remaining >= 0; remaining -= 1) {
+      for (const line of announcer.update({ ...base, stageElapsedS: 3600 - remaining })) said.push(line.id);
+    }
+    expect(said.slice(0, 2)).toEqual(['cd60', 'cd30']);
+    expect(said.filter((id) => id.startsWith('count-'))).toEqual(Array.from({ length: 10 }, (_, i) => `count-${10 - i}`));
+    expect(new Set(said).size).toBe(said.length);
+    const launch = announcer.update({ ...base, stage: 'launch', stageElapsedS: 1, stageLengthS: 540 });
+    expect(launch.map((line) => line.id)).toContain('liftoff');
+  });
+  it('says what is left to orbit and skips booster calls for a vehicle without boosters', async () => {
+    const { createAnnouncer } = await import('./voice');
+    const announcer = createAnnouncer();
+    const lines = announcer.update({ ...base, stage: 'launch', stageElapsedS: 400, stageLengthS: 540, altitudeKm: 150, speedKms: 5, hasBoosters: false });
+    expect(lines.map((line) => line.id)).not.toContain('boosters');
+    expect(lines.map((line) => line.id)).toContain('stage1');
+    expect(lines.find((line) => line.id === 'orbit-1')?.params).toEqual({ distance: 150 });
+  });
+  it('announces a lost vehicle and nothing else', async () => {
+    const { createAnnouncer } = await import('./voice');
+    const lines = createAnnouncer().update({ ...base, stage: 'launch', stageElapsedS: 100, stageLengthS: 540, lost: true });
+    expect(lines.map((line) => line.id)).toEqual(['lost']);
+  });
+  it('has a message for every line key in every language', async () => {
+    const { createAnnouncer } = await import('./voice');
+    const keys = new Set<string>();
+    const announcer = createAnnouncer();
+    for (const stage of ['pre-launch', 'launch', 'orbit-insertion', 'cruise', 'destination-arrival', 'science-operations', 'data-transmission', 'mission-completion'] as const) {
+      for (let elapsed = 0; elapsed <= 3600; elapsed += 5) for (const line of announcer.update({ ...base, stage, stageElapsedS: stage === 'launch' ? elapsed % 541 : elapsed, stageLengthS: stage === 'launch' ? 540 : 3600 })) keys.add(line.key);
+    }
+    const en = (await import('../messages/en.json')).default.game.voice as Record<string, unknown>;
+    const uz = (await import('../messages/uz.json')).default.game.voice as Record<string, unknown>;
+    for (const key of keys) { expect(en[key], `en ${key}`).toBeTypeOf('string'); expect(uz[key], `uz ${key}`).toBeTypeOf('string'); }
+  });
+});
+
+describe('flight recorder', () => {
+  it('works out acceleration in g from the change of speed and keeps a chart history', async () => {
+    const { createFlightRecorder } = await import('./recorder');
+    const recorder = createFlightRecorder();
+    let snapshot = recorder.snapshot();
+    for (let t = 0; t <= 100; t += 1) snapshot = recorder.push({ clockT: 3600 + t, stage: 'launch', launchElapsedS: t, altitudeKm: t, speedMps: 98.0665 * t });
+    expect(snapshot.g).toBeGreaterThan(0.9); // 98.07 m/s per second = 10 g, smoothed toward it
+    expect(snapshot.samples.length).toBeGreaterThan(40);
+    const before = snapshot.samples.length;
+    expect(recorder.push({ clockT: 3700, stage: 'orbit-insertion', launchElapsedS: 540, altitudeKm: 300, speedMps: 7700 }).g).toBe(0);
+    expect(recorder.snapshot().samples.length).toBe(before);
+    expect(recorder.push({ clockT: 0, stage: 'pre-launch', launchElapsedS: 0, altitudeKm: 0, speedMps: 0 }).samples.length).toBe(0);
   });
 });

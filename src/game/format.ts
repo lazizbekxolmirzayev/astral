@@ -50,3 +50,10 @@ export function formatMissionTime(seconds: number): string {
   const clock = `${pad(Math.floor(rest / 3600))}:${pad(Math.floor((rest % 3600) / 60))}:${pad(rest % 60)}`;
   return days > 0 ? `T+ ${days}d ${clock}` : `T+ ${clock}`;
 }
+
+/** Mission clock counted from liftoff: `T- 00:00:09` before it, `T+ 00:03:10` after it. */
+export function formatLiftoffTime(secondsFromLiftoff: number): string {
+  const value = Number.isFinite(secondsFromLiftoff) ? secondsFromLiftoff : 0;
+  const before = value < 0;
+  return before ? formatMissionTime(Math.ceil(-value)).replace('T+', 'T-') : formatMissionTime(value);
+}
