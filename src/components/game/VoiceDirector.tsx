@@ -13,7 +13,7 @@ import { rocketDims, type RocketClass } from './RocketModel';
  * Listens to the simulation and has mission control and the crew speak at the right moments. It renders
  * nothing; the subtitles are shown by `Subtitles`. Mounted for the length of a flight.
  */
-export function VoiceDirector({ rocket }: { rocket: RocketClass }) {
+export function VoiceDirector({ rocket, replay = false }: { rocket: RocketClass; replay?: boolean }) {
   const t = useTranslations('game.voice');
   const locale = useLocale();
   useEffect(() => {
@@ -37,7 +37,8 @@ export function VoiceDirector({ rocket }: { rocket: RocketClass }) {
         separation: SEPARATION,
         lost: Boolean(sim.ended && sim.outcome?.kind === 'failure'),
       });
-      for (const line of lines) speakLine(line.id, line.speaker, t(line.key, line.params ?? {}), locale, { skipIfBusy: line.key === 'count' });
+      // a jump in the video passes many lines at once: say only the latest
+      for (const line of replay ? lines.slice(-1) : lines) speakLine(line.id, line.speaker, t(line.key, line.params ?? {}), locale, { skipIfBusy: line.key === 'count' });
     };
     const unsubscribe = simStore.subscribe(run);
     run();
@@ -45,7 +46,7 @@ export function VoiceDirector({ rocket }: { rocket: RocketClass }) {
       unsubscribe();
       stopSpeaking();
     };
-  }, [t, locale, rocket]);
+  }, [t, locale, rocket, replay]);
   return null;
 }
 

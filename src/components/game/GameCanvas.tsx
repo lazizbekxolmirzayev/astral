@@ -94,7 +94,7 @@ export default function GameCanvas({ onReady }: { onReady?: () => void }) {
           }}
         />
       ) : null}
-      {(phase === 'flight' || phase === 'result') && plan ? <FlightScene plan={plan} rocket={rocketClass} /> : null}
+      {(phase === 'flight' || phase === 'result' || phase === 'replay') && plan ? <FlightScene plan={plan} rocket={rocketClass} /> : null}
       <SceneEffects qualityTier={tier} />
     </Canvas>
   );

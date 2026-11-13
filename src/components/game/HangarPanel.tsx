@@ -6,7 +6,9 @@ import { addPart, BATTERIES, BUSES, COMMS, INSTRUMENTS, LAUNCHERS, pickText, PRO
 import type { ResourceKey } from '@/mission';
 import { gameStore, type HangarView } from '@/game/gameStore';
 import { formatBitRate, formatMoney, formatNumber } from '@/game/format';
+import { useStore } from 'zustand';
 import { useEditor, useEvaluation } from '../mission/hooks';
+import { CrewSetup } from './CrewPanel';
 
 type Category = 'platform' | 'power' | 'comms' | 'payload';
 const CATEGORIES: Category[] = ['platform', 'power', 'comms', 'payload'];
@@ -50,10 +52,12 @@ function PartCard({ part, count, fits, onAdd, onRemove, locale, labels }: { part
 /** The hangar's panels: the parts bay on the left, the live mission status and the launch button on the right. */
 export function HangarPanel({ mission, view, onLaunch }: { mission: Mission; view: HangarView; onLaunch: () => void }) {
   const t = useTranslations('game.hangar');
+  const tc = useTranslations('game.crew');
   const locale = useLocale();
   const evaluation = useEvaluation(mission);
   const { apply, error } = useEditor(mission.id);
   const [category, setCategory] = useState<Category>('platform');
+  const abortNotice = useStore(gameStore, (state) => state.abortNotice);
   const [mobile, setMobile] = useState<'parts' | 'rockets' | 'status'>('parts');
 
   const destinationId = mission.objective.destinationId;
@@ -191,16 +195,29 @@ export function HangarPanel({ mission, view, onLaunch }: { mission: Mission; vie
           ) : null}
         </div>
 
+        {abortNotice ? (
+          <div role="alert" data-testid="abort-notice" className="rounded-xl border border-amber-300/50 bg-amber-400/10 p-2.5">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-amber-200">{t('abort.title')}</p>
+            <p className="mt-1 text-[11px] leading-snug text-white/75">{t('abort.body', { role: tc(`roles.${abortNotice.info.role}.name`) })}</p>
+            <ul className="mt-1 space-y-1">{abortNotice.messages.slice(0, 3).map((message, index) => <li key={index} className="text-[11px] text-white/80">• {pickText(message, locale)}</li>)}</ul>
+            <button type="button" data-action="dismiss-abort" onClick={() => gameStore.getState().dismissAbort()} className="mt-1.5 text-[10px] uppercase tracking-[0.14em] text-cyan-200/80 hover:text-cyan-100">{t('abort.dismiss')}</button>
+          </div>
+        ) : null}
+
+        <CrewSetup />
+
+        <div className="sticky bottom-0 -mx-3 -mb-3 mt-auto rounded-b-2xl bg-[rgba(8,12,22,0.97)] px-3 pb-3 pt-2">
         <button
           type="button"
           data-action="launch"
           disabled={!ready}
           onClick={onLaunch}
           title={ready ? undefined : t('launchHint')}
-          className="mt-auto rounded-xl border border-orange-300/70 bg-gradient-to-r from-orange-500/50 to-red-500/50 px-4 py-3.5 text-base font-bold uppercase tracking-[0.3em] text-white shadow-[0_0_30px_rgba(255,120,40,0.35)] transition enabled:hover:from-orange-400/70 enabled:hover:to-red-400/70 enabled:hover:shadow-[0_0_44px_rgba(255,140,60,0.6)] disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-white/30 disabled:shadow-none"
+          className="w-full rounded-xl border border-orange-300/70 bg-gradient-to-r from-orange-500/50 to-red-500/50 px-4 py-3.5 text-base font-bold uppercase tracking-[0.3em] text-white shadow-[0_0_30px_rgba(255,120,40,0.35)] transition enabled:hover:from-orange-400/70 enabled:hover:to-red-400/70 enabled:hover:shadow-[0_0_44px_rgba(255,140,60,0.6)] disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-white/5 disabled:text-white/30 disabled:shadow-none"
         >
           {t('launch')}
         </button>
+        </div>
       </aside>
     </>
   );

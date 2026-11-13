@@ -1427,7 +1427,12 @@
       "refused": "That change is not allowed here.",
       "mobileParts": "Parts",
       "mobileStatus": "Status",
-      "quantity": "{count} installed"
+      "quantity": "{count} installed",
+      "abort": {
+        "title": "Launch scrubbed",
+        "body": "The {role} station called NO-GO because of a real fault in the design:",
+        "dismiss": "Got it"
+      }
     },
     "flight": {
       "stage": "Stage {current} of {total}",
@@ -1509,7 +1514,13 @@
       "improve": "Improve the design",
       "again": "New mission",
       "report": "Engineering report",
-      "stage": "Ended in: {stage}"
+      "stage": "Ended in: {stage}",
+      "tab": {
+        "result": "Result",
+        "score": "Score"
+      },
+      "tabMistakes": "Mistakes ({count})",
+      "watchVideo": "Watch the mission video"
     },
     "instruments": {
       "altitude": "Altitude",
@@ -1580,6 +1591,10 @@
         "sound": {
           "key": "🔊",
           "text": "Sound on or off (top right)"
+        },
+        "crew": {
+          "key": "1–4",
+          "text": "Answer for a crew station (Shift = NO-GO)"
         }
       },
       "terms": {
@@ -1637,6 +1652,194 @@
         "mcc": "Mission control",
         "crew": "Crew"
       }
+    },
+    "crew": {
+      "title": "Crew",
+      "pts": "pts",
+      "standby": "Standing by",
+      "go": "GO",
+      "nogo": "NO-GO",
+      "player": "Player {n}",
+      "keys": "Keys 1–4 answer for a station; Shift + key is NO-GO.",
+      "keysMulti": "Each player answers for their stations: keys 1–4 (Shift = NO-GO) or tap.",
+      "aborted": "Launch scrubbed. The vehicle goes back to the hangar.",
+      "roles": {
+        "director": {
+          "name": "Flight Director",
+          "text": "Gives the final GO, confirms stage separation and engine cut-off, approves arrival."
+        },
+        "propulsion": {
+          "name": "Propulsion",
+          "text": "Engines and burns: Max-Q throttle, stage separation, course corrections, arrival burn."
+        },
+        "power": {
+          "name": "Power & Systems",
+          "text": "Batteries and solar arrays: deploys the panels, answers power problems."
+        },
+        "comms": {
+          "name": "Comms & Science",
+          "text": "Radio link, fairing, instruments and the data downlink."
+        }
+      },
+      "tasks": {
+        "go-power": {
+          "name": "Power systems: GO / NO-GO",
+          "call": "{name}, power systems: GO or NO-GO?"
+        },
+        "go-propulsion": {
+          "name": "Propulsion: GO / NO-GO",
+          "call": "{name}, propulsion: GO or NO-GO?"
+        },
+        "go-comms": {
+          "name": "Comms & payload: GO / NO-GO",
+          "call": "{name}, comms and payload: GO or NO-GO?"
+        },
+        "go-director": {
+          "name": "Final launch GO / NO-GO",
+          "call": "{name}, flight director: final GO for launch?"
+        },
+        "maxq": {
+          "name": "Max-Q: throttle down",
+          "call": "{name}, max dynamic pressure ahead: throttle down!",
+          "action": "Throttle down"
+        },
+        "booster-sep": {
+          "name": "Confirm booster separation",
+          "call": "{name}, confirm booster separation!",
+          "action": "Separate boosters"
+        },
+        "stage-sep": {
+          "name": "Confirm stage separation",
+          "call": "{name}, confirm stage separation!",
+          "action": "Separate stage"
+        },
+        "fairing-sep": {
+          "name": "Jettison the fairing",
+          "call": "{name}, jettison the fairing!",
+          "action": "Jettison fairing"
+        },
+        "meco": {
+          "name": "Confirm engine cut-off",
+          "call": "{name}, confirm main engine cut-off!",
+          "action": "Confirm cut-off"
+        },
+        "deploy-panels": {
+          "name": "Deploy the solar panels",
+          "call": "{name}, deploy the solar panels!",
+          "action": "Deploy panels"
+        },
+        "link-check": {
+          "name": "Establish the ground link",
+          "call": "{name}, establish the ground link!",
+          "action": "Establish link"
+        },
+        "course-correction": {
+          "name": "Trajectory correction burn",
+          "call": "{name}, perform the trajectory correction!",
+          "action": "Fire correction"
+        },
+        "arrival-go": {
+          "name": "GO for arrival",
+          "call": "{name}, flight director: GO for arrival?",
+          "action": "GO for arrival"
+        },
+        "arrival-burn": {
+          "name": "Arrival burn",
+          "call": "{name}, start the arrival burn!",
+          "action": "Start burn"
+        },
+        "downlink": {
+          "name": "Start the data downlink",
+          "call": "{name}, start the data downlink!",
+          "action": "Start downlink"
+        },
+        "ev-solar-degradation": {
+          "name": "Panels degraded: re-trim",
+          "call": "{name}, solar output dropped: re-trim the arrays!",
+          "action": "Re-trim arrays"
+        },
+        "ev-instrument-malfunction": {
+          "name": "Instrument fault: restart it",
+          "call": "{name}, instrument fault: restart it!",
+          "action": "Restart instrument"
+        },
+        "ev-communication-outage": {
+          "name": "Link outage: switch antenna",
+          "call": "{name}, link lost: switch to the backup antenna!",
+          "action": "Switch antenna"
+        },
+        "ev-observation-opportunity": {
+          "name": "Rare target: point instruments",
+          "call": "{name}, rare target in view: point the instruments!",
+          "action": "Point instruments"
+        },
+        "ev-increased-power-demand": {
+          "name": "Power demand up: shed load",
+          "call": "{name}, power demand rising: shed non-essential load!",
+          "action": "Shed load"
+        }
+      },
+      "setup": {
+        "title": "Crew",
+        "players": "Number of players",
+        "count": "{count, plural, one {# player} other {# players}} · four stations",
+        "name": "Name of player {n}",
+        "note": "Each station has real jobs in the flight and polls GO / NO-GO at the pad. A job nobody does is done by the flight computer for fewer points. The crew changes the score, not the physics."
+      },
+      "caption": {
+        "perfect": "{who} ({role}): {task} — on time, +{points}",
+        "good": "{who} ({role}): {task} — done, +{points}",
+        "missed": "{who} ({role}): {task} — missed, the flight computer did it, {points}",
+        "wrong-go": "{who} ({role}): GO despite a known fault, {points}",
+        "false-hold": "{who} ({role}): NO-GO on a healthy system, {points}",
+        "correct-nogo": "{who} ({role}): correct NO-GO, +{points}"
+      }
+    },
+    "score": {
+      "of": "out of {max}",
+      "line": {
+        "outcome": "Mission result",
+        "requirements": "Requirements met",
+        "science": "Science returned",
+        "data": "Data delivered",
+        "health": "Spacecraft health",
+        "crew": "Crew performance"
+      },
+      "honest": "The score comes from the simulation's outcome and the crew's jobs. It is for this flight only; there is no leaderboard.",
+      "crew": "The crew",
+      "mvp": "Best crew member",
+      "tasks": "{done} of {total} jobs"
+    },
+    "mistakes": {
+      "none": "No mistakes. A clean flight!",
+      "watch": "Watch",
+      "category": {
+        "crew": "Crew",
+        "flight": "Flight",
+        "requirement": "Requirement",
+        "design": "Design"
+      },
+      "crew": {
+        "missed": "{who} missed “{task}” ({role}): the flight computer did it.",
+        "missedWhy": "A job nobody does is done late by the flight computer. Answer quickly next time.",
+        "wrong-go": "{who} said GO for the {role} station although the design had a fault.",
+        "wrong-goWhy": "A GO means you accept the risk.",
+        "knownFault": "The design had {count, plural, one {# error} other {# errors}} in this area. The right call was NO-GO, which scrubs the launch so you can fix it.",
+        "false-hold": "{who} called NO-GO for {role} although nothing was wrong.",
+        "false-holdWhy": "The hold was overruled and the flight went on. A NO-GO is for real faults."
+      },
+      "requirement": "Requirement missed: {kind} was {actual}, the limit is {limit}.",
+      "designFix": "This error was in the design at launch. Fix it in the hangar."
+    },
+    "replay": {
+      "title": "Mission video",
+      "finished": "End of the video",
+      "timeline": "Video timeline",
+      "again": "Again",
+      "pause": "Pause",
+      "play": "Play",
+      "mistakes": "Mistakes ({count})",
+      "exit": "Back to result"
     }
   }
 }

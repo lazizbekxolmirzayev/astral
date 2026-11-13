@@ -10,7 +10,11 @@ import { formatBits, formatDistance, formatLiftoffTime, formatNumber, formatSpee
 import { ASCENT_SPEEDS } from '@/game/cinematic';
 import { gameStore, LAUNCH_CAMERAS } from '@/game/gameStore';
 import { simStore } from '@/stores/simStore';
+import { crewStore } from '@/game/crewStore';
+import { CrewDirector } from './CrewDirector';
+import { CrewPanel } from './CrewPanel';
 import { FlightInstruments } from './Instruments';
+import { ReplayBar } from './ReplayBar';
 import type { RocketClass } from './RocketModel';
 import { Subtitles, VoiceDirector } from './VoiceDirector';
 import { useSimSnapshot } from './useSimSnapshot';
@@ -26,7 +30,7 @@ function Bar({ fraction, color }: { fraction: number; color: string }) {
 }
 
 /** The flight screen's overlay: stage track, telemetry, event log, countdown and controls. All numbers come from the simulation. */
-export function FlightHud({ rocket = 'medium' }: { rocket?: RocketClass }) {
+export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: RocketClass; replay?: boolean }) {
   const t = useTranslations('game.flight');
   const locale = useLocale();
   const { plan, sim, status, clockT } = useSimSnapshot();
@@ -97,9 +101,15 @@ export function FlightHud({ rocket = 'medium' }: { rocket?: RocketClass }) {
         {lost ? <p data-testid="mission-lost" className="text-4xl font-extrabold uppercase tracking-[0.25em] text-red-300 drop-shadow-[0_0_30px_rgba(255,60,60,0.8)] sm:text-6xl">{t('lost')}</p> : null}
       </div>
 
-      <VoiceDirector rocket={rocket} />
+      <VoiceDirector rocket={rocket} replay={replay} />
+      {replay ? <ReplayBar /> : (
+        <>
+          <CrewDirector rocket={rocket} />
+          <CrewPanel />
+        </>
+      )}
       <Subtitles />
-      <FlightInstruments />
+      {replay ? null : <FlightInstruments />}
 
       {/* telemetry */}
       <aside data-testid="telemetry" className="absolute bottom-3 left-3 z-20 w-[210px] rounded-2xl border border-white/10 bg-[linear-gradient(170deg,rgba(8,14,26,0.82),rgba(8,10,20,0.7))] p-3 backdrop-blur-md sm:w-[250px]">
@@ -123,7 +133,7 @@ export function FlightHud({ rocket = 'medium' }: { rocket?: RocketClass }) {
       </aside>
 
       {/* log */}
-      <aside data-testid="mission-log" className="pointer-events-none absolute bottom-3 right-3 z-20 hidden w-[320px] sm:block">
+      {replay ? null : <aside data-testid="mission-log" className="pointer-events-none absolute bottom-3 right-3 z-20 hidden w-[320px] sm:block">
         <p className="mb-1 text-right text-[10px] uppercase tracking-[0.24em] text-cyan-300/70">{t('log')}</p>
         <ul className="space-y-1">
           {log.map((entry, index) => (
@@ -132,7 +142,7 @@ export function FlightHud({ rocket = 'medium' }: { rocket?: RocketClass }) {
             </li>
           ))}
         </ul>
-      </aside>
+      </aside>}
 
       {/* crew window: the view from inside the nose */}
       {onAscent && activeCamera === 'crew' ? (
@@ -145,9 +155,9 @@ export function FlightHud({ rocket = 'medium' }: { rocket?: RocketClass }) {
       <div className="absolute inset-x-3 top-[150px] z-20 flex flex-col items-stretch gap-1.5 sm:inset-x-auto sm:right-3 sm:top-[68px] sm:items-end">
         <div className="flex justify-center gap-1.5 sm:justify-end">
           <button type="button" data-action={running ? 'pause' : 'resume'} disabled={sim.ended} onClick={() => (running ? simStore.getState().pause() : simStore.getState().resume())} className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:text-white disabled:opacity-30">{running ? t('pause') : t('resume')}</button>
-        <button type="button" data-action="skip-stage" title={t('skipHint')} disabled={sim.ended} onClick={() => simStore.getState().skipStage()} className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:text-white disabled:opacity-30">{t('skip')} ⏭</button>
+        {replay ? null : <button type="button" data-action="skip-stage" title={t('skipHint')} disabled={sim.ended} onClick={() => { crewStore.getState().cancelAll(); simStore.getState().skipStage(); }} className="rounded-full border border-white/15 bg-black/45 px-3 py-1.5 text-[11px] uppercase tracking-[0.14em] text-white/80 backdrop-blur-md transition hover:border-white/40 hover:text-white disabled:opacity-30">{t('skip')} ⏭</button>}
         </div>
-        {onAscent ? (
+        {onAscent && !replay ? (
           <div role="group" aria-label={t('ascentSpeed.label')} className="flex items-center justify-center gap-1 sm:justify-end">
             <span className="mr-1 text-[10px] uppercase tracking-[0.14em] text-white/45">{t('ascentSpeed.label')}</span>
             {ASCENT_SPEEDS.map((value) => (

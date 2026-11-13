@@ -1,7 +1,7 @@
 import { useStore } from 'zustand';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import type { Mission } from '@/mission';
-import { advanceSim, buildSimPlan, createSim, skipToNextStage, type SimPlan, type SimState, type StageId } from '@/mission/sim';
+import { advanceSim, buildSimPlan, createSim, runToEnd, skipToNextStage, type SimPlan, type SimState, type StageId } from '@/mission/sim';
 
 /**
  * The running mission simulation of this browser session (one at a time).
@@ -55,6 +55,10 @@ export type SimStoreState = {
   setRateModel: (model: RateModel | null) => void;
   /** Runs the active stage to its end (a real step of the simulation, not a jump of the display). */
   skipStage: () => void;
+  /** Replays the flight from the start up to mission time `t` (deterministic), then keeps the playback state. */
+  seek: (t: number) => void;
+  /** Runs the whole mission to its end at once (the playback shows the finished state). */
+  finishNow: () => void;
   /** Advances playback by `realSeconds` of wall-clock time at the chosen speed. */
   tick: (realSeconds: number) => void;
   /** Forgets the simulation. */
@@ -103,6 +107,18 @@ export function createSimStore(): StoreApi<SimStoreState> {
         if (!plan || !sim || sim.ended || status === 'idle') return;
         const next = skipToNextStage(plan, sim);
         set({ sim: next, clockT: next.t, status: next.ended ? 'finished' : status });
+      },
+      seek: (t) => {
+        const { plan, status } = get();
+        if (!plan || plan.unresolvable) return;
+        const next = advanceSim(plan, createSim(plan), Math.max(0, t));
+        set({ sim: next, clockT: next.ended ? next.t : Math.max(0, t), status: next.ended ? 'finished' : status === 'finished' ? 'paused' : status });
+      },
+      finishNow: () => {
+        const { plan, sim } = get();
+        if (!plan || !sim) return;
+        const next = runToEnd(plan, sim);
+        set({ sim: next, clockT: next.t, status: 'finished' });
       },
       tick: (realSeconds) => {
         const { plan, sim, status, speed, clockT, rateModel } = get();

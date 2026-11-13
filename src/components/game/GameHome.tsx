@@ -63,6 +63,7 @@ export function GameHome() {
   const phase = useGameStore((state) => state.phase);
   const missionId = useGameStore((state) => state.missionId);
   const mission = useMissionStore((state) => (missionId ? state.missions[missionId] : undefined));
+  const stepPhase: GamePhase = phase === 'replay' ? 'result' : phase;
   const status = useSimStore((state) => state.status);
   const outcome = useSimStore((state) => state.sim?.outcome ?? null);
   const [ready, setReady] = useState(false);
@@ -73,7 +74,7 @@ export function GameHome() {
   const labels = useMemo<LabelSpec[]>(() => {
     if (phase === 'map') return DESTINATION_IDS.map((id) => ({ id: `dest:${id}`, testId: 'data-destination-label', text: pickText(DESTINATIONS.find((entry) => entry.id === id)!.name, locale), selected: focus === id }));
     if (phase === 'hangar') return LAUNCHERS.map((launcher) => ({ id: `rocket:${launcher.id}`, testId: 'data-rocket-label', text: pickText(launcher.name, locale), selected: rocketId === launcher.id }));
-    if (phase === 'flight') {
+    if (phase === 'flight' || phase === 'replay') {
       const names = [
         { id: 'flight:craft', text: t('flight.labels.craft') },
         { id: 'flight:target', text: t('flight.labels.target') },
@@ -140,7 +141,7 @@ export function GameHome() {
               <span className="text-sm font-semibold tracking-[0.22em] text-white">NEXUS</span>
               <ol className="ml-2 hidden items-center gap-1 sm:flex" aria-label={t('title')}>
                 {STEPS.map((step, index) => (
-                  <li key={step} aria-current={step === phase ? 'step' : undefined} className={`rounded-full px-2.5 py-0.5 text-[10px] uppercase tracking-[0.16em] ${step === phase ? 'bg-cyan-400/20 text-cyan-100' : STEPS.indexOf(phase) > index ? 'text-white/55' : 'text-white/30'}`}>
+                  <li key={step} aria-current={step === stepPhase ? 'step' : undefined} className={`rounded-full px-2.5 py-0.5 text-[10px] uppercase tracking-[0.16em] ${step === stepPhase ? 'bg-cyan-400/20 text-cyan-100' : STEPS.indexOf(stepPhase) > index ? 'text-white/55' : 'text-white/30'}`}>
                     {index + 1} · {t(`steps.${step}`)}
                   </li>
                 ))}
@@ -149,7 +150,7 @@ export function GameHome() {
             <div className="pointer-events-auto flex items-center gap-1.5">
               <Link href="/universe" className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.universe')}</Link>
               <Link href={missionId ? `/missions/${missionId}` : '/missions'} title={t('topbar.engineerHint')} className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.engineer')}</Link>
-              <HelpBox phase={phase} />
+              <HelpBox phase={phase === 'replay' ? 'result' : phase} />
               <MuteButton />
               <div className="hidden sm:block"><AccountMenu /></div>
             </div>
@@ -160,7 +161,7 @@ export function GameHome() {
             <div className="pointer-events-none absolute inset-0 [&>*]:pointer-events-auto [&_[data-nopointer]]:pointer-events-none">
               {phase === 'map' ? <MapPanel focus={focus} onBuild={build} /> : null}
               {phase === 'hangar' && mission ? <HangarPanel mission={mission} view={hangarView} onLaunch={launch} /> : null}
-              {phase === 'flight' ? <FlightHud rocket={LAUNCHERS.find((launcher) => launcher.id === rocketId)?.sizeClass ?? 'medium'} /> : null}
+              {phase === 'flight' || phase === 'replay' ? <FlightHud replay={phase === 'replay'} rocket={LAUNCHERS.find((launcher) => launcher.id === rocketId)?.sizeClass ?? 'medium'} /> : null}
               {phase === 'result' ? <ResultPanel missionId={missionId} /> : null}
             </div>
           </div>

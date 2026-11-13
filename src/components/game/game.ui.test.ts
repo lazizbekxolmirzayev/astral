@@ -142,3 +142,43 @@ describe('real instruments', () => {
     expect(html).toContain('data-samples="2"');
   });
 });
+
+describe('crew, score and video screens', () => {
+  for (const locale of ['uz', 'en', 'ru'] as const) {
+    it(`renders the crew setup, the result tabs with score and the mistake list in ${locale}`, async () => {
+      const { CrewSetup, CrewPanel } = await import('./CrewPanel');
+      const { MistakeList } = await import('./MistakeList');
+      const { crewStore } = await import('@/game/crewStore');
+      crewStore.getState().reset();
+      crewStore.getState().setPlayerCount(3);
+      const setup = render(locale, createElement(CrewSetup));
+      expect(setup).toContain('data-action="players-4"');
+      expect(setup.match(/data-player="/g)).toHaveLength(3);
+      crewStore.getState().openTask({ key: 'go-power', defId: 'go-power', stage: 'pre-launch', expected: 'go' });
+      const panel = render(locale, createElement(CrewPanel));
+      expect(panel).toContain('data-action="crew-go-power"');
+      expect(panel).toContain('data-action="crew-nogo-power"');
+      crewStore.getState().autoComplete(['go-power'], 5);
+      const log = crewStore.getState().log;
+      const list = render(locale, createElement(MistakeList, { record: { names: ['', '', '', ''] }, mistakes: [{ id: 'a', category: 'crew', severity: 'error', missionT: 5, stage: 'pre-launch', role: 'power', player: 0, task: 'go-power', title: { key: 'mistakes.crew.missed' }, detail: { key: 'mistakes.crew.missedWhy' }, points: log[0]!.points }, { id: 'r', category: 'requirement', severity: 'error', missionT: null, stage: null, title: { key: 'mistakes.requirement', params: { kind: 'max-cost', actual: 20e6, limit: 15e6, unit: 'USD' } }, detail: null, points: 0 }] }));
+      expect(list).toContain('data-mistake="crew"');
+      expect(list).toContain('data-mistake="requirement"');
+      expect(render(locale, createElement(MistakeList, { record: { names: [] }, mistakes: [] }))).toContain('data-testid="no-mistakes"');
+      crewStore.getState().reset();
+      expect(problems).toEqual([]);
+    });
+  }
+  it('the result card offers the video, the score and the mistakes after a flight', () => {
+    gameStore.getState().newMission();
+    gameStore.getState().focusDestination('leo');
+    const id = gameStore.getState().confirmDestination('Video');
+    expect(gameStore.getState().launch()).toBe(true);
+    for (let index = 0; index < 4000 && simStore.getState().status === 'running'; index += 1) simStore.getState().tick(0.25);
+    gameStore.getState().showResult();
+    const card = render('en', createElement(ResultPanel, { missionId: id }));
+    expect(card).toContain('data-action="watch-replay"');
+    expect(card).toContain('data-action="tab-score"');
+    expect(card).toContain('data-action="tab-mistakes"');
+    expect(problems).toEqual([]);
+  });
+});

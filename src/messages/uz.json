@@ -1427,7 +1427,12 @@
       "refused": "Bu o'zgartirishga bu yerda ruxsat yo'q.",
       "mobileParts": "Qismlar",
       "mobileStatus": "Holat",
-      "quantity": "{count} ta o'rnatilgan"
+      "quantity": "{count} ta o'rnatilgan",
+      "abort": {
+        "title": "Uchirish bekor qilindi",
+        "body": "{role} stansiyasi dizayndagi haqiqiy nosozlik tufayli NO-GO dedi:",
+        "dismiss": "Tushunarli"
+      }
     },
     "flight": {
       "stage": "{current}-bosqich / {total}",
@@ -1509,7 +1514,13 @@
       "improve": "Dizaynni yaxshilash",
       "again": "Yangi missiya",
       "report": "Muhandislik hisoboti",
-      "stage": "Tugagan bosqich: {stage}"
+      "stage": "Tugagan bosqich: {stage}",
+      "tab": {
+        "result": "Natija",
+        "score": "Ball"
+      },
+      "tabMistakes": "Xatolar ({count})",
+      "watchVideo": "Missiya videosini ko'rish"
     },
     "instruments": {
       "altitude": "Balandlik",
@@ -1580,6 +1591,10 @@
         "sound": {
           "key": "🔊",
           "text": "Tovushni yoqish yoki o'chirish (yuqori o'ngda)"
+        },
+        "crew": {
+          "key": "1–4",
+          "text": "Ekipaj stansiyasi uchun javob berish (Shift = NO-GO)"
         }
       },
       "terms": {
@@ -1637,6 +1652,194 @@
         "mcc": "Missiya boshqaruvi",
         "crew": "Ekipaj"
       }
+    },
+    "crew": {
+      "title": "Ekipaj",
+      "pts": "ball",
+      "standby": "Kutmoqda",
+      "go": "GO",
+      "nogo": "NO-GO",
+      "player": "{n}-o'yinchi",
+      "keys": "1–4 tugmalari stansiya uchun javob beradi; Shift + tugma — NO-GO.",
+      "keysMulti": "Har bir o'yinchi o'z stansiyalari uchun javob beradi: 1–4 tugmalari (Shift = NO-GO) yoki bosing.",
+      "aborted": "Uchirish bekor qilindi. Raketa angarga qaytadi.",
+      "roles": {
+        "director": {
+          "name": "Parvoz direktori",
+          "text": "Yakuniy GO beradi, bosqich ajralishi va dvigatel o'chishini tasdiqlaydi, yetib borishni ma'qullaydi."
+        },
+        "propulsion": {
+          "name": "Dvigatel",
+          "text": "Dvigatellar va yoqishlar: Max-Q gazi, bosqich ajralishi, yo'l tuzatishi, yetib borish yoqishi."
+        },
+        "power": {
+          "name": "Energiya va tizimlar",
+          "text": "Batareya va quyosh panellari: panellarni ochadi, quvvat muammolariga javob beradi."
+        },
+        "comms": {
+          "name": "Aloqa va fan",
+          "text": "Radio aloqa, bosh qalpoq, asboblar va ma'lumot yuborish."
+        }
+      },
+      "tasks": {
+        "go-power": {
+          "name": "Energiya tizimi: GO / NO-GO",
+          "call": "{name}, energiya tizimlari: GO yoki NO-GO?"
+        },
+        "go-propulsion": {
+          "name": "Dvigatel: GO / NO-GO",
+          "call": "{name}, dvigatellar: GO yoki NO-GO?"
+        },
+        "go-comms": {
+          "name": "Aloqa va yuk: GO / NO-GO",
+          "call": "{name}, aloqa va yuk: GO yoki NO-GO?"
+        },
+        "go-director": {
+          "name": "Yakuniy uchirish GO / NO-GO",
+          "call": "{name}, parvoz direktori: uchirishga yakuniy GO?"
+        },
+        "maxq": {
+          "name": "Max-Q: gazni kamaytiring",
+          "call": "{name}, maksimal bosim yaqin: gazni kamaytiring!",
+          "action": "Gazni kamaytirish"
+        },
+        "booster-sep": {
+          "name": "Boosterlar ajralishini tasdiqlang",
+          "call": "{name}, boosterlar ajralishini tasdiqlang!",
+          "action": "Boosterlarni ajratish"
+        },
+        "stage-sep": {
+          "name": "Bosqich ajralishini tasdiqlang",
+          "call": "{name}, bosqich ajralishini tasdiqlang!",
+          "action": "Bosqichni ajratish"
+        },
+        "fairing-sep": {
+          "name": "Bosh qalpoqni tashlang",
+          "call": "{name}, bosh qalpoqni tashlang!",
+          "action": "Qalpoqni tashlash"
+        },
+        "meco": {
+          "name": "Dvigatel o'chishini tasdiqlang",
+          "call": "{name}, asosiy dvigatel o'chishini tasdiqlang!",
+          "action": "O'chishni tasdiqlash"
+        },
+        "deploy-panels": {
+          "name": "Quyosh panellarini oching",
+          "call": "{name}, quyosh panellarini oching!",
+          "action": "Panellarni ochish"
+        },
+        "link-check": {
+          "name": "Yer bilan aloqani o'rnating",
+          "call": "{name}, yer bilan aloqani o'rnating!",
+          "action": "Aloqani o'rnatish"
+        },
+        "course-correction": {
+          "name": "Yo'l tuzatish yoqishi",
+          "call": "{name}, yo'l tuzatishini bajaring!",
+          "action": "Tuzatishni yoqish"
+        },
+        "arrival-go": {
+          "name": "Yetib borishga GO",
+          "call": "{name}, parvoz direktori: yetib borishga GO?",
+          "action": "Yetib borishga GO"
+        },
+        "arrival-burn": {
+          "name": "Yetib borish yoqishi",
+          "call": "{name}, yetib borish yoqishini boshlang!",
+          "action": "Yoqishni boshlash"
+        },
+        "downlink": {
+          "name": "Ma'lumot yuborishni boshlang",
+          "call": "{name}, ma'lumot yuborishni boshlang!",
+          "action": "Yuborishni boshlash"
+        },
+        "ev-solar-degradation": {
+          "name": "Panellar quvvati tushdi: sozlang",
+          "call": "{name}, panel quvvati tushdi: panellarni sozlang!",
+          "action": "Panellarni sozlash"
+        },
+        "ev-instrument-malfunction": {
+          "name": "Asbob nosozligi: qayta ishga tushiring",
+          "call": "{name}, asbob nosoz: qayta ishga tushiring!",
+          "action": "Qayta yoqish"
+        },
+        "ev-communication-outage": {
+          "name": "Aloqa uzildi: antennani almashtiring",
+          "call": "{name}, aloqa uzildi: zaxira antennaga o'ting!",
+          "action": "Antennani almashtirish"
+        },
+        "ev-observation-opportunity": {
+          "name": "Noyob nishon: asboblarni yo'naltiring",
+          "call": "{name}, noyob nishon ko'rinmoqda: asboblarni yo'naltiring!",
+          "action": "Yo'naltirish"
+        },
+        "ev-increased-power-demand": {
+          "name": "Yuklama oshdi: ortiqcha yuklamani o'chiring",
+          "call": "{name}, yuklama oshmoqda: keraksiz yuklamani o'chiring!",
+          "action": "Yuklamani o'chirish"
+        }
+      },
+      "setup": {
+        "title": "Ekipaj",
+        "players": "O'yinchilar soni",
+        "count": "{count} o'yinchi · to'rtta stansiya",
+        "name": "{n}-o'yinchi ismi",
+        "note": "Har bir stansiyaning parvozda haqiqiy vazifalari bor va ramp oldida GO / NO-GO so'raladi. Hech kim bajarmagan vazifani bort kompyuteri kamroq ball bilan bajaradi. Ekipaj ballga ta'sir qiladi, fizikaga emas."
+      },
+      "caption": {
+        "perfect": "{who} ({role}): {task} — o'z vaqtida, +{points}",
+        "good": "{who} ({role}): {task} — bajarildi, +{points}",
+        "missed": "{who} ({role}): {task} — o'tkazib yuborildi, bort kompyuteri bajardi, {points}",
+        "wrong-go": "{who} ({role}): ma'lum nosozlikka qaramay GO, {points}",
+        "false-hold": "{who} ({role}): sog'lom tizimga NO-GO, {points}",
+        "correct-nogo": "{who} ({role}): to'g'ri NO-GO, +{points}"
+      }
+    },
+    "score": {
+      "of": "{max} dan",
+      "line": {
+        "outcome": "Missiya natijasi",
+        "requirements": "Talablar bajarilishi",
+        "science": "Qaytgan ilmiy natija",
+        "data": "Yetkazilgan ma'lumot",
+        "health": "Apparat holati",
+        "crew": "Ekipaj ishi"
+      },
+      "honest": "Ball simulyatsiya natijasidan va ekipaj vazifalaridan olinadi. Faqat shu parvoz uchun; reyting jadvali yo'q.",
+      "crew": "Ekipaj",
+      "mvp": "Eng yaxshi ekipaj a'zosi",
+      "tasks": "{done} / {total} vazifa"
+    },
+    "mistakes": {
+      "none": "Xato yo'q. Top-toza parvoz!",
+      "watch": "Ko'rish",
+      "category": {
+        "crew": "Ekipaj",
+        "flight": "Parvoz",
+        "requirement": "Talab",
+        "design": "Dizayn"
+      },
+      "crew": {
+        "missed": "{who} «{task}» vazifasini o'tkazib yubordi ({role}): bort kompyuteri bajardi.",
+        "missedWhy": "Hech kim bajarmagan vazifani bort kompyuteri kech bajaradi. Keyingi safar tezroq javob bering.",
+        "wrong-go": "{who} dizaynda nosozlik bo'lsa ham {role} stansiyasi uchun GO dedi.",
+        "wrong-goWhy": "GO — xavfni qabul qilish degani.",
+        "knownFault": "Dizaynda bu sohada {count} ta xato bor edi. To'g'ri qaror NO-GO edi: u uchirishni bekor qiladi va tuzatish imkonini beradi.",
+        "false-hold": "{who} hech narsa noto'g'ri bo'lmasa ham {role} uchun NO-GO dedi.",
+        "false-holdWhy": "To'xtatish rad etildi va parvoz davom etdi. NO-GO haqiqiy nosozliklar uchun."
+      },
+      "requirement": "Talab bajarilmadi: {kind} {actual} bo'ldi, chegara {limit}.",
+      "designFix": "Bu xato uchirish paytida dizaynda bor edi. Angarda tuzating."
+    },
+    "replay": {
+      "title": "Missiya videosi",
+      "finished": "Video tugadi",
+      "timeline": "Video vaqt chizig'i",
+      "again": "Qayta",
+      "pause": "To'xtatish",
+      "play": "Ijro",
+      "mistakes": "Xatolar ({count})",
+      "exit": "Natijaga qaytish"
     }
   }
 }

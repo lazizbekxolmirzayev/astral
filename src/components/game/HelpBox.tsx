@@ -41,7 +41,7 @@ export function HelpBox({ phase }: { phase: GamePhase }) {
 
           <p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-white/50">{t('controls')}</p>
           <ul className="mt-1.5 space-y-1 text-[12px] text-white/75">
-            {(['help', 'camera', 'pause', 'sound'] as const).map((key) => (
+            {(['help', 'camera', 'pause', 'crew', 'sound'] as const).map((key) => (
               <li key={key} className="flex items-start gap-2"><kbd className="mt-px shrink-0 rounded border border-white/20 bg-white/10 px-1.5 text-[10px] text-white/90">{t(`keys.${key}.key`)}</kbd><span>{t(`keys.${key}.text`)}</span></li>
             ))}
           </ul>
