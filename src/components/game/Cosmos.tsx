@@ -2,11 +2,12 @@
 
 import { Line } from '@react-three/drei';
 import { useEffect, useMemo } from 'react';
-import { BufferAttribute, BufferGeometry, Color, DoubleSide } from 'three';
+import { BufferAttribute, BufferGeometry, Color, DoubleSide, Vector3 } from 'three';
+import { createGlowTexture, GLOW_BLENDING } from '../3d/proceduralTextures';
 import { mulberry32 } from '@/lib/random';
 import { planets } from '../3d/layout';
 import { BELT_MAX_AU, BELT_MIN_AU } from '../3d/layout';
-import { GamePlanet } from './GamePlanet';
+import { GAME_SUN_DIRECTION, GamePlanet } from './GamePlanet';
 
 /**
  * The rest of the Solar System around a heliocentric flight, so the spacecraft really is "out in the cosmos": the other
@@ -74,6 +75,50 @@ export function Cosmos({ scale, extent, epochMs }: { scale: number; extent: numb
           </group>
         );
       })}
+    </group>
+  );
+}
+
+const SUN_DIR = new Vector3(...GAME_SUN_DIRECTION).normalize();
+const BRIGHTNESS: Record<string, number> = { mercury: 3.2, venus: 9, mars: 5.5, jupiter: 8, saturn: 6, uranus: 2.4, neptune: 2 };
+const EARTH_ELEMENT = { au: 1, longitude0: 100.46, degPerDay: 0.9856 };
+
+/**
+ * The sky seen from Earth or the Moon: the Sun's glare in the direction the game lights the scene from, and the planets
+ * as bright points at the directions they really have from Earth (circular-orbit approximation), so a flight around Earth
+ * sits inside the same Solar System as the cruise to Mars.
+ */
+export function SkyPlanets({ epochMs }: { epochMs: number }) {
+  const days = (epochMs - J2000_MS) / 86_400_000;
+  const glow = useMemo(() => createGlowTexture('#fff2cc', 'rgba(255,200,120,0)'), []);
+  const dot = useMemo(() => createGlowTexture('#ffffff', 'rgba(255,255,255,0)'), []);
+  useEffect(() => () => { glow.dispose(); dot.dispose(); }, [glow, dot]);
+  const sprites = useMemo(() => {
+    const earthAngle = ((EARTH_ELEMENT.longitude0 + EARTH_ELEMENT.degPerDay * days) * Math.PI) / 180;
+    const earth: [number, number] = [Math.cos(earthAngle), Math.sin(earthAngle)];
+    // basis of the ecliptic plane that contains the game's sun direction
+    const up = new Vector3(0, 1, 0);
+    const normal = up.clone().sub(SUN_DIR.clone().multiplyScalar(up.dot(SUN_DIR))).normalize();
+    const e2 = new Vector3().crossVectors(normal, SUN_DIR).normalize();
+    const sunAngle = Math.atan2(-earth[1], -earth[0]);
+    return planets.filter((planet) => ELEMENTS[planet.id]).map((planet) => {
+      const element = ELEMENTS[planet.id]!;
+      const angle = ((element.longitude0 + element.degPerDay * days) * Math.PI) / 180;
+      const toward = Math.atan2(Math.sin(angle) * element.au - earth[1], Math.cos(angle) * element.au - earth[0]) - sunAngle;
+      const direction = SUN_DIR.clone().multiplyScalar(Math.cos(toward)).add(e2.clone().multiplyScalar(Math.sin(toward))).multiplyScalar(900);
+      return { id: planet.id, color: planet.color, size: BRIGHTNESS[planet.id] ?? 2, position: direction.toArray() as [number, number, number] };
+    });
+  }, [days]);
+  return (
+    <group>
+      <sprite position={SUN_DIR.clone().multiplyScalar(900).toArray()} scale={[420, 420, 1]} raycast={() => null}>
+        <spriteMaterial map={glow} blending={GLOW_BLENDING} transparent depthWrite={false} opacity={0.95} fog={false} />
+      </sprite>
+      {sprites.map((sprite) => (
+        <sprite key={sprite.id} position={sprite.position} scale={[sprite.size * 3, sprite.size * 3, 1]} raycast={() => null}>
+          <spriteMaterial map={dot} color={sprite.color} blending={GLOW_BLENDING} transparent depthWrite={false} opacity={0.95} fog={false} />
+        </sprite>
+      ))}
     </group>
   );
 }

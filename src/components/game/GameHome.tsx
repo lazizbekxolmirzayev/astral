@@ -166,7 +166,7 @@ export function GameHome() {
 
           {/* the interface of the current phase; a key restarts its fade-in when the phase changes */}
           <div key={phase} className="game-phase-in pointer-events-none absolute inset-0">
-            <div className="pointer-events-none absolute inset-0 [&>*]:pointer-events-auto [&_[data-nopointer]]:pointer-events-none">
+            <div className="pointer-events-none absolute inset-0 [&>*:not(.pointer-events-none)]:pointer-events-auto [&_[data-nopointer]]:pointer-events-none">
               {phase === 'map' ? <MapPanel focus={focus} onBuild={build} /> : null}
               {phase === 'hangar' && mission ? <HangarPanel mission={mission} view={hangarView} onLaunch={launch} /> : null}
               {phase === 'flight' || phase === 'replay' ? <FlightHud replay={phase === 'replay'} rocket={LAUNCHERS.find((launcher) => launcher.id === rocketId)?.sizeClass ?? 'medium'} /> : null}

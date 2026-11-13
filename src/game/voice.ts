@@ -120,6 +120,53 @@ function pickVoice(locale: string, speaker: Speaker): SpeechSynthesisVoice | nul
   return null;
 }
 
+/**
+ * Uzbek has no voice in almost any browser, and a Turkish voice reading Uzbek sounds wrong. When the browser has no
+ * Uzbek voice, the line is read by the Google Translate text-to-speech voice (Uzbek, `tl=uz`) through an <audio> element.
+ * It is an unofficial public endpoint: if it cannot be reached (offline, blocked, rate-limited) the line falls back to
+ * the browser voice below, and the subtitle is always shown.
+ */
+let cloudAudio: HTMLAudioElement | null = null;
+let cloudRun = 0;
+const hasNativeVoice = (lang: string) => typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.getVoices().some((voice) => voice.lang.toLowerCase().replace('_', '-').startsWith(lang));
+
+export function cloudChunks(text: string, limit = 170): string[] {
+  const clean = text.replace(/[‘’ʻʼ`´]/g, "'").replace(/\s+/g, ' ').trim();
+  const sentences = clean.match(/[^.!?;:]+[.!?;:]?/g) ?? [clean];
+  const chunks: string[] = [];
+  for (const sentence of sentences) {
+    let rest = sentence.trim();
+    while (rest.length > limit) {
+      const cut = rest.lastIndexOf(' ', limit);
+      chunks.push(rest.slice(0, cut > 40 ? cut : limit).trim());
+      rest = rest.slice(cut > 40 ? cut : limit).trim();
+    }
+    if (rest) chunks.push(rest);
+  }
+  return chunks;
+}
+
+function stopCloud() {
+  cloudRun += 1;
+  if (cloudAudio) { cloudAudio.pause(); cloudAudio.removeAttribute('src'); cloudAudio = null; }
+}
+
+function speakCloud(text: string, lang: string, onFail: () => void): void {
+  stopCloud();
+  const run = cloudRun;
+  const chunks = cloudChunks(text);
+  const next = (index: number) => {
+    if (run !== cloudRun || index >= chunks.length) return;
+    const audio = new Audio(`https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${lang}&q=${encodeURIComponent(chunks[index]!)}`);
+    cloudAudio = audio;
+    audio.volume = 1;
+    audio.onended = () => next(index + 1);
+    audio.onerror = () => { if (run === cloudRun && index === 0) onFail(); };
+    audio.play().catch(() => { if (run === cloudRun && index === 0) onFail(); });
+  };
+  next(0);
+}
+
 /** Shows a line as a subtitle and, unless muted, says it aloud (crew and control sound different). */
 export function speakLine(id: string, speaker: Speaker, text: string, locale: string, options: { skipIfBusy?: boolean } = {}): void {
   current = { id, speaker, text, at: Date.now() };
@@ -129,7 +176,16 @@ export function speakLine(id: string, speaker: Speaker, text: string, locale: st
   if (!isMuted()) radioClick();
   if (isMuted() || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
   const synth = window.speechSynthesis;
-  if (options.skipIfBusy && synth.speaking) return;
+  if (options.skipIfBusy && (synth.speaking || cloudAudio)) return;
+  if (locale === 'uz' && !hasNativeVoice('uz')) {
+    speakCloud(text, 'uz', () => speakBrowser(text, speaker, locale, options));
+    return;
+  }
+  speakBrowser(text, speaker, locale, options);
+}
+
+function speakBrowser(text: string, speaker: Speaker, locale: string, options: { skipIfBusy?: boolean }): void {
+  const synth = window.speechSynthesis;
   try {
     const utterance = new SpeechSynthesisUtterance(text);
     const voice = pickVoice(locale, speaker);
@@ -139,7 +195,7 @@ export function speakLine(id: string, speaker: Speaker, text: string, locale: st
     utterance.pitch = speaker === 'mcc' ? 0.95 : 1.05;
     utterance.volume = 1;
     // a new call replaces a backlog of old ones, so the voice never lags behind the flight
-    if (!options.skipIfBusy) synth.cancel();
+    if (!options.skipIfBusy) { stopCloud(); synth.cancel(); }
     synth.speak(utterance);
   } catch {
     /* no speech: the subtitle is enough */
@@ -150,5 +206,6 @@ export function stopSpeaking(): void {
   if (clearTimer) clearTimeout(clearTimer);
   current = null;
   listeners.forEach((listener) => listener());
+  stopCloud();
   try { if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel(); } catch { /* nothing to stop */ }
 }

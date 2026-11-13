@@ -12,7 +12,7 @@ import { simStore } from '@/stores/simStore';
 import { planets, SUN_LOOK } from '../3d/layout';
 import { createGlowTexture, GLOW_BLENDING } from '../3d/proceduralTextures';
 import { CameraDirector, type CameraPose } from './CameraDirector';
-import { Cosmos } from './Cosmos';
+import { Cosmos, SkyPlanets } from './Cosmos';
 import { GamePlanet, GameSun } from './GamePlanet';
 import { removeAnchors, setAnchor } from './labels';
 import { gameStore, type LaunchCameraMode } from '@/game/gameStore';
@@ -569,9 +569,9 @@ export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; f
   return (
     <>
       <CameraDirector freeLook getPose={() => poseRef.current} damping={overview ? 1.6 : 5} sway={0.08} snapKey={`flight-${frame.key}`} />
-      <ambientLight intensity={0.22} />
-      <directionalLight position={[-30, 8, 14]} intensity={3.6} color="#fff2dd" />
-      {frame.center === 'sun' ? <Cosmos scale={scale} extent={frame.extent} epochMs={epochMs} /> : null}
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[-30, 8, 14]} intensity={4.4} color="#fff2dd" />
+      {frame.center === 'sun' ? <Cosmos scale={scale} extent={frame.extent} epochMs={epochMs} /> : <SkyPlanets epochMs={epochMs} />}
       {frame.bodies.map((body) => (
         <Body key={`${body.id}-${body.position.join(',')}`} body={body} scale={scale} />
       ))}

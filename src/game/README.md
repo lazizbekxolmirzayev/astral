@@ -99,3 +99,7 @@ A player can open **Online** in the top bar, create a room (5-letter code, up to
 - **Free look** (`CameraDirector`, `freeLook`): drag with the mouse or a finger and the camera swings around what it is looking at; the wheel or a two-finger pinch zooms. A few seconds after the drag ends the view eases back to the director's shot.
 - **Heliocentric flights** draw the rest of the Solar System (`Cosmos.tsx`): the other planets at their real mean distances and approximate current positions (circular orbits, J2000 mean longitude + mean motion), the main asteroid belt, and orbit lines. Sizes are exaggerated; surfaces are procedural.
 - The launch sky is an opaque dome drawn first (a transparent, depth-test-free dome paints over the vehicle) and goes black with altitude by about 100 km. The drawn height near the ground is exaggerated so the vehicle visibly leaves the tower; the HUD altitude is the real one.
+
+- **Uzbek voice:** browsers rarely have an Uzbek voice. When none is installed the line is read by the Google Translate Uzbek text-to-speech voice (an unofficial public endpoint, played through an `<audio>` element); if it cannot be reached the browser's fallback voice is used. English and Russian use the best installed browser voice.
+- The HUD layers no longer sit over the canvas (`[&>*:not(.pointer-events-none)]`), which is what lets the drag and wheel reach the 3D view.
+- Earth/Moon flights show the Sun's glare and the planets as points at their approximate real directions (`SkyPlanets`).
