@@ -1,5 +1,6 @@
 /**
- * The crew: one to four players share four stations, and each station has real jobs during the flight.
+ * The crew: four stations, each with real jobs during the flight. One to four players sit at the first stations (captain,
+ * engines, power, comms); a station without a player is run by the AI crew member.
  *
  * What the crew does is checked against what the simulation actually contains. At the pad every station is
  * asked GO or NO-GO, and a station whose subsystem has a real error in the design (the engine's own issue list)
@@ -17,13 +18,25 @@ export const PLAYER_COLORS = ['#22d3ee', '#fbbf24', '#a78bfa', '#34d399'] as con
 
 export const clampPlayers = (count: number): number => Math.max(1, Math.min(MAX_PLAYERS, Math.round(count) || 1));
 
-/** Which player sits at a station. One player runs all four; four players have one each. */
-export function playerOfRole(role: CrewRole, playerCount: number): number {
-  return CREW_ROLES.indexOf(role) % clampPlayers(playerCount);
+/** Which seat a station is: station N is seat N, so with one to three players the last stations have no human. */
+export function playerOfRole(role: CrewRole, _playerCount?: number): number {
+  return CREW_ROLES.indexOf(role);
+}
+
+/** A station nobody sits at is run by the AI crew member. */
+export function isAiRole(role: CrewRole, playerCount: number): boolean {
+  return CREW_ROLES.indexOf(role) >= clampPlayers(playerCount);
 }
 
 export function rolesOfPlayer(player: number, playerCount: number): CrewRole[] {
-  return CREW_ROLES.filter((role) => playerOfRole(role, playerCount) === player);
+  return player >= 0 && player < clampPlayers(playerCount) ? [CREW_ROLES[player]!] : [];
+}
+
+/** How long (crew-clock seconds) the AI takes over a job: a believable 1.5 to 4 seconds, different for each job. */
+export function aiDelayS(key: string): number {
+  let hash = 7;
+  for (let i = 0; i < key.length; i += 1) hash = (hash * 31 + key.charCodeAt(i)) % 997;
+  return 1.5 + (hash % 26) / 10;
 }
 
 /* ---- what is wrong with the design, by station ---- */

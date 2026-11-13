@@ -2,7 +2,7 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect } from 'react';
-import { createCrewScheduler, padStatus, roleOfIssue, type CrewRole } from '@/game/crew';
+import { aiDelayS, createCrewScheduler, isAiRole, padStatus, roleOfIssue, type CrewRole } from '@/game/crew';
 import { crewStore } from '@/game/crewStore';
 import { gameStore } from '@/game/gameStore';
 import { speakLine } from '@/game/voice';
@@ -50,8 +50,21 @@ export function CrewDirector({ rocket }: { rocket: RocketClass }) {
         const info = opening.defId.startsWith('go-') ? padStatus(opening.defId.slice(3) as CrewRole, plan.evaluation.issues) : null;
         const task = crew.openTask({ key: opening.key, defId: opening.defId, stage, expected: info?.expected, issueCodes: info?.errors });
         if (task) {
-          const name = crewStore.getState().names[task.player]?.trim() || t('player', { n: task.player + 1 });
-          speakLine(`crew-${task.key}`, 'mcc', t(`tasks.${task.defId}.call`, { name }), locale);
+          // a station with a player is called by name; the AI crew member handles its own jobs quietly
+          if (!isAiRole(task.role, crew.playerCount)) {
+            const name = crewStore.getState().names[task.player]?.trim() || t('player', { n: task.player + 1 });
+            speakLine(`crew-${task.key}`, 'mcc', t(`tasks.${task.defId}.call`, { name }), locale);
+          }
+        }
+      }
+      // the AI crew member answers for the stations nobody sits at: truthfully (NO-GO on a real fault), after a short delay
+      if (status === 'running') {
+        for (const task of crewStore.getState().open) {
+          const state = crewStore.getState();
+          if (!isAiRole(task.role, state.playerCount) || state.clockS - task.openedAtS < aiDelayS(task.key)) continue;
+          const choice = task.kind === 'poll' ? (task.expected === 'nogo' ? 'nogo' : 'go') : 'do';
+          const entry = state.respond(task.role, choice, clockT, true);
+          if (entry && task.kind === 'poll') speakLine(`crew-ai-${task.key}`, 'mcc', t(choice === 'nogo' ? 'aiNogo' : 'aiGo', { role: t(`roles.${task.role}.name`) }), locale);
         }
       }
       if (due.length > 0) crew.autoComplete(due, clockT);

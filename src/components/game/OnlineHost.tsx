@@ -12,7 +12,9 @@ import { simStore } from '@/stores/simStore';
 /** Whether a station is played from another device in the host's room. */
 export function isRemoteRole(role: CrewRole): boolean {
   const { mode, roster } = onlineStore.getState();
-  return mode === 'host' && playerOfRole(role, Math.max(1, roster.length)) !== 0;
+  const seat = playerOfRole(role);
+  // a station past the last seated player belongs to the AI crew member, not to a remote device
+  return mode === 'host' && seat !== 0 && seat < Math.max(1, roster.length);
 }
 
 function buildSnapshot(): RoomSnapshot {

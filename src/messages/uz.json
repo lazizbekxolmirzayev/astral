@@ -1492,7 +1492,9 @@
         "moon": "Oy",
         "mars": "Mars",
         "jupiter": "Yupiter",
-        "saturn": "Saturn"
+        "saturn": "Saturn",
+        "uranus": "Uran",
+        "neptune": "Neptun"
       },
       "labels": {
         "craft": "Kosmik apparat",
@@ -1660,25 +1662,25 @@
       "standby": "Kutmoqda",
       "go": "GO",
       "nogo": "NO-GO",
-      "player": "{n}-o'yinchi",
-      "keys": "1–4 tugmalari stansiya uchun javob beradi; Shift + tugma — NO-GO.",
-      "keysMulti": "Har bir o'yinchi o'z stansiyalari uchun javob beradi: 1–4 tugmalari (Shift = NO-GO) yoki bosing.",
+      "player": "{n, select, 1 {Kapitan} 2 {Dvigatelchi} 3 {Energetik} 4 {Aloqachi} other {Ekipaj {n}}}",
+      "keys": "1–4 tugmalari stansiya uchun javob beradi; Shift + tugma — NO-GO. O'yinchisiz stansiyalarni sun'iy intellekt boshqaradi.",
+      "keysMulti": "Har bir o'yinchi o'z stansiyasi uchun javob beradi: 1–4 tugmalari (Shift = NO-GO) yoki bosing. Bo'sh stansiyalarni sun'iy intellekt boshqaradi.",
       "aborted": "Uchirish bekor qilindi. Raketa angarga qaytadi.",
       "roles": {
         "director": {
-          "name": "Parvoz direktori",
+          "name": "Kapitan",
           "text": "Yakuniy GO beradi, bosqich ajralishi va dvigatel o'chishini tasdiqlaydi, yetib borishni ma'qullaydi."
         },
         "propulsion": {
-          "name": "Dvigatel",
+          "name": "Dvigatelchi",
           "text": "Dvigatellar va yoqishlar: Max-Q gazi, bosqich ajralishi, yo'l tuzatishi, yetib borish yoqishi."
         },
         "power": {
-          "name": "Energiya va tizimlar",
+          "name": "Energetik",
           "text": "Batareya va quyosh panellari: panellarni ochadi, quvvat muammolariga javob beradi."
         },
         "comms": {
-          "name": "Aloqa va fan",
+          "name": "Aloqachi",
           "text": "Radio aloqa, bosh qalpoq, asboblar va ma'lumot yuborish."
         }
       },
@@ -1785,7 +1787,8 @@
         "players": "O'yinchilar soni",
         "count": "{count} o'yinchi · to'rtta stansiya",
         "name": "{n}-o'yinchi ismi",
-        "note": "Har bir stansiyaning parvozda haqiqiy vazifalari bor va ramp oldida GO / NO-GO so'raladi. Hech kim bajarmagan vazifani bort kompyuteri kamroq ball bilan bajaradi. Ekipaj ballga ta'sir qiladi, fizikaga emas."
+        "note": "Siz birinchi stansiyalarni boshqarasiz (kapitan, dvigatel, energiya, aloqa); bo'sh stansiyalarni sun'iy intellekt ekipaj a'zosi boshqaradi. Har stansiyada parvoz paytida haqiqiy vazifalar bor, uchish maydonida GO / NO-GO so'raladi. Hech kim bajarmagan vazifani parvoz kompyuteri kamroq ball bilan bajaradi.",
+        "ai": "SI ekipaj · avtopilot"
       },
       "caption": {
         "perfect": "{who} ({role}): {task} — o'z vaqtida, +{points}",
@@ -1795,7 +1798,12 @@
         "false-hold": "{who} ({role}): sog'lom tizimga NO-GO, {points}",
         "correct-nogo": "{who} ({role}): to'g'ri NO-GO, +{points}"
       },
-      "onlineWaiting": "{name} javobi kutilmoqda (onlayn)"
+      "onlineWaiting": "{name} javobi kutilmoqda (onlayn)",
+      "humanSeat": "Inson",
+      "aiSeat": "SI ekipaj",
+      "aiGo": "{role}: GO.",
+      "aiNogo": "{role}: NO-GO!",
+      "aiAuto": "Bu stansiyani sun'iy intellekt boshqaradi"
     },
     "score": {
       "of": "{max} dan",

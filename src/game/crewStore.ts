@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import type { StageId } from '@/mission/sim';
-import { clampPlayers, judgeAnswer, playerOfRole, taskInfo, TASK_POINTS, type CrewResult, type CrewRole } from './crew';
+import { clampPlayers, isAiRole, judgeAnswer, playerOfRole, taskInfo, TASK_POINTS, type CrewResult, type CrewRole } from './crew';
 
 /** A job the crew has been given and has not finished. */
 export type CrewTask = {
@@ -36,6 +36,8 @@ export type CrewLogEntry = {
   points: number;
   expected: 'go' | 'nogo' | null;
   issueCodes: string[];
+  /** The AI crew member answered (no points either way). */
+  ai: boolean;
 };
 
 export type AbortInfo = { role: CrewRole; player: number; issueCodes: string[] };
@@ -57,7 +59,7 @@ export type CrewState = {
   advance: (dtS: number) => void;
   openTask: (input: { key: string; defId: string; stage: StageId; expected?: 'go' | 'nogo' | null; issueCodes?: string[] }) => CrewTask | null;
   /** The player at `role`'s station answers its oldest open job. Returns the logged entry, or null when the station has none. */
-  respond: (role: CrewRole, choice: 'go' | 'nogo' | 'do', missionT: number) => CrewLogEntry | null;
+  respond: (role: CrewRole, choice: 'go' | 'nogo' | 'do', missionT: number, ai?: boolean) => CrewLogEntry | null;
   /** The flight computer takes over these jobs (time ran out or the moment passed). */
   autoComplete: (keys: readonly string[], missionT: number) => void;
   /** Jobs belonging to a stage that is over are taken over by the flight computer. */
@@ -71,7 +73,9 @@ export const DEFAULT_NAMES = ['', '', '', ''];
 
 export function createCrewStore(): StoreApi<CrewState> {
   return createStore<CrewState>()((set, get) => {
-    const finish = (task: CrewTask, result: CrewResult, responseS: number | null, missionT: number): CrewLogEntry => ({
+    const finish = (task: CrewTask, result: CrewResult, responseS: number | null, missionT: number, answeredByAi = false): CrewLogEntry => {
+      const ai = answeredByAi || isAiRole(task.role, get().playerCount);
+      return {
       key: task.key,
       defId: task.defId,
       role: task.role,
@@ -81,10 +85,12 @@ export function createCrewStore(): StoreApi<CrewState> {
       result,
       responseS,
       atS: get().clockS,
-      points: TASK_POINTS[result],
+      points: ai ? 0 : TASK_POINTS[result],
       expected: task.expected,
       issueCodes: task.issueCodes,
-    });
+      ai,
+      };
+    };
     const settle = (tasks: readonly CrewTask[], entries: CrewLogEntry[], extra: Partial<CrewState> = {}) => {
       set((state) => {
         const remove = new Set(tasks.map((task) => task.key));
@@ -125,14 +131,14 @@ export function createCrewStore(): StoreApi<CrewState> {
         set((current) => ({ open: [...current.open, task], holding: current.holding || task.hold }));
         return task;
       },
-      respond: (role, choice, missionT) => {
+      respond: (role, choice, missionT, ai = false) => {
         const state = get();
         const task = state.open.filter((entry) => entry.role === role && (choice !== 'nogo' || entry.kind === 'poll')).sort((a, b) => a.openedAtS - b.openedAtS)[0];
         if (!task) return null;
         if (choice === 'nogo' && task.kind !== 'poll') return null;
         const responseS = Math.max(0, state.clockS - task.openedAtS);
         const result = judgeAnswer({ kind: task.kind, expected: task.expected, choice, responseS, windowS: task.windowS });
-        const entry = finish(task, result, responseS, missionT);
+        const entry = finish(task, result, responseS, missionT, ai);
         settle([task], [entry], result === 'correct-nogo' ? { abort: { role: task.role, player: task.player, issueCodes: task.issueCodes } } : {});
         return entry;
       },

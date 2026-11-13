@@ -25,6 +25,8 @@ import { RoomMenu } from './RoomMenu';
 import { useOnline } from '@/game/online';
 import { MapPanel } from './MapPanel';
 import { ResultPanel } from './ResultPanel';
+/** Planets drawn in the cosmos view besides the mission's own bodies; they are named on screen too. */
+const OTHER_PLANETS = ['mercury', 'venus', 'jupiter', 'saturn', 'uranus', 'neptune'] as const;
 
 const GameCanvas = dynamic(() => import('./GameCanvas'), { ssr: false, loading: () => null });
 
@@ -85,7 +87,7 @@ export function GameHome() {
       const names = [
         { id: 'flight:craft', text: t('flight.labels.craft') },
         { id: 'flight:target', text: t('flight.labels.target') },
-        ...BODY_IDS.map((body) => ({ id: `flight:body-${body}`, text: t(`flight.bodies.${body}`) })),
+        ...[...BODY_IDS, ...OTHER_PLANETS].map((body) => ({ id: `flight:body-${body}`, text: t(`flight.bodies.${body}`) })),
       ];
       return names.map((entry) => ({ ...entry, testId: 'data-flight-label', selected: entry.id === 'flight:craft' }));
     }

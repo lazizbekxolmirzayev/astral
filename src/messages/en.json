@@ -1492,7 +1492,9 @@
         "moon": "Moon",
         "mars": "Mars",
         "jupiter": "Jupiter",
-        "saturn": "Saturn"
+        "saturn": "Saturn",
+        "uranus": "Uranus",
+        "neptune": "Neptune"
       },
       "labels": {
         "craft": "Spacecraft",
@@ -1660,25 +1662,25 @@
       "standby": "Standing by",
       "go": "GO",
       "nogo": "NO-GO",
-      "player": "Player {n}",
-      "keys": "Keys 1–4 answer for a station; Shift + key is NO-GO.",
-      "keysMulti": "Each player answers for their stations: keys 1–4 (Shift = NO-GO) or tap.",
+      "player": "{n, select, 1 {Captain} 2 {Engineer} 3 {Power Tech} 4 {Comms Officer} other {Crew {n}}}",
+      "keys": "Keys 1–4 answer for a station; Shift + key is NO-GO. Stations without a player are run by the AI crew.",
+      "keysMulti": "Each player answers for their own station: keys 1–4 (Shift = NO-GO) or tap. The AI crew runs the empty stations.",
       "aborted": "Launch scrubbed. The vehicle goes back to the hangar.",
       "roles": {
         "director": {
-          "name": "Flight Director",
+          "name": "Captain",
           "text": "Gives the final GO, confirms stage separation and engine cut-off, approves arrival."
         },
         "propulsion": {
-          "name": "Propulsion",
+          "name": "Engineer",
           "text": "Engines and burns: Max-Q throttle, stage separation, course corrections, arrival burn."
         },
         "power": {
-          "name": "Power & Systems",
+          "name": "Power Tech",
           "text": "Batteries and solar arrays: deploys the panels, answers power problems."
         },
         "comms": {
-          "name": "Comms & Science",
+          "name": "Comms Officer",
           "text": "Radio link, fairing, instruments and the data downlink."
         }
       },
@@ -1785,7 +1787,8 @@
         "players": "Number of players",
         "count": "{count, plural, one {# player} other {# players}} · four stations",
         "name": "Name of player {n}",
-        "note": "Each station has real jobs in the flight and polls GO / NO-GO at the pad. A job nobody does is done by the flight computer for fewer points. The crew changes the score, not the physics."
+        "note": "You play the first stations (captain, engines, power, comms); an AI crew member runs the empty ones. Each station has real jobs in the flight and polls GO / NO-GO at the pad. A job nobody does is done by the flight computer for fewer points.",
+        "ai": "AI crew · autopilot"
       },
       "caption": {
         "perfect": "{who} ({role}): {task} — on time, +{points}",
@@ -1795,7 +1798,12 @@
         "false-hold": "{who} ({role}): NO-GO on a healthy system, {points}",
         "correct-nogo": "{who} ({role}): correct NO-GO, +{points}"
       },
-      "onlineWaiting": "Waiting for {name} (online)"
+      "onlineWaiting": "Waiting for {name} (online)",
+      "humanSeat": "Human crew",
+      "aiSeat": "AI crew",
+      "aiGo": "{role}: GO.",
+      "aiNogo": "{role}: NO-GO!",
+      "aiAuto": "AI crew member runs this station"
     },
     "score": {
       "of": "out of {max}",

@@ -35,7 +35,7 @@ export function computeScore(input: { outcome: MissionOutcome; health: number; l
   if (outcome.generatedBits > 0) lines.push({ id: 'data', points: Math.round(100 * clamp01(outcome.deliveredBits / outcome.generatedBits)), max: 100 });
   lines.push({ id: 'health', points: Math.round(50 * clamp01(health)), max: 50 });
 
-  const counted = log.filter((entry) => entry.result !== 'skipped');
+  const counted = log.filter((entry) => entry.result !== 'skipped' && !entry.ai);
   const crewSum = counted.reduce((sum, entry) => sum + entry.points, 0);
   lines.push({ id: 'crew', points: Math.max(0, Math.min(counted.length * TASK_MAX, crewSum)), max: Math.max(TASK_MAX, counted.length * TASK_MAX) });
 

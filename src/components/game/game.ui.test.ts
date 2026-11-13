@@ -157,7 +157,9 @@ describe('crew, score and video screens', () => {
       crewStore.getState().setPlayerCount(3);
       const setup = render(locale, createElement(CrewSetup));
       expect(setup).toContain('data-action="players-4"');
-      expect(setup.match(/data-player="/g)).toHaveLength(3);
+      expect(setup.match(/data-player="/g)).toHaveLength(4);
+      expect(setup.match(/data-ai="true"/g)).toHaveLength(1);
+      crewStore.getState().setPlayerCount(4);
       crewStore.getState().openTask({ key: 'go-power', defId: 'go-power', stage: 'pre-launch', expected: 'go' });
       const panel = render(locale, createElement(CrewPanel));
       expect(panel).toContain('data-action="crew-go-power"');

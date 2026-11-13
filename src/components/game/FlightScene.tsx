@@ -12,7 +12,7 @@ import { simStore } from '@/stores/simStore';
 import { planets, SUN_LOOK } from '../3d/layout';
 import { createGlowTexture, GLOW_BLENDING } from '../3d/proceduralTextures';
 import { CameraDirector, type CameraPose } from './CameraDirector';
-import { Cosmos, SkyPlanets } from './Cosmos';
+import { Cosmos, LaunchSkyBodies, SkyPlanets } from './Cosmos';
 import { CloudField, Contrail } from './LaunchAtmosphere';
 import { createGroundTexture } from './groundTexture';
 import { skyLevel } from '@/game/skyLevel';
@@ -219,6 +219,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   const horizonDay = useMemo(() => new Color('#cfe3f4'), []);
   const horizonNight = useMemo(() => new Color('#05070d'), []);
   const fogRef = useRef<Fog>(null);
+  const [epochMs] = useState(() => Date.now());
 
   useFrame(({ camera, clock }, rawDelta) => {
     const delta = Math.max(1e-3, Math.min(rawDelta, 0.1));
@@ -397,6 +398,8 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
         </mesh>
       </group>
 
+      <LaunchSkyBodies epochMs={epochMs} moonLook={MOON_LOOK} />
+
       {/* ground and the planet below it, which shows once the ground fades out at altitude */}
       <mesh ref={ground} rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.02, 0]} raycast={() => null}>
         <circleGeometry args={[420, 64]} />
@@ -560,10 +563,10 @@ export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; f
     if (overview) {
       const swing = visualClock.current * 0.06;
       // a small frame means a big planet on screen: back off so the whole globe and its orbit are in view
-      const back = frame.unit === 'radii' ? Math.max(1, (scale * 4.6) / (WORLD_EXTENT * 1.3)) : 1;
+      const back = frame.unit === 'radii' ? Math.max(1, (scale * 4.6) / (WORLD_EXTENT * 1.3)) : frame.center === 'sun' ? 1.2 : 1;
       poseRef.current = wideOrbit
         ? { position: [Math.sin(swing) * WORLD_EXTENT * 1.1 * back, WORLD_EXTENT * 0.9 * back, Math.cos(swing) * WORLD_EXTENT * 1.5 * back], target: [world[0] * 0.2, 0, world[2] * 0.2] }
-        : { position: [Math.sin(swing) * WORLD_EXTENT * 0.5, WORLD_EXTENT * 0.72, Math.cos(swing) * WORLD_EXTENT * 1.25], target: [world[0] * 0.3, 0, world[2] * 0.3] };
+        : { position: [Math.sin(swing) * WORLD_EXTENT * 0.5 * back, WORLD_EXTENT * 0.72 * back, Math.cos(swing) * WORLD_EXTENT * 1.25 * back], target: [world[0] * 0.3, 0, world[2] * 0.3] };
     } else {
       // Chase view: behind the spacecraft and a little above it, looking along its path, so the planet's
       // curved horizon fills the lower part of the picture and space the upper part.

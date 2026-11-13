@@ -109,3 +109,17 @@ A player can open **Online** in the top bar, create a room (5-letter code, up to
 - Stack: Next.js + React Three Fiber (Three.js) for the scene, **GSAP** for the interface animation: the pad countdown punch-in (`Countdown`), the title cards for liftoff / max-Q / separations / orbit (`FlightBanner`, driven by the voice-line ids), and the dip through black between flight scenes (`SceneFade`).
 - The launch sky is a daytime gradient that goes black with altitude (`skyLevel`); the star backdrop is hidden in daylight. `CloudField` (sprites) makes the speed readable, `Contrail` draws the exhaust trail, and the ground is a procedural terrain tile (`groundTexture.ts`, artistic, not a real place).
 - `earthTexture.ts` builds a 1024x512 procedural Earth (continents, ice, a cloud deck, faint city lights) once and shares it between scenes. The continents are noise, not real coastlines. The spacecraft draws the player's design with gold-foil and solar-cell materials and outlined parts.
+
+
+## Crew seats and the AI crew member
+
+Four stations (captain, engineer, power, comms) are seat 0 to 3. One to four players sit at the first stations; a station
+without a player is run by the AI crew member (`isAiRole`). The AI answers each job after 1.5 to 4 seconds (`aiDelayS`),
+truthfully: GO on a healthy system, NO-GO on a real design fault (which scrubs the launch). Its answers are logged with
+`ai: true` and are worth no points, so the score is only the humans' work. Default names are the role names.
+
+## The sky of the launch and of space
+
+`LaunchSkyBodies` (Cosmos.tsx) rides with the launch camera: the Sun with its glare, a pale Moon, and by night the planets
+at their real directions. In the cosmos view `Cosmos` draws the planets, their names, the asteroid belt (dust plus 260 rocks)
+and the camera backs off so the belt is in view. Sizes are exaggerated; positions are approximate mean longitudes.

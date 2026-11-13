@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
-import { CREW_ROLES, PLAYER_COLORS, playerOfRole, rolesOfPlayer, type CrewRole } from '@/game/crew';
+import { CREW_ROLES, PLAYER_COLORS, isAiRole, playerOfRole, type CrewRole } from '@/game/crew';
 import { crewStore, useCrewStore, type CrewTask } from '@/game/crewStore';
 import { blip, unlock } from '@/game/audio';
 import { simStore } from '@/stores/simStore';
@@ -31,9 +31,11 @@ function RoleCard({ role, task, compact }: { role: CrewRole; task: CrewTask | un
   const clockS = useCrewStore((state) => state.clockS);
   const lastEntry = useCrewStore((state) => [...state.log].reverse().find((entry) => entry.role === role));
   const player = playerOfRole(role, count);
+  const names = useCrewStore((state) => state.names);
   const remote = useOnline((state) => state.mode === 'host' && player !== 0);
   const name = usePlayerName(player);
-  const color = PLAYER_COLORS[player]!;
+  const ai = isAiRole(role, count);
+  const color = ai ? '#94a3b8' : PLAYER_COLORS[player]!;
   const key = CREW_ROLES.indexOf(role) + 1;
   const left = task ? Math.max(0, task.deadlineS - clockS) : 0;
   const flash = !task && lastEntry && lastEntry.points !== 0 && clockS - lastEntry.atS < RESULT_FLASH_S ? lastEntry : null;
@@ -41,18 +43,19 @@ function RoleCard({ role, task, compact }: { role: CrewRole; task: CrewTask | un
   return (
     <div data-crew-role={role} data-active={Boolean(task)} className={`rounded-xl border px-2.5 py-1.5 backdrop-blur-md transition ${task ? 'border-amber-300/70 bg-[rgba(44,34,10,0.94)] shadow-[0_0_22px_rgba(251,191,36,0.3)]' : 'border-white/10 bg-black/45'}`}>
       <div className="flex items-center gap-2">
-        <span aria-hidden className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-black" style={{ background: color }}>{player + 1}</span>
+        <span aria-hidden className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-black" style={{ background: color }}>{ai ? 'AI' : player + 1}</span>
         <div className="min-w-0 flex-1 leading-tight">
           <p className="truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-white">{t(`roles.${role}.name`)}</p>
-          <p className="truncate text-[10px] text-white/50">{name}{!task ? <> · {flash ? <span className={flash.points >= 0 ? 'text-emerald-300' : 'text-red-300'}>{flash.points >= 0 ? '✓' : '✗'} {flash.points > 0 ? '+' : ''}{flash.points}</span> : t('standby')}</> : null}</p>
+          <p className="truncate text-[10px] text-white/50">{ai ? t('aiSeat') : names[player]?.trim() || t('humanSeat')}{!task ? <> · {flash ? <span className={flash.points >= 0 ? 'text-emerald-300' : 'text-red-300'}>{flash.points >= 0 ? '✓' : '✗'} {flash.points > 0 ? '+' : ''}{flash.points}</span> : t('standby')}</> : null}</p>
         </div>
+        <span aria-hidden data-testid="crew-lamp" className={`h-2 w-2 shrink-0 rounded-full ${task ? 'animate-pulse bg-amber-300 shadow-[0_0_8px_2px_rgba(251,191,36,0.8)]' : ai ? 'bg-slate-500' : 'bg-emerald-400/80 shadow-[0_0_6px_rgba(52,211,153,0.6)]'}`} />
         <kbd className="rounded border border-white/20 px-1.5 py-0.5 text-[10px] text-white/60">{key}</kbd>
       </div>
       {task ? (
         <div className="mt-1.5">
           <p className="text-[11px] leading-snug text-amber-100">{t(`tasks.${task.defId}.name`)}</p>
           <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-amber-300" style={{ width: `${Math.max(0, Math.min(1, left / task.windowS)) * 100}%` }} /></div>
-          {remote ? <p className="mt-1.5 text-[10px] uppercase tracking-[0.14em] text-emerald-300">🌐 {t('onlineWaiting', { name })}</p> : <div className="mt-1.5 flex gap-1.5">
+          {ai ? <p data-testid="crew-ai-note" className="mt-1.5 text-[10px] uppercase tracking-[0.14em] text-slate-300">🤖 {t('aiAuto')}</p> : remote ? <p className="mt-1.5 text-[10px] uppercase tracking-[0.14em] text-emerald-300">🌐 {t('onlineWaiting', { name })}</p> : <div className="mt-1.5 flex gap-1.5">
             {task.kind === 'poll' ? (
               <>
                 <button type="button" data-action={`crew-go-${role}`} onClick={() => answer(role, 'go')} className="flex-1 rounded-lg border border-emerald-300/60 bg-emerald-400/25 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-50 transition hover:bg-emerald-400/45">{t('go')}</button>
@@ -125,13 +128,20 @@ export function CrewSetup() {
         <span className="ml-1 text-[11px] text-white/55">{t('setup.count', { count })}</span>
       </div>
       <ul className="mt-2 space-y-1.5">
-        {Array.from({ length: count }, (_, player) => (
-          <li key={player} className="flex items-center gap-2" data-player={player}>
-            <span aria-hidden className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-black" style={{ background: PLAYER_COLORS[player] }}>{player + 1}</span>
-            <input aria-label={t('setup.name', { n: player + 1 })} value={names[player] ?? ''} maxLength={14} placeholder={t('player', { n: player + 1 })} onChange={(event) => crewStore.getState().setName(player, event.target.value)} className="w-24 rounded-md border border-white/15 bg-black/40 px-1.5 py-1 text-[11px] text-white placeholder:text-white/30" />
-            <span className="min-w-0 flex-1 truncate text-[10px] text-white/55">{rolesOfPlayer(player, count).map((role) => t(`roles.${role}.name`)).join(' · ')}</span>
-          </li>
-        ))}
+        {CREW_ROLES.map((role, seat) => {
+          const ai = seat >= count;
+          return (
+            <li key={role} className="flex items-center gap-2" data-player={seat} data-ai={ai}>
+              <span aria-hidden className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-bold text-black" style={{ background: ai ? '#94a3b8' : PLAYER_COLORS[seat] }}>{ai ? 'AI' : seat + 1}</span>
+              {ai ? (
+                <span className="w-24 truncate text-[11px] text-white/45">{t('setup.ai')}</span>
+              ) : (
+                <input aria-label={t('setup.name', { n: seat + 1 })} value={names[seat] ?? ''} maxLength={14} placeholder={t(`roles.${role}.name`)} onChange={(event) => crewStore.getState().setName(seat, event.target.value)} className="w-24 rounded-md border border-white/15 bg-black/40 px-1.5 py-1 text-[11px] text-white placeholder:text-white/30" />
+              )}
+              <span className={`min-w-0 flex-1 truncate text-[10px] ${ai ? 'text-white/35' : 'text-white/70'}`}>{t(`roles.${role}.name`)}</span>
+            </li>
+          );
+        })}
       </ul>
       <p className="mt-1.5 line-clamp-2 text-[10px] leading-snug text-white/40" title={t('setup.note')}>{t('setup.note')}</p>
     </div>

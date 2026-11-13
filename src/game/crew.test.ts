@@ -5,7 +5,7 @@ import { simStore } from '@/stores/simStore';
 import { SEPARATION } from '@/components/game/launchPath';
 import { createGameStore } from './gameStore';
 import { crewStore, createCrewStore } from './crewStore';
-import { clampPlayers, createCrewScheduler, padStatus, playerOfRole, rolesOfPlayer, CREW_ROLES, judgeAnswer, type CrewInput } from './crew';
+import { aiDelayS, clampPlayers, createCrewScheduler, isAiRole, padStatus, playerOfRole, rolesOfPlayer, CREW_ROLES, judgeAnswer, type CrewInput } from './crew';
 import { collectMistakes } from './mistakes';
 import { positionOf, replaySegments, timeAt } from './replay';
 import { computeScore, gradeOf } from './score';
@@ -13,14 +13,24 @@ import { computeScore, gradeOf } from './score';
 const base: CrewInput = { stage: 'pre-launch', stageElapsedS: 0, stageLengthS: 3600, speed: 1, hasBoosters: true, hasCorrections: true, separation: SEPARATION, eventsStarted: [], openKeys: [], ended: false };
 
 describe('crew roles', () => {
-  it('gives every station to exactly one player for 1 to 4 players', () => {
+  it('seats the players at the first stations and leaves the rest to the AI crew member', () => {
     for (let count = 1; count <= 4; count += 1) {
-      const all = Array.from({ length: count }, (_, player) => rolesOfPlayer(player, count)).flat();
-      expect([...all].sort()).toEqual([...CREW_ROLES].sort());
-      for (const role of CREW_ROLES) expect(playerOfRole(role, count)).toBeLessThan(count);
+      const human = Array.from({ length: count }, (_, player) => rolesOfPlayer(player, count)).flat();
+      expect(human).toEqual(CREW_ROLES.slice(0, count));
+      for (const role of CREW_ROLES) expect(isAiRole(role, count)).toBe(CREW_ROLES.indexOf(role) >= count);
+      expect(rolesOfPlayer(count, count)).toEqual([]);
     }
+    expect(playerOfRole('power', 1)).toBe(2);
     expect(clampPlayers(9)).toBe(4);
     expect(clampPlayers(0)).toBe(1);
+  });
+  it('makes the AI answer between 1.5 and 4 seconds, differently per job', () => {
+    for (const key of ['maxq', 'go-power', 'stage-sep', 'deploy-panels']) {
+      const delay = aiDelayS(key);
+      expect(delay).toBeGreaterThanOrEqual(1.5);
+      expect(delay).toBeLessThanOrEqual(4.1);
+    }
+    expect(aiDelayS('maxq')).toBe(aiDelayS('maxq'));
   });
   it('says NO-GO only for a station with a real error in its area', () => {
     const issues = [{ code: 'power-deficit', severity: 'error' as const }, { code: 'link-below-hardware-rate', severity: 'warning' as const }];
@@ -67,6 +77,7 @@ describe('crew scheduler', () => {
 describe('crew store, score and mistakes', () => {
   it('records answers and penalises a missed job', () => {
     const store = createCrewStore();
+    store.getState().setPlayerCount(4);
     const s = store.getState();
     s.openTask({ key: 'go-power', defId: 'go-power', stage: 'pre-launch', expected: 'go' });
     s.openTask({ key: 'maxq', defId: 'maxq', stage: 'launch' });
@@ -80,8 +91,20 @@ describe('crew store, score and mistakes', () => {
     expect(log.map((e) => e.points)).toEqual([30, -20]);
     expect(store.getState().open).toHaveLength(0);
   });
+  it('answers for a station without a player: no points, never a penalty', () => {
+    const store = createCrewStore();
+    store.getState().setPlayerCount(1);
+    store.getState().openTask({ key: 'go-power', defId: 'go-power', stage: 'pre-launch', expected: 'go' });
+    const entry = store.getState().respond('power', 'go', 5, true);
+    expect(entry?.ai).toBe(true);
+    expect(entry?.points).toBe(0);
+    store.getState().openTask({ key: 'maxq', defId: 'maxq', stage: 'launch' });
+    store.getState().autoComplete(['maxq'], 9);
+    expect(store.getState().log.every((e) => e.points === 0 && e.ai)).toBe(true);
+  });
   it('holds the playback while a slow-stage job is open, and scrubs on a correct NO-GO', () => {
     const store = createCrewStore();
+    store.getState().setPlayerCount(4);
     store.getState().openTask({ key: 'downlink', defId: 'downlink', stage: 'data-transmission' });
     expect(store.getState().holding).toBe(true);
     store.getState().openTask({ key: 'go-comms', defId: 'go-comms', stage: 'pre-launch', expected: 'nogo', issueCodes: ['no-radio'] });
@@ -94,15 +117,16 @@ describe('crew store, score and mistakes', () => {
     const end = runToEnd(plan, createSim(plan));
     const outcome = end.outcome!;
     const store = createCrewStore();
+    store.getState().setPlayerCount(4);
     store.getState().openTask({ key: 'go-power', defId: 'go-power', stage: 'pre-launch', expected: 'nogo', issueCodes: ['power-deficit'] });
     store.getState().respond('power', 'go', 5);
     store.getState().openTask({ key: 'downlink', defId: 'downlink', stage: 'data-transmission' });
     store.getState().autoComplete(['downlink'], 9);
     const log = store.getState().log;
-    const score = computeScore({ outcome, health: end.health, log, playerCount: 2 });
+    const score = computeScore({ outcome, health: end.health, log, playerCount: 4 });
     expect(score.total).toBeLessThanOrEqual(score.max);
     expect(score.lines.find((l) => l.id === 'crew')!.points).toBe(0);
-    expect(score.players).toHaveLength(2);
+    expect(score.players).toHaveLength(4);
     const mistakes = collectMistakes({ outcome, timeline: end.timeline, log, designIssues: [] });
     expect(mistakes.filter((m) => m.category === 'crew')).toHaveLength(2);
     expect(gradeOf(0.95)).toBe('S');
