@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useStore } from 'zustand';
-import { altitudeOf, downrangeOf, fuelFraction, hintOf, orbitOf, speedOf, TARGET_ALTITUDE_M, type HintKey } from '@/game/pilot/model';
+import { autopilot, altitudeOf, downrangeOf, fuelFraction, hintOf, orbitOf, speedOf, TARGET_ALTITUDE_M, type HintKey } from '@/game/pilot/model';
 import { OUTCOME_HOLD_S, PILOT_MODES, PITCH_RATE_DEG, pilotStore, usePilot, WARPS, type PilotMode } from '@/game/pilotStore';
 import { onlineStore } from '@/game/online';
 import { simStore } from '@/stores/simStore';
@@ -103,6 +103,8 @@ export function PilotConsole() {
   const fuel2 = fuelFraction(flight, 2);
   const stress = Math.min(1, flight.stressRatio);
   const elevationDeg = 90 - (flight.pitch * 180) / Math.PI;
+  const advisedDeg = 90 - (autopilot(flight).pitchCommand * 180) / Math.PI;
+  const offDeg = elevationDeg - advisedDeg;
 
   return (
     <section data-testid="pilot-console" aria-label={t('title')} className="absolute inset-x-2 bottom-2 z-30 mx-auto w-auto max-w-[660px] rounded-2xl border border-cyan-300/25 bg-[linear-gradient(170deg,rgba(6,12,24,0.88),rgba(6,8,18,0.8))] p-3 shadow-[0_0_40px_rgba(0,160,255,0.12)] backdrop-blur-md sm:bottom-3">
@@ -136,6 +138,7 @@ export function PilotConsole() {
           <Meter label={t('fuel2')} fraction={fuel2} color="#38bdf8" />
           <Meter label={t('stress')} fraction={stress} color={stress > 0.7 ? '#f87171' : '#a3e635'} />
           <Reading label={t('pitch')} value={`${Math.round(elevationDeg)}°`} />
+          <Reading label={t('advised')} value={`${Math.round(advisedDeg)}°`} testId="pilot-advised" tone={Math.abs(offDeg) <= 3 ? 'good' : undefined} />
           <Reading label={t('downrange')} value={`${km(downrangeOf(flight))} km`} />
           <Reading label={t('time')} value={`T+${Math.floor(flight.t / 60)}:${String(Math.floor(flight.t % 60)).padStart(2, '0')}`} />
         </dl>

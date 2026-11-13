@@ -1917,6 +1917,7 @@
       "fuel2": "Stage 2 fuel",
       "stress": "Air stress",
       "pitch": "Above horizon",
+      "advised": "Advised angle",
       "downrange": "Downrange",
       "time": "Flight time",
       "pitchUp": "Point more upward",
