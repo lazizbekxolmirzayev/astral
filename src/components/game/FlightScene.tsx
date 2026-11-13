@@ -13,6 +13,7 @@ import { planets, SUN_LOOK } from '../3d/layout';
 import { createGlowTexture, GLOW_BLENDING } from '../3d/proceduralTextures';
 import { CameraDirector, type CameraPose } from './CameraDirector';
 import { Cosmos, SkyPlanets } from './Cosmos';
+import { triggerSceneFade } from '@/game/sceneFade';
 import { GamePlanet, GameSun } from './GamePlanet';
 import { removeAnchors, setAnchor } from './labels';
 import { gameStore, type LaunchCameraMode } from '@/game/gameStore';
@@ -147,7 +148,8 @@ function launchCameraPose(mode: Exclude<LaunchCameraMode, 'auto'>, o: { px: numb
     case 'chase':
     default: {
       const distance = 22 + H * 0.8 + follow * 40;
-      return { position: [distance * 0.45 + follow * 8, Math.max(3.5, lookY * 0.5 + 2), distance + (failed ? 8 : 0)], target: [pre ? 0 : px * 0.9, lookY, 0], fov: 46 };
+      return { position: [distance * 0.45 + follow * 8, Math.max(3.5, lookY * 0.5 + 2), distance + (failed ? 8 : 0)], // high up the camera looks a little below the vehicle, so the curve of the Earth stays in the picture
+      target: [pre ? 0 : px * 0.9, lookY - Math.min(py * 0.35, 110), 0], fov: 46 };
     }
   }
 }
@@ -340,7 +342,12 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       }
     }
     if (dome.current) dome.current.position.copy(camera.position);
-    if (ground.current) (ground.current.material as { opacity: number }).opacity = Math.min(1, amount * 1.3);
+    if (ground.current) {
+      const groundAlpha = Math.min(1, Math.max(0, 1 - (ascentPose(tau).y - 30) / 90));
+      (ground.current.material as { opacity: number }).opacity = groundAlpha;
+      // a fully faded transparent disc would still write depth and hide the Earth behind it
+      ground.current.visible = groundAlpha > 0.01;
+    }
 
     // camera: the player's choice, or the broadcast schedule; a lost vehicle is always watched from outside
     const chosen = gameStore.getState().launchCamera;
@@ -390,7 +397,10 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
         <circleGeometry args={[420, 64]} />
         <meshStandardMaterial color="#1b2430" metalness={0.2} roughness={0.9} transparent opacity={1} />
       </mesh>
-      <GamePlanet radius={EARTH_SCENE_RADIUS} look={earthPlanetLook} position={[0, -EARTH_SCENE_RADIUS - 0.4, 0]} spin={0} segments={96} atmosphere={EARTH.atmosphere} atmosphereScale={1.02} />
+      {/* the pad sits at a mid latitude of the Earth, not at the texture's pole (a pole would pinch the picture into one grey patch) */}
+      <group position={[0, -EARTH_SCENE_RADIUS - 0.4, 0]} rotation={[Math.PI / 2 - 0.49, 0, 0]}>
+        <GamePlanet radius={EARTH_SCENE_RADIUS} look={earthPlanetLook} spin={0} segments={128} selfLight={0.45} atmosphere={EARTH.atmosphere} cloudCover={EARTH.cloudCover} atmosphereScale={1.012} />
+      </group>
 
       {/* orbit view: where the rocket is, and the parking orbit above the true-size Earth */}
       <sprite ref={marker} visible={false} raycast={() => null}>
@@ -486,7 +496,7 @@ export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; f
   const wideOrbit = !OVERVIEW_FRAMES.has(frame.key) && frame.unit === 'radii';
   const [epochMs] = useState(() => Date.now());
   const overview = OVERVIEW_FRAMES.has(frame.key) || wideOrbit;
-  const shipRadius = wideOrbit ? 0.8 : overview ? 0.55 : 0.9;
+  const shipRadius = wideOrbit ? 1.4 : overview ? 0.55 : 0.9;
 
   const visualClock = useRef(0);
   // the first frame after the launch is where the spacecraft unfolds its solar panels
@@ -646,7 +656,12 @@ function useSceneKey(plan: SimPlan): string {
     if (!sim) return;
     const id = plan.stageIds[sim.stageIndex]!;
     const next = id === 'pre-launch' || id === 'launch' ? 'launch-cinematic' : frameKeyOf(plan, id);
-    setKey((current) => (current === next ? current : next));
+    setKey((current) => {
+      if (current === next) return current;
+      // the cut between the launch cinematic and the orbit views (and between orbit views) dips through black
+      queueMicrotask(triggerSceneFade);
+      return next;
+    });
   });
   return key;
 }

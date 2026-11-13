@@ -19,6 +19,7 @@ import { HangarPanel } from './HangarPanel';
 import { HelpBox } from './HelpBox';
 import { LangSwitch } from './LangSwitch';
 import { OnlineConsole } from './OnlineConsole';
+import { SceneFade } from './SceneFade';
 import { OnlineHost } from './OnlineHost';
 import { RoomMenu } from './RoomMenu';
 import { useOnline } from '@/game/online';
@@ -174,6 +175,7 @@ export function GameHome() {
             </div>
           </div>
 
+          <SceneFade />
           <OnlineHost />
           {onlineMode === 'client' ? <OnlineConsole /> : null}
 

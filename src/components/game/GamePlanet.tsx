@@ -52,9 +52,11 @@ export type GamePlanetProps = {
   /** Where the sun is, for the atmosphere. Defaults to the shared game light direction. */
   sun?: [number, number, number];
   segments?: number;
+  /** Self-lit share of the surface colour (0..1), so a planet seen from very close stays readable on its dark side. */
+  selfLight?: number;
 };
 
-export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, atmosphere, atmosphereScale = 1.1, cloudCover, nightLights = false, sun = GAME_SUN_DIRECTION, segments = 64 }: GamePlanetProps) {
+export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, atmosphere, atmosphereScale = 1.1, cloudCover, nightLights = false, sun = GAME_SUN_DIRECTION, segments = 64, selfLight = 0 }: GamePlanetProps) {
   const surface = useMemo(() => createPlanetSurface(look), [look]);
   const clouds = useMemo(() => (cloudCover ? createCloudTexture(look.seed, cloudCover) : null), [look.seed, cloudCover]);
   const night = useMemo(() => (nightLights ? createNightLightsTexture(look) : null), [look, nightLights]);
@@ -92,9 +94,9 @@ export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, at
           normalMap={surface.normalMap}
           roughness={1}
           metalness={0}
-          emissiveMap={night ?? undefined}
-          emissive={night ? new Color('#ffcf8a') : new Color('#000000')}
-          emissiveIntensity={night ? 1.1 : 0}
+          emissiveMap={night ?? (selfLight > 0 ? surface.map : undefined)}
+          emissive={night ? new Color('#ffcf8a') : selfLight > 0 ? new Color('#ffffff') : new Color('#000000')}
+          emissiveIntensity={night ? 1.1 : selfLight}
         />
       </mesh>
       {clouds ? (
