@@ -1,5 +1,6 @@
 'use client';
 
+import { Edges } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import type { Group } from 'three';
@@ -82,10 +83,10 @@ export function ShipModel({ shapes, extent, radius = 1.6, glow = 0, selectedItem
         let material: React.ReactNode;
         if (shape.role === 'bus') {
           geometry = <boxGeometry args={[sx, sy, sz]} />;
-          material = <meshStandardMaterial color={color} metalness={0.75} roughness={0.35} emissive="#8a6310" emissiveIntensity={0.45 + glow * 0.3} />;
+          material = <meshStandardMaterial color="#e0b040" metalness={0.92} roughness={0.26} emissive="#8a6310" emissiveIntensity={0.35 + glow * 0.3} />;
         } else if (shape.role === 'panel') {
           geometry = <boxGeometry args={[sx, Math.max(sy, 0.012), sz]} />;
-          material = <meshStandardMaterial map={cells} color={color} metalness={0.7} roughness={0.35} emissive="#1d4ed8" emissiveIntensity={0.18 + glow * 0.3} />;
+          material = <meshStandardMaterial map={cells} color={color} metalness={0.85} roughness={0.22} emissive="#1d4ed8" emissiveIntensity={0.18 + glow * 0.3} />;
         } else if (shape.role === 'dish') {
           geometry = <cylinderGeometry args={[sx, sx * 0.18, Math.max(sy, sx * 0.25), 36, 1, true]} />;
           material = <meshStandardMaterial color={color} metalness={0.6} roughness={0.3} side={2} />;
@@ -101,6 +102,7 @@ export function ShipModel({ shapes, extent, radius = 1.6, glow = 0, selectedItem
             <mesh raycast={() => null}>
               {geometry}
               {material}
+              {shape.role === 'bus' || shape.role === 'panel' || shape.role === 'tank' ? <Edges threshold={20} color={shape.role === 'panel' ? '#9db7e8' : '#2a2210'} /> : null}
             </mesh>
             {chosen ? (
               <mesh raycast={() => null} scale={1.08}>

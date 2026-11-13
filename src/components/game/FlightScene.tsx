@@ -404,7 +404,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       </mesh>
       {/* the pad sits at a mid latitude of the Earth, not at the texture's pole (a pole would pinch the picture into one grey patch) */}
       <group position={[0, -EARTH_SCENE_RADIUS - 0.4, 0]} rotation={[Math.PI / 2 - 0.49, 0, 0]}>
-        <GamePlanet radius={EARTH_SCENE_RADIUS} look={earthPlanetLook} spin={0} segments={128} selfLight={0.45} atmosphere={EARTH.atmosphere} cloudCover={EARTH.cloudCover} atmosphereScale={1.012} />
+        <GamePlanet radius={EARTH_SCENE_RADIUS} look={earthPlanetLook} spin={0} segments={128} selfLight={0.3} earth atmosphere={EARTH.atmosphere} cloudCover={EARTH.cloudCover} atmosphereScale={1.012} />
       </group>
 
       {/* orbit view: where the rocket is, and the parking orbit above the true-size Earth */}
@@ -483,7 +483,7 @@ function Body({ body, scale }: { body: SceneFrame['bodies'][number]; scale: numb
   if (body.id === 'sun') return <GameSun radius={radius} look={SUN_LOOK} position={position} intensity={2.2} />;
   if (body.id === 'moon') return <GamePlanet radius={radius} look={MOON_LOOK} position={position} spin={0.02} />;
   if (body.id === 'mars') return <GamePlanet radius={radius} look={MARS.look} position={position} spin={0.05} atmosphere={MARS.atmosphere} />;
-  return <GamePlanet radius={radius} look={EARTH.look} position={position} spin={0.05} atmosphere={EARTH.atmosphere} cloudCover={EARTH.cloudCover} nightLights />;
+  return <GamePlanet radius={radius} look={EARTH.look} position={position} spin={0.05} atmosphere={EARTH.atmosphere} cloudCover={EARTH.cloudCover} nightLights earth selfLight={0.12} />;
 }
 
 /**

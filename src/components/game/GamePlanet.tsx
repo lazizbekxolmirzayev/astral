@@ -3,6 +3,7 @@
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef } from 'react';
 import { AdditiveBlending, BackSide, Color, DoubleSide, ShaderMaterial, Vector3, type Mesh } from 'three';
+import { getEarthMaps } from './earthTexture';
 import { createCloudTexture, createGlowTexture, createNightLightsTexture, createPlanetSurface, GLOW_BLENDING, type TextureLook } from '../3d/proceduralTextures';
 
 /**
@@ -54,12 +55,16 @@ export type GamePlanetProps = {
   segments?: number;
   /** Self-lit share of the surface colour (0..1), so a planet seen from very close stays readable on its dark side. */
   selfLight?: number;
+  /** Use the detailed procedural Earth (continents, ice, a cloud deck, city lights) instead of the generic `look`. */
+  earth?: boolean;
 };
 
-export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, atmosphere, atmosphereScale = 1.1, cloudCover, nightLights = false, sun = GAME_SUN_DIRECTION, segments = 64, selfLight = 0 }: GamePlanetProps) {
-  const surface = useMemo(() => createPlanetSurface(look), [look]);
-  const clouds = useMemo(() => (cloudCover ? createCloudTexture(look.seed, cloudCover) : null), [look.seed, cloudCover]);
-  const night = useMemo(() => (nightLights ? createNightLightsTexture(look) : null), [look, nightLights]);
+export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, atmosphere, atmosphereScale = 1.1, cloudCover, nightLights = false, sun = GAME_SUN_DIRECTION, segments = 64, selfLight = 0, earth = false }: GamePlanetProps) {
+  // the detailed Earth is built once and shared by every scene, so it is never disposed here
+  const earthMaps = useMemo(() => (earth ? getEarthMaps() : null), [earth]);
+  const surface = useMemo(() => (earthMaps ? { map: earthMaps.map, roughnessMap: null, normalMap: null, dispose: () => undefined } : createPlanetSurface(look)), [look, earthMaps]);
+  const clouds = useMemo(() => (earthMaps ? earthMaps.clouds : cloudCover ? createCloudTexture(look.seed, cloudCover) : null), [look.seed, cloudCover, earthMaps]);
+  const night = useMemo(() => (earthMaps ? (nightLights ? earthMaps.night : null) : nightLights ? createNightLightsTexture(look) : null), [look, nightLights, earthMaps]);
   const shell = useMemo(
     () =>
       atmosphere
@@ -75,7 +80,7 @@ export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, at
         : null,
     [atmosphere, sun],
   );
-  useEffect(() => () => { surface.dispose(); clouds?.dispose(); night?.dispose(); shell?.dispose(); }, [surface, clouds, night, shell]);
+  useEffect(() => () => { surface.dispose(); if (!earthMaps) { clouds?.dispose(); night?.dispose(); } shell?.dispose(); }, [surface, clouds, night, shell, earthMaps]);
 
   const body = useRef<Mesh>(null);
   const cloudMesh = useRef<Mesh>(null);
@@ -90,13 +95,13 @@ export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, at
         <sphereGeometry args={[radius, segments, Math.round(segments * 0.75)]} />
         <meshStandardMaterial
           map={surface.map}
-          roughnessMap={surface.roughnessMap}
-          normalMap={surface.normalMap}
+          roughnessMap={surface.roughnessMap ?? undefined}
+          normalMap={surface.normalMap ?? undefined}
           roughness={1}
           metalness={0}
           emissiveMap={night ?? (selfLight > 0 ? surface.map : undefined)}
           emissive={night ? new Color('#ffcf8a') : selfLight > 0 ? new Color('#ffffff') : new Color('#000000')}
-          emissiveIntensity={night ? 1.1 : selfLight}
+          emissiveIntensity={night ? (earthMaps ? 0.2 : 1.1) : selfLight}
         />
       </mesh>
       {clouds ? (
