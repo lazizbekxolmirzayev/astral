@@ -141,3 +141,11 @@ Not modelled: wind, a third dimension, engine gimbal dynamics, heating. It is an
   empty tank ends it at launch with the reason. Success needs a perigee above 150 km; the grade comes from how close the
   orbit is to the 300 km parking orbit.
 - Online rooms fly the scripted film (the flight is not synchronised between devices).
+
+### Crew duties in the ascent
+
+Each station owns a part of the flight (captain: steering and staging, engines: throttle, power: load, comms: status).
+A station without a player is run by the AI crew member: the AI engineer sets the throttle whenever the person has not
+touched it for 3 seconds, and the AI power tech keeps the steering within 12° of the reference path while the air is thick
+(below 45 km), so a lone player cannot tear the vehicle apart by one wrong key. With every station crewed nothing is
+automatic.

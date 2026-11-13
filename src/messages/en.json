@@ -1949,6 +1949,16 @@
         "ground": "The rocket fell back to the ground",
         "stress": "The rocket broke up in flight",
         "fuel": "Out of fuel before orbit"
+      },
+      "duty": {
+        "ai": "AI crew member",
+        "director": "Steers and stages",
+        "directorActive": "Steers and stages",
+        "propulsion": "Throttle",
+        "propulsionActive": "AI sets the throttle",
+        "power": "Watches the load",
+        "powerActive": "AI eases the steering",
+        "comms": "Calls the status"
       }
     }
   }

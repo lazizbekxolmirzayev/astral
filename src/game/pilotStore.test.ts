@@ -48,6 +48,7 @@ describe('the pilot store', () => {
     const store = createPilotStore();
     store.getState().setMode('assist');
     store.getState().setWarp(8);
+    store.getState().setCrewCount(4); // every station has a person, so nobody flies the engines for them
     store.getState().begin(planOf('leo'));
     fly(store);
     expect(store.getState().flight?.status).not.toBe('orbit');
@@ -79,5 +80,49 @@ describe('the pilot store', () => {
     expect(lost.outcome?.endedIn).toBe('launch');
     const ok = toLaunchEnd({ failure: null, grade: 'perfect' }, true);
     expect(ok.stages.find((stage) => stage.id === 'launch')?.result).toBe('ok');
+  });
+
+  it('a lone player gets the AI engineer: the throttle is set by the AI once the person lets go, and a touch hands it back', () => {
+    const store = createPilotStore();
+    store.getState().setCrewCount(1);
+    store.getState().begin(planOf('leo'));
+    store.getState().setThrottle(0.3);
+    store.getState().update(0.05);
+    expect(store.getState().throttle).toBeCloseTo(0.3, 5);
+    expect(store.getState().aiAction).toBeNull();
+    for (let i = 0; i < 80; i += 1) store.getState().update(0.05); // four idle seconds
+    expect(store.getState().aiAction).toBe('throttle');
+    expect(store.getState().throttle).toBeGreaterThan(0.9);
+    store.getState().setThrottle(0.2);
+    store.getState().update(0.05);
+    expect(store.getState().throttle).toBeCloseTo(0.2, 5);
+  });
+
+  it('with two players the engineer is a person: the throttle is never taken away', () => {
+    const store = createPilotStore();
+    store.getState().setCrewCount(2);
+    store.getState().begin(planOf('leo'));
+    store.getState().setThrottle(0.4);
+    for (let i = 0; i < 120; i += 1) store.getState().update(0.05);
+    expect(store.getState().aiAction).toBeNull();
+    expect(store.getState().throttle).toBeCloseTo(0.4, 5);
+  });
+
+  it('the AI power tech eases a dangerous turn, so a hard turn no longer breaks the vehicle up', () => {
+    const run = (count: number) => {
+      const store = createPilotStore();
+      store.getState().setMode('manual');
+      store.getState().setCrewCount(count);
+      store.getState().begin(planOf('leo'));
+      store.getState().setThrottle(1);
+      store.getState().setWarp(4);
+      for (let i = 0; i < 600 && store.getState().flight?.status === 'flying'; i += 1) {
+        store.getState().update(0.05);
+        if (i > 100) store.getState().nudgePitch(20);
+      }
+      return store.getState().flight!.status;
+    };
+    expect(run(4)).toBe('broke-up');
+    expect(run(1)).not.toBe('broke-up');
   });
 });

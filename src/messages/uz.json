@@ -1949,6 +1949,16 @@
         "ground": "Raketa qaytib yerga tushdi",
         "stress": "Raketa havoda parchalanib ketdi",
         "fuel": "Orbitaga chiqmasdan yoqilg'i tugadi"
+      },
+      "duty": {
+        "ai": "Sun'iy intellekt",
+        "director": "Burilish va ajratish",
+        "directorActive": "Burilish va ajratish",
+        "propulsion": "Gaz",
+        "propulsionActive": "AI gazni boshqaryapti",
+        "power": "Yuklamani kuzatadi",
+        "powerActive": "AI burilishni yumshatdi",
+        "comms": "Holatni xabar qiladi"
       }
     }
   }

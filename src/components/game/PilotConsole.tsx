@@ -7,6 +7,9 @@ import { autopilot, altitudeOf, downrangeOf, fuelFraction, hintOf, orbitOf, spee
 import { OUTCOME_HOLD_S, PILOT_MODES, PITCH_RATE_DEG, pilotStore, usePilot, WARPS, type PilotMode } from '@/game/pilotStore';
 import { onlineStore } from '@/game/online';
 import { simStore } from '@/stores/simStore';
+import { CREW_ROLES, PLAYER_COLORS, isAiRole, type CrewRole } from '@/game/crew';
+import { crewStore, useCrewStore } from '@/game/crewStore';
+import { usePlayerName } from './CrewPanel';
 
 const THROTTLE_RATE = 0.7; // per second while a key is held
 const km = (meters: number, digits = 0) => (Number.isFinite(meters) ? (meters / 1000).toFixed(digits) : '∞');
@@ -41,6 +44,7 @@ export function PilotConsole() {
         if (pilot.flight) pilot.reset();
         return;
       }
+      if (pilot.crewCount !== crewStore.getState().playerCount) pilot.setCrewCount(crewStore.getState().playerCount);
       if (pilot.mode === 'off' || onlineStore.getState().mode !== 'off') return;
       if (!pilot.flight) { pilot.begin(plan); return; }
       // keys: throttle and pitch
@@ -115,6 +119,7 @@ export function PilotConsole() {
       ) : (
         <p data-testid="pilot-hint" className={`mb-2 text-center text-[12px] font-medium ${hint === 'stress' ? 'animate-pulse text-red-300' : hint === 'stage' || hint === 'circularize' || hint === 'cut' ? 'text-amber-200' : 'text-cyan-100/90'}`}>{t(`hint.${hint}`)}</p>
       )}
+      <Duties />
       <div className="grid grid-cols-[auto_1fr_auto] items-stretch gap-3">
         {/* throttle */}
         <div className="flex w-14 flex-col items-center gap-1">
@@ -230,4 +235,38 @@ export function PilotClock() {
   const flight = pilotStore.getState().flight;
   const seconds = Math.floor(flight?.t ?? 0);
   return <p className="font-mono text-[11px] tracking-wider text-cyan-200/80" data-testid="mission-clock">T+ {String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}</p>;
+}
+
+const DUTY: Record<CrewRole, 'director' | 'propulsion' | 'power' | 'comms'> = { director: 'director', propulsion: 'propulsion', power: 'power', comms: 'comms' };
+
+function DutyCard({ role, index, count, flying }: { role: CrewRole; index: number; count: number; flying: boolean }) {
+  const t = useTranslations('game.pilot');
+  const tRole = useTranslations('game.roles');
+  const name = usePlayerName(index);
+  const ai = isAiRole(role, count);
+  const action = usePilot((state) => state.aiAction);
+  const stress = usePilot((state) => state.flight?.stressRatio ?? 0);
+  const active = flying && ((role === 'propulsion' && ai && action === 'throttle') || (role === 'power' && ai && action === 'guard'));
+  const warn = flying && role === 'power' && stress > 0.7;
+  return (
+    <li data-testid={`duty-${role}`} className={`min-w-0 rounded-lg border px-2 py-1 ${warn ? 'border-red-400/60 bg-red-500/10' : active ? 'border-amber-300/50 bg-amber-300/10' : 'border-white/10 bg-white/[0.03]'}`}>
+      <div className="flex items-center gap-1.5">
+        <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: ai ? '#94a3b8' : PLAYER_COLORS[index] }} />
+        <span className="truncate text-[10px] font-semibold uppercase tracking-[0.12em] text-white/85">{tRole(`${DUTY[role]}.name`)}</span>
+      </div>
+      <p className="truncate text-[10px] text-white/55">{ai ? t('duty.ai') : name}</p>
+      <p className={`truncate text-[10px] ${active || warn ? 'text-amber-200' : 'text-cyan-100/70'}`}>{t(`duty.${role}${active ? 'Active' : ''}`)}</p>
+    </li>
+  );
+}
+
+/** Who does what in the ascent: each station has its own part of the flight, and the AI crew member does a station's part when nobody sits there. */
+function Duties() {
+  const count = useCrewStore((state) => state.playerCount);
+  const flying = usePilot((state) => state.flight?.status === 'flying');
+  return (
+    <ul data-testid="pilot-duties" className="mb-2 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+      {CREW_ROLES.map((role, index) => <DutyCard key={role} role={role} index={index} count={count} flying={!!flying} />)}
+    </ul>
+  );
 }
