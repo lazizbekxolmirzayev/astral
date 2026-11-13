@@ -3,7 +3,7 @@
 import { Line } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AdditiveBlending, BackSide, Color, ShaderMaterial, type Group, type Mesh, type Object3D, type PointLight } from 'three';
+import { AdditiveBlending, BackSide, Color, ShaderMaterial, type Fog, type Group, type Mesh, type Object3D, type PointLight, type Sprite } from 'three';
 import { craftState, craftTrail, frameKeyOf, frameOf, operationalCraft, operationalTrail, type SceneFrame, type SimPlan } from '@/mission/sim';
 import { blast, blip, setThrust } from '@/game/audio';
 import { usesVisualOrbit, visualOrbitSeconds } from '@/game/orbitPacing';
@@ -15,7 +15,7 @@ import { CameraDirector, type CameraPose } from './CameraDirector';
 import { GamePlanet, GameSun } from './GamePlanet';
 import { removeAnchors, setAnchor } from './labels';
 import { gameStore, type LaunchCameraMode } from '@/game/gameStore';
-import { ascentPose, autoCameraAt, padThrottle, padWindowProgress, SEPARATION, shakeAmount, skyAmount } from './launchPath';
+import { ascentPose, ASCENT_DISTANCE, autoCameraAt, EARTH_SCENE_RADIUS, padThrottle, padWindowProgress, SEPARATION, shakeAmount, skyAmount } from './launchPath';
 import { Plume } from './Particles';
 import { ALL_PARTS, RocketModel, rocketDims, ROCKET_LOOKS, type RocketClass, type RocketParts } from './RocketModel';
 import { ShipModel } from './ShipModel';
@@ -137,6 +137,11 @@ function launchCameraPose(mode: Exclude<LaunchCameraMode, 'auto'>, o: { px: numb
       const cam = at(1.04);
       return { position: [cam[0], cam[1], 0.3], target: [cam[0] + ux * 50, cam[1] + uy * 50 - 42, 16], fov: 64 };
     }
+    case 'orbit': {
+      // far out, looking at the whole climb with the Earth in true proportion: the pad, the path and the orbit above it
+      const span = Math.max(60, Math.hypot(px, py));
+      return { position: [px * 0.55 + span * 0.35, py * 0.55 + span * 0.18 + 30, 140 + span * 1.15], target: [px * 0.55, py * 0.5, 0], fov: 40, shake: 0 };
+    }
     case 'chase':
     default: {
       const distance = 22 + H * 0.8 + follow * 40;
@@ -146,7 +151,7 @@ function launchCameraPose(mode: Exclude<LaunchCameraMode, 'auto'>, o: { px: numb
 }
 
 /** How much each camera feels the vehicle's shaking. */
-const SHAKE_FACTOR: Record<Exclude<LaunchCameraMode, 'auto'>, number> = { side: 0.12, track: 0.08, chase: 0.25, rear: 0.4, onboard: 0.9, crew: 1.2 };
+const SHAKE_FACTOR: Record<Exclude<LaunchCameraMode, 'auto'>, number> = { side: 0.12, track: 0.08, chase: 0.25, rear: 0.4, onboard: 0.9, crew: 1.2, orbit: 0 };
 const RIGID: ReadonlySet<string> = new Set(['onboard', 'crew']);
 
 /**
@@ -165,6 +170,8 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   const dome = useRef<Group>(null);
   const skyRef = useRef<ShaderMaterial>(null);
   const ground = useRef<Mesh>(null);
+  const marker = useRef<Sprite>(null);
+  const orbitRing = useRef<Mesh>(null);
   const failedAt = useRef<number | null>(null);
   const smokeFlash = useRef<Mesh>(null);
   const shockwave = useRef<Mesh>(null);
@@ -203,6 +210,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   const topDay = useMemo(() => new Color('#16356b'), []);
   const horizonDay = useMemo(() => new Color('#e9a27a'), []);
   const horizonNight = useMemo(() => new Color('#05070d'), []);
+  const fogRef = useRef<Fog>(null);
 
   useFrame(({ camera, clock }, rawDelta) => {
     const delta = Math.max(1e-3, Math.min(rawDelta, 0.1));
@@ -321,10 +329,16 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       (skyMaterial.uniforms.uTop!.value as Color).copy(topNight).lerp(topDay, amount);
       (skyMaterial.uniforms.uHorizon!.value as Color).copy(horizonNight).lerp(horizonDay, amount);
       skyMaterial.uniforms.uAlpha!.value = Math.min(1, amount * 1.15);
-      if (scene.fog) (scene.fog as { color: Color }).color.copy(skyMaterial.uniforms.uHorizon!.value as Color).multiplyScalar(0.6);
+      const fog = fogRef.current;
+      if (fog) {
+        fog.color.copy(skyMaterial.uniforms.uHorizon!.value as Color).multiplyScalar(0.6);
+        // the haze of the lowest layer of air thins out with altitude, so the Earth below is seen clearly from above
+        fog.near = 40 + (1 - amount) * 6000;
+        fog.far = 380 + (1 - amount) * 24000;
+      }
     }
     if (dome.current) dome.current.position.copy(camera.position);
-    if (ground.current) (ground.current.material as { opacity: number }).opacity = Math.min(1, 0.15 + amount * 1.1);
+    if (ground.current) (ground.current.material as { opacity: number }).opacity = Math.min(1, amount * 1.3);
 
     // camera: the player's choice, or the broadcast schedule; a lost vehicle is always watched from outside
     const chosen = gameStore.getState().launchCamera;
@@ -333,6 +347,13 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     if (sinceFail >= 0) mode = 'chase';
     if (pre && (mode === 'crew' || mode === 'onboard' || mode === 'rear')) mode = 'chase';
     if (pre && chosen === 'auto') mode = 'chase';
+    const orbitView = mode === 'orbit' && sinceFail < 0;
+    if (marker.current) {
+      marker.current.visible = orbitView;
+      marker.current.position.set(pose.x, pose.y, 0);
+      marker.current.scale.setScalar(14 + (clock.elapsedTime % 1) * 4);
+    }
+    if (orbitRing.current) orbitRing.current.visible = orbitView;
     const key = `launch-${mode}`;
     if (key !== camKeyRef.current) {
       camKeyRef.current = key;
@@ -350,7 +371,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   return (
     <>
       <CameraDirector getPose={() => poseRef.current} damping={RIGID.has(camKey.slice(7)) ? 40 : camKey === 'launch-track' ? 9 : 3.2} sway={RIGID.has(camKey.slice(7)) ? 0 : 0.18} snapKey={camKey} />
-      <fog attach="fog" args={['#8a5a4a', 40, 380]} />
+      <fog ref={fogRef} attach="fog" args={['#8a5a4a', 40, 380]} />
       <ambientLight intensity={0.4} />
       <directionalLight position={[-20, 25, 30]} intensity={2.6} color="#ffd9b0" />
       <pointLight position={[8, 22, 14]} intensity={900} distance={120} color="#ffe2b8" />
@@ -367,7 +388,16 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
         <circleGeometry args={[420, 64]} />
         <meshStandardMaterial color="#1b2430" metalness={0.2} roughness={0.9} transparent opacity={1} />
       </mesh>
-      <GamePlanet radius={2400} look={earthPlanetLook} position={[0, -2400.4, 0]} spin={0} segments={96} />
+      <GamePlanet radius={EARTH_SCENE_RADIUS} look={earthPlanetLook} position={[0, -EARTH_SCENE_RADIUS - 0.4, 0]} spin={0} segments={96} atmosphere={EARTH.atmosphere} atmosphereScale={1.02} />
+
+      {/* orbit view: where the rocket is, and the parking orbit above the true-size Earth */}
+      <sprite ref={marker} visible={false} raycast={() => null}>
+        <spriteMaterial map={glow} blending={GLOW_BLENDING} transparent depthWrite={false} depthTest={false} />
+      </sprite>
+      <mesh ref={orbitRing} visible={false} position={[0, -EARTH_SCENE_RADIUS, 0]} rotation={[0, 0, Math.PI / 2 - 0.3]} raycast={() => null}>
+        <torusGeometry args={[EARTH_SCENE_RADIUS + ASCENT_DISTANCE, 0.5, 6, 600, 0.6]} />
+        <meshBasicMaterial color="#5ee6ff" transparent opacity={0.7} depthWrite={false} />
+      </mesh>
 
       {/* the pad */}
       <mesh position={[0, 0.25, 0]} raycast={() => null}>

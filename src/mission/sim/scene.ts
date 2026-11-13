@@ -1,3 +1,4 @@
+import { ascentAltitudeFraction, ascentSpeedFraction } from './ascent';
 import { BODIES, SI_EXACT, type BodyId } from '../constants';
 import { operationalOrbit, type OperationalOrbit } from '../orbitLayout';
 import { toBase } from '../units';
@@ -171,7 +172,7 @@ function craftAt(plan: SimPlan, state: SimState, id: StageId, elapsed: number): 
     case 'pre-launch': return siteDir;
     case 'launch': {
       const tau = Math.min(1, Math.max(0, elapsed / (plan.stagePlannedS.launch ?? 1)));
-      const radius = 1 + (targetRadius - 1) * smooth(tau);
+      const radius = 1 + (targetRadius - 1) * ascentAltitudeFraction(tau);
       const angle = site * (1 - tau);
       return [radius * Math.cos(angle), radius * Math.sin(angle), 0];
     }
@@ -215,7 +216,7 @@ export function craftState(plan: SimPlan, state: SimState, clockT: number = stat
     const earthClass = plan.missionClass === 'earth-orbit';
     const radius = earthClass ? geo.op.geometry.periapsisRadius : geo.parkingRadius * geo.earthRadiusM;
     const target = Math.sqrt(toBase(BODIES.earth.gm) / radius);
-    speedMps = target * tau ** 1.5;
+    speedMps = target * ascentSpeedFraction(tau);
   } else {
     const span = id === 'cruise' ? (plan.stagePlannedS.cruise ?? 1) : id === 'orbit-insertion' && plan.missionClass !== 'earth-orbit' ? geo.parkingPeriodS : geo.op.elements.period;
     const h = Math.max(1, span / 4000);

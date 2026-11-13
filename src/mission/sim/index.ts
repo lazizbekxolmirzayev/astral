@@ -1,4 +1,5 @@
 /** Phase 5: the interactive mission simulation (pure TypeScript; no React, no Three.js). */
+export { ascentAltitudeFraction, ascentPitch, ascentSpeedFraction } from './ascent';
 export { SIM_ASSUMPTIONS, SIM_ASSUMPTION_LIST } from './assumptions';
 export { advanceSim, contactOverlap, createSim, durationText, runToEnd, scienceEarned, skipToNextStage, stageLength, stageTitle } from './engine';
 export { generateEvents } from './events';

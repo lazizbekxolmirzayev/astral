@@ -60,11 +60,11 @@ export function createAnnouncer() {
         say('liftoff', 'crew', 'liftoff');
         if (tau >= 0.02) say('tower', 'mcc', 'tower');
         if (tau >= 0.06) say('roll', 'crew', 'roll');
-        if (tau >= 0.15) say('maxq-1', 'mcc', 'maxqApproach');
-        if (tau >= 0.26) say('maxq-2', 'mcc', 'maxqPass');
-        if (tau >= 0.31) say('progress-1', 'mcc', 'progress', { altitude: round(altitudeKm), speed: round(speedKms, 1) });
+        if (tau >= 0.1) say('maxq-1', 'mcc', 'maxqApproach');
+        if (tau >= 0.17) say('maxq-2', 'mcc', 'maxqPass');
+        if (tau >= 0.2) say('progress-1', 'mcc', 'progress', { altitude: round(altitudeKm), speed: round(speedKms, 1) });
         if (input.hasBoosters && tau >= input.separation.boosters) say('boosters', 'crew', 'boosterSep');
-        if (tau >= 0.5) say('progress-2', 'mcc', 'progress', { altitude: round(altitudeKm), speed: round(speedKms, 1) });
+        if (tau >= 0.45) say('progress-2', 'mcc', 'progress', { altitude: round(altitudeKm), speed: round(speedKms, 1) });
         if (tau >= input.separation.stage1) say('stage1', 'crew', 'stageSep');
         if (tau >= input.separation.fairing) say('fairing', 'crew', 'fairingSep');
         if (tau >= 0.7) say('orbit-1', 'mcc', 'toOrbit', { distance: round(Math.max(0, parkingKm - altitudeKm)) });
@@ -95,15 +95,27 @@ export function subscribeSubtitle(listener: Listener): () => void {
 }
 let clearTimer: ReturnType<typeof setTimeout> | undefined;
 
-/** Languages tried in order for each game language (Uzbek voices are rare, Turkish and Russian read Latin Uzbek best). */
-const VOICE_LANGS: Record<string, string[]> = { uz: ['uz', 'tr', 'ru'], ru: ['en'], en: ['en'] };
+/** Languages tried in order for each game language (Uzbek voices are rare; Turkish reads Latin-script Uzbek best). */
+const VOICE_LANGS: Record<string, string[]> = { uz: ['uz', 'tr'], ru: ['ru'], en: ['en'] };
+const FALLBACK_LANG: Record<string, string> = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-US' };
+
+/** Higher is clearer: neural / online / "Google" voices sound much better than the old local ones. */
+export function voiceQuality(voice: Pick<SpeechSynthesisVoice, 'name' | 'localService'>): number {
+  const name = voice.name.toLowerCase();
+  let score = 0;
+  if (/natural|neural|premium|enhanced/.test(name)) score += 4;
+  if (/google|online|microsoft/.test(name)) score += 2;
+  if (voice.localService === false) score += 1;
+  if (/espeak|compact/.test(name)) score -= 3;
+  return score;
+}
 
 function pickVoice(locale: string, speaker: Speaker): SpeechSynthesisVoice | null {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) return null;
   const voices = window.speechSynthesis.getVoices();
   for (const lang of VOICE_LANGS[locale] ?? ['en']) {
-    const matching = voices.filter((voice) => voice.lang.toLowerCase().startsWith(lang));
-    if (matching.length > 0) return matching[speaker === 'crew' ? matching.length - 1 : 0]!;
+    const matching = voices.filter((voice) => voice.lang.toLowerCase().replace('_', '-').startsWith(lang)).sort((a, b) => voiceQuality(b) - voiceQuality(a));
+    if (matching.length > 0) return matching[speaker === 'crew' && matching.length > 1 ? 1 : 0]!;
   }
   return null;
 }
@@ -121,10 +133,13 @@ export function speakLine(id: string, speaker: Speaker, text: string, locale: st
   try {
     const utterance = new SpeechSynthesisUtterance(text);
     const voice = pickVoice(locale, speaker);
-    if (voice) { utterance.voice = voice; utterance.lang = voice.lang; } else utterance.lang = locale === 'uz' ? 'uz-UZ' : 'en-US';
-    utterance.rate = speaker === 'mcc' ? 1.05 : 0.95;
-    utterance.pitch = speaker === 'mcc' ? 0.9 : 1.1;
-    utterance.volume = 0.9;
+    if (voice) { utterance.voice = voice; utterance.lang = voice.lang; } else utterance.lang = FALLBACK_LANG[locale] ?? 'en-US';
+    // plain settings stay clearest: strong pitch or fast rate makes synthetic voices muddy
+    utterance.rate = speaker === 'mcc' ? 0.95 : 0.9;
+    utterance.pitch = speaker === 'mcc' ? 0.95 : 1.05;
+    utterance.volume = 1;
+    // a new call replaces a backlog of old ones, so the voice never lags behind the flight
+    if (!options.skipIfBusy) synth.cancel();
     synth.speak(utterance);
   } catch {
     /* no speech: the subtitle is enough */

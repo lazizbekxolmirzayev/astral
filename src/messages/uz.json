@@ -1477,7 +1477,8 @@
         "rear": "Past",
         "onboard": "Bortdan",
         "crew": "Ekipaj",
-        "key": "Almashtirish: C"
+        "key": "Almashtirish: C",
+        "orbit": "Orbita ko'rinishi"
       },
       "ascentSpeed": {
         "label": "Tezlik",
@@ -1793,7 +1794,8 @@
         "wrong-go": "{who} ({role}): ma'lum nosozlikka qaramay GO, {points}",
         "false-hold": "{who} ({role}): sog'lom tizimga NO-GO, {points}",
         "correct-nogo": "{who} ({role}): to'g'ri NO-GO, +{points}"
-      }
+      },
+      "onlineWaiting": "{name} javobi kutilmoqda (onlayn)"
     },
     "score": {
       "of": "{max} dan",
@@ -1840,6 +1842,37 @@
       "play": "Ijro",
       "mistakes": "Xatolar ({count})",
       "exit": "Natijaga qaytish"
+    },
+    "online": {
+      "button": "Onlayn",
+      "title": "Onlayn o‘ynash",
+      "shareCode": "Bu kodni ekipajingizga yuboring (4 tagacha o‘yinchi):",
+      "copyLink": "Taklif havolasini nusxalash",
+      "copied": "Havola nusxalandi",
+      "host": "boshlovchi",
+      "hostNote": "Qo‘shilganlar o‘z telefonidan javob beradi. Bu oynani yopmang: parvozni shu yerda hisoblaydi.",
+      "close": "Xonani yopish",
+      "leave": "Xonadan chiqish",
+      "yourName": "Ismingiz",
+      "create": "Xona yaratish",
+      "joinCode": "Xona kodi",
+      "join": "Xonaga qo‘shilish",
+      "room": "Xona {code}",
+      "connected": "ulangan",
+      "reconnecting": "qayta ulanmoqda…",
+      "waiting": "Boshlovchi parvozni boshlashini kutyapmiz…",
+      "yourStations": "Sizning stansiyalaringiz",
+      "noStations": "Bu ekipaj hajmida sizda stansiya yo‘q.",
+      "consoleNote": "Stansiya pulti · parvoz boshlovchining ekranida ko‘rinadi",
+      "errors": {
+        "full": "Xona to‘la.",
+        "not-found": "Bunday kodli xona yo‘q.",
+        "invalid": "Ism va kodni tekshiring.",
+        "rate_limited": "Juda ko‘p so‘rov. Biroz kuting.",
+        "busy": "Server band. Qayta urinib ko‘ring.",
+        "network": "Serverga ulanib bo‘lmadi.",
+        "closed": "Boshlovchi xonani yopdi."
+      }
     }
   }
 }

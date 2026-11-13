@@ -6,6 +6,8 @@ import { CREW_ROLES, PLAYER_COLORS, playerOfRole, rolesOfPlayer, type CrewRole }
 import { crewStore, useCrewStore, type CrewTask } from '@/game/crewStore';
 import { blip, unlock } from '@/game/audio';
 import { simStore } from '@/stores/simStore';
+import { isRemoteRole } from './OnlineHost';
+import { useOnline } from '@/game/online';
 
 const RESULT_FLASH_S = 3;
 
@@ -16,6 +18,7 @@ export function usePlayerName(player: number): string {
 }
 
 function answer(role: CrewRole, choice: 'go' | 'nogo' | 'do') {
+  if (isRemoteRole(role)) return;
   unlock();
   const { clockT } = simStore.getState();
   const entry = crewStore.getState().respond(role, choice, clockT);
@@ -28,6 +31,7 @@ function RoleCard({ role, task, compact }: { role: CrewRole; task: CrewTask | un
   const clockS = useCrewStore((state) => state.clockS);
   const lastEntry = useCrewStore((state) => [...state.log].reverse().find((entry) => entry.role === role));
   const player = playerOfRole(role, count);
+  const remote = useOnline((state) => state.mode === 'host' && player !== 0);
   const name = usePlayerName(player);
   const color = PLAYER_COLORS[player]!;
   const key = CREW_ROLES.indexOf(role) + 1;
@@ -48,7 +52,7 @@ function RoleCard({ role, task, compact }: { role: CrewRole; task: CrewTask | un
         <div className="mt-1.5">
           <p className="text-[11px] leading-snug text-amber-100">{t(`tasks.${task.defId}.name`)}</p>
           <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-amber-300" style={{ width: `${Math.max(0, Math.min(1, left / task.windowS)) * 100}%` }} /></div>
-          <div className="mt-1.5 flex gap-1.5">
+          {remote ? <p className="mt-1.5 text-[10px] uppercase tracking-[0.14em] text-emerald-300">🌐 {t('onlineWaiting', { name })}</p> : <div className="mt-1.5 flex gap-1.5">
             {task.kind === 'poll' ? (
               <>
                 <button type="button" data-action={`crew-go-${role}`} onClick={() => answer(role, 'go')} className="flex-1 rounded-lg border border-emerald-300/60 bg-emerald-400/25 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-50 transition hover:bg-emerald-400/45">{t('go')}</button>
@@ -57,7 +61,7 @@ function RoleCard({ role, task, compact }: { role: CrewRole; task: CrewTask | un
             ) : (
               <button type="button" data-action={`crew-do-${role}`} onClick={() => answer(role, 'do')} className="flex-1 rounded-lg border border-amber-300/60 bg-amber-400/25 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-50 transition hover:bg-amber-400/45">{t(`tasks.${task.defId}.action`)}</button>
             )}
-          </div>
+          </div>}
         </div>
       ) : null}
     </div>

@@ -45,6 +45,8 @@ export type GamePlanetProps = {
   spin?: number;
   /** Atmosphere rim colour. */
   atmosphere?: string;
+  /** Outer radius of the atmosphere shell as a multiple of the planet radius (the real air is a thin skin; 1.1 is for stylised planets). */
+  atmosphereScale?: number;
   cloudCover?: number;
   nightLights?: boolean;
   /** Where the sun is, for the atmosphere. Defaults to the shared game light direction. */
@@ -52,7 +54,7 @@ export type GamePlanetProps = {
   segments?: number;
 };
 
-export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, atmosphere, cloudCover, nightLights = false, sun = GAME_SUN_DIRECTION, segments = 64 }: GamePlanetProps) {
+export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, atmosphere, atmosphereScale = 1.1, cloudCover, nightLights = false, sun = GAME_SUN_DIRECTION, segments = 64 }: GamePlanetProps) {
   const surface = useMemo(() => createPlanetSurface(look), [look]);
   const clouds = useMemo(() => (cloudCover ? createCloudTexture(look.seed, cloudCover) : null), [look.seed, cloudCover]);
   const night = useMemo(() => (nightLights ? createNightLightsTexture(look) : null), [look, nightLights]);
@@ -102,7 +104,7 @@ export function GamePlanet({ radius, look, position = [0, 0, 0], spin = 0.05, at
         </mesh>
       ) : null}
       {shell ? (
-        <mesh scale={1.1} raycast={() => null}>
+        <mesh scale={atmosphereScale} raycast={() => null}>
           <sphereGeometry args={[radius, 48, 36]} />
           <primitive object={shell} attach="material" />
         </mesh>

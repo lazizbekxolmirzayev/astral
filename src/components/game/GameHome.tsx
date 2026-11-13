@@ -17,6 +17,11 @@ import { FlightHud } from './FlightHud';
 import { LabelLayer, type LabelSpec } from './labels';
 import { HangarPanel } from './HangarPanel';
 import { HelpBox } from './HelpBox';
+import { LangSwitch } from './LangSwitch';
+import { OnlineConsole } from './OnlineConsole';
+import { OnlineHost } from './OnlineHost';
+import { RoomMenu } from './RoomMenu';
+import { useOnline } from '@/game/online';
 import { MapPanel } from './MapPanel';
 import { ResultPanel } from './ResultPanel';
 
@@ -67,6 +72,7 @@ export function GameHome() {
   const status = useSimStore((state) => state.status);
   const outcome = useSimStore((state) => state.sim?.outcome ?? null);
   const [ready, setReady] = useState(false);
+  const onlineMode = useOnline((state) => state.mode);
 
   const focus = useGameStore((state) => state.focus);
   const hangarView = useGameStore((state) => state.hangarView);
@@ -150,6 +156,8 @@ export function GameHome() {
             <div className="pointer-events-auto flex items-center gap-1.5">
               <Link href="/universe" className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.universe')}</Link>
               <Link href={missionId ? `/missions/${missionId}` : '/missions'} title={t('topbar.engineerHint')} className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.engineer')}</Link>
+              <RoomMenu />
+              <LangSwitch />
               <HelpBox phase={phase === 'replay' ? 'result' : phase} />
               <MuteButton />
               <div className="hidden sm:block"><AccountMenu /></div>
@@ -165,6 +173,9 @@ export function GameHome() {
               {phase === 'result' ? <ResultPanel missionId={missionId} /> : null}
             </div>
           </div>
+
+          <OnlineHost />
+          {onlineMode === 'client' ? <OnlineConsole /> : null}
 
           {!ready ? (
             <div className="absolute inset-0 z-50 flex items-center justify-center bg-[#05070d]" data-testid="game-loading">

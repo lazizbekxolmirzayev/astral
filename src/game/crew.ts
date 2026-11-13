@@ -105,7 +105,7 @@ export const TASKS: Record<string, TaskDef> = {
   'go-propulsion': { role: 'propulsion', kind: 'poll', stage: 'pre-launch', windowS: 10, hold: true, open: (i) => remaining(i) <= 42, due: (i) => remaining(i) <= 1 },
   'go-comms': { role: 'comms', kind: 'poll', stage: 'pre-launch', windowS: 10, hold: true, open: (i) => remaining(i) <= 32, due: (i) => remaining(i) <= 1 },
   'go-director': { role: 'director', kind: 'poll', stage: 'pre-launch', windowS: 10, hold: true, open: (i) => remaining(i) <= 20, due: (i) => remaining(i) <= 1 },
-  maxq: { role: 'propulsion', kind: 'action', stage: 'launch', windowS: 12, hold: false, open: (i) => tau(i) >= 0.15, due: (i) => tau(i) >= 0.27 },
+  maxq: { role: 'propulsion', kind: 'action', stage: 'launch', windowS: 12, hold: false, open: (i) => tau(i) >= 0.1, due: (i) => tau(i) >= 0.17 },
   'booster-sep': { role: 'director', kind: 'action', stage: 'launch', windowS: 12, hold: false, open: (i) => i.hasBoosters && tau(i) >= i.separation.boosters - lead(i, 12), due: (i) => tau(i) >= i.separation.boosters },
   'stage-sep': { role: 'propulsion', kind: 'action', stage: 'launch', windowS: 12, hold: false, open: (i) => tau(i) >= i.separation.stage1 - lead(i, 12), due: (i) => tau(i) >= i.separation.stage1 },
   'fairing-sep': { role: 'comms', kind: 'action', stage: 'launch', windowS: 12, hold: false, open: (i) => tau(i) >= i.separation.fairing - lead(i, 12), due: (i) => tau(i) >= i.separation.fairing },

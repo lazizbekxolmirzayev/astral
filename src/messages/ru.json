@@ -1351,495 +1351,528 @@
     }
   },
   "game": {
-    "title": "NEXUS Mission Control",
+    "title": "NEXUS — Центр управления полётом",
     "steps": {
-      "map": "Destination",
-      "hangar": "Hangar",
-      "flight": "Flight",
-      "result": "Result"
+      "map": "Цель",
+      "hangar": "Ангар",
+      "flight": "Полёт",
+      "result": "Итог"
     },
     "topbar": {
-      "engineer": "Engineer mode",
-      "universe": "Universe",
-      "engineerHint": "Open the full engineering workspace",
-      "mute": "Mute",
-      "unmute": "Sound on"
+      "engineer": "Режим инженера",
+      "universe": "Вселенная",
+      "engineerHint": "Открыть полное инженерное рабочее место",
+      "mute": "Без звука",
+      "unmute": "Звук включён"
     },
-    "loading": "Preparing the launch site…",
-    "noWebgl": "This game needs WebGL, and your browser or device does not provide it.",
-    "noWebglAction": "Open Engineer mode (no 3D needed)",
+    "loading": "Готовим стартовую площадку…",
+    "noWebgl": "Для этой игры нужен WebGL, а ваш браузер или устройство его не поддерживает.",
+    "noWebglAction": "Открыть режим инженера (3D не нужен)",
     "map": {
-      "heading": "Choose your destination",
-      "hint": "Click a glowing marker in space — or pick one below.",
-      "selected": "Destination",
-      "build": "Build the mission",
-      "cruise": "Cruise",
-      "cruiseNone": "No cruise: launched straight into orbit",
-      "days": "{count} days",
-      "orbit": "Target orbit",
-      "orbitValue": "{peri} × {apo} km, {inc}°",
-      "notToScale": "The map is a stylised picture, not to scale.",
-      "pick": "Select {name}",
-      "close": "Close"
+      "heading": "Выберите цель",
+      "hint": "Нажмите на светящийся маркер в космосе или выберите внизу.",
+      "selected": "Цель",
+      "build": "Собрать миссию",
+      "cruise": "Перелёт",
+      "cruiseNone": "Без перелёта: запуск сразу на орбиту",
+      "days": "{count} дн.",
+      "orbit": "Целевая орбита",
+      "orbitValue": "{peri} × {apo} км, {inc}°",
+      "notToScale": "Карта — стилизованная картинка, не в масштабе.",
+      "pick": "Выбрать: {name}",
+      "close": "Закрыть"
     },
     "hangar": {
-      "back": "Back to map",
-      "viewShip": "Spacecraft",
-      "viewRockets": "Rockets",
-      "bay": "Parts bay",
-      "status": "Mission status",
+      "back": "К карте",
+      "viewShip": "Аппарат",
+      "viewRockets": "Ракеты",
+      "bay": "Отсек деталей",
+      "status": "Состояние миссии",
       "cat": {
-        "platform": "Platform",
-        "power": "Power",
-        "comms": "Radio",
-        "payload": "Payload"
+        "platform": "Платформа",
+        "power": "Питание",
+        "comms": "Радио",
+        "payload": "Нагрузка"
       },
-      "bus": "Spacecraft bus",
-      "propulsion": "Propulsion",
-      "noPropulsion": "No propulsion",
-      "solar": "Solar arrays",
-      "battery": "Batteries",
-      "radio": "Radios",
-      "instruments": "Science instruments",
-      "add": "Add {name}",
-      "remove": "Remove {name}",
-      "fitsDestination": "Made for this destination",
-      "otherDestination": "Meant for another destination",
-      "rocket": "Launch vehicle",
-      "capacityNote": "Pick a rocket in the bay — its price and reliability count.",
-      "reliability": "Reliability {value}%",
-      "price": "Price {value}",
+      "bus": "Платформа аппарата",
+      "propulsion": "Двигатель",
+      "noPropulsion": "Без двигателя",
+      "solar": "Солнечные батареи",
+      "battery": "Аккумуляторы",
+      "radio": "Радиостанции",
+      "instruments": "Научные приборы",
+      "add": "Добавить: {name}",
+      "remove": "Убрать: {name}",
+      "fitsDestination": "Создано для этой цели",
+      "otherDestination": "Предназначено для другой цели",
+      "rocket": "Ракета-носитель",
+      "capacityNote": "Выберите ракету в отсеке — важны её цена и надёжность.",
+      "reliability": "Надёжность {value}%",
+      "price": "Цена {value}",
       "gauge": {
-        "mass": "Mass",
-        "power": "Power",
-        "budget": "Budget",
-        "comms": "Downlink"
+        "mass": "Масса",
+        "power": "Мощность",
+        "budget": "Бюджет",
+        "comms": "Канал связи"
       },
-      "gaugeIdle": "no payload data yet — link can carry {limit}",
-      "gaugeOf": "{used} of {limit}",
-      "noLimit": "no limit",
-      "ready": "Ready to launch",
-      "blocked": "Cannot launch yet",
-      "warnings": "{count, plural, one {# warning} other {# warnings}} — you can still fly",
-      "launch": "LAUNCH",
-      "launchHint": "Fix the red items to unlock the launch.",
-      "fix": "Fix",
-      "refused": "That change is not allowed here.",
-      "mobileParts": "Parts",
-      "mobileStatus": "Status",
-      "quantity": "{count} installed",
+      "gaugeIdle": "данных нагрузки пока нет — канал пропускает {limit}",
+      "gaugeOf": "{used} из {limit}",
+      "noLimit": "без ограничения",
+      "ready": "Готов к запуску",
+      "blocked": "Пока нельзя запускать",
+      "warnings": "{count, plural, one {# предупреждение} few {# предупреждения} many {# предупреждений} other {# предупреждения}} — лететь всё равно можно",
+      "launch": "ПУСК",
+      "launchHint": "Исправьте красные пункты, чтобы разблокировать пуск.",
+      "fix": "Исправить",
+      "refused": "Здесь это изменение недопустимо.",
+      "mobileParts": "Детали",
+      "mobileStatus": "Статус",
+      "quantity": "Установлено: {count}",
       "abort": {
-        "title": "Launch scrubbed",
-        "body": "The {role} station called NO-GO because of a real fault in the design:",
-        "dismiss": "Got it"
+        "title": "Пуск отменён",
+        "body": "Станция «{role}» сказала NO-GO из-за реальной неисправности в проекте:",
+        "dismiss": "Понятно"
       }
     },
     "flight": {
-      "stage": "Stage {current} of {total}",
+      "stage": "Этап {current} из {total}",
       "tMinus": "T−{seconds}",
-      "liftoff": "LIFTOFF",
-      "lost": "MISSION LOST",
-      "pause": "Pause",
-      "resume": "Resume",
-      "skip": "Skip stage",
-      "skipHint": "Fast-forward to the end of this stage",
-      "telemetry": "Telemetry",
-      "altitude": "Altitude",
-      "distance": "Distance from centre",
-      "speed": "Speed",
-      "battery": "Battery",
-      "generation": "Power in / out",
+      "liftoff": "СТАРТ",
+      "lost": "МИССИЯ ПОТЕРЯНА",
+      "pause": "Пауза",
+      "resume": "Продолжить",
+      "skip": "Пропустить этап",
+      "skipHint": "Перемотать до конца этого этапа",
+      "telemetry": "Телеметрия",
+      "altitude": "Высота",
+      "distance": "Расстояние от центра",
+      "speed": "Скорость",
+      "battery": "Аккумулятор",
+      "generation": "Питание вход / выход",
       "powerMode": {
-        "nominal": "Nominal",
-        "instruments-shed": "Instruments shed",
-        "comms-limited": "Radio limited",
-        "essential-only": "Essentials only",
-        "brownout": "BROWNOUT",
-        "unpowered": "No power"
+        "nominal": "Норма",
+        "instruments-shed": "Приборы отключены",
+        "comms-limited": "Радио ограничено",
+        "essential-only": "Только необходимое",
+        "brownout": "ПРОВАЛ ПИТАНИЯ",
+        "unpowered": "Нет питания"
       },
-      "data": "Data sent",
-      "backlog": "Waiting to send",
-      "health": "Health",
-      "dv": "Δv left",
-      "science": "Science",
-      "contact": "Ground contact",
-      "contactOn": "Linked",
-      "contactOff": "No link",
-      "sunlit": "In sunlight",
-      "eclipse": "In Earth's shadow",
-      "log": "Mission log",
+      "data": "Отправлено данных",
+      "backlog": "Ждёт отправки",
+      "health": "Состояние",
+      "dv": "Остаток Δv",
+      "science": "Наука",
+      "contact": "Связь с Землёй",
+      "contactOn": "Есть связь",
+      "contactOff": "Нет связи",
+      "sunlit": "На свету",
+      "eclipse": "В тени Земли",
+      "log": "Журнал миссии",
       "camera": {
-        "label": "Camera",
-        "auto": "Auto",
-        "side": "Pad",
-        "track": "Tracking",
-        "chase": "Chase",
-        "rear": "Rear",
-        "onboard": "Onboard",
-        "crew": "Crew",
-        "key": "Press C to switch"
+        "label": "Камера",
+        "auto": "Авто",
+        "side": "Старт",
+        "track": "Слежение",
+        "chase": "Погоня",
+        "rear": "Сзади",
+        "onboard": "Борт",
+        "crew": "Экипаж",
+        "key": "Нажмите C для смены",
+        "orbit": "Орбита"
       },
       "ascentSpeed": {
-        "label": "Speed",
-        "real": "Real time"
+        "label": "Скорость",
+        "real": "Реальное время"
       },
       "bodies": {
-        "sun": "Sun",
-        "mercury": "Mercury",
-        "venus": "Venus",
-        "earth": "Earth",
-        "moon": "Moon",
-        "mars": "Mars",
-        "jupiter": "Jupiter",
-        "saturn": "Saturn"
+        "sun": "Солнце",
+        "mercury": "Меркурий",
+        "venus": "Венера",
+        "earth": "Земля",
+        "moon": "Луна",
+        "mars": "Марс",
+        "jupiter": "Юпитер",
+        "saturn": "Сатурн"
       },
       "labels": {
-        "craft": "Spacecraft",
-        "target": "Arrival point"
+        "craft": "Аппарат",
+        "target": "Точка прибытия"
       },
-      "cruiseNote": "The spacecraft coasts along a transfer orbit, the curved path between Earth and the target. Planets are drawn larger than life; the shape of the path is computed."
+      "cruiseNote": "Аппарат летит по переходной орбите — изогнутому пути между Землёй и целью. Планеты нарисованы крупнее, чем на самом деле; форма пути рассчитана."
     },
     "result": {
-      "success": "MISSION SUCCESS",
-      "partial": "PARTIAL SUCCESS",
-      "failure": "MISSION FAILED",
-      "science": "Science points",
-      "of": "of {nominal} planned",
-      "data": "Data delivered",
-      "days": "Days operating",
-      "requirements": "Mission requirements",
-      "met": "Met",
-      "missed": "Missed",
-      "why": "What happened",
-      "improve": "Improve the design",
-      "again": "New mission",
-      "report": "Engineering report",
-      "stage": "Ended in: {stage}",
+      "success": "МИССИЯ УСПЕШНА",
+      "partial": "ЧАСТИЧНЫЙ УСПЕХ",
+      "failure": "МИССИЯ ПРОВАЛЕНА",
+      "science": "Научные очки",
+      "of": "из {nominal} запланированных",
+      "data": "Доставлено данных",
+      "days": "Дней работы",
+      "requirements": "Требования миссии",
+      "met": "Выполнено",
+      "missed": "Не выполнено",
+      "why": "Что произошло",
+      "improve": "Улучшить проект",
+      "again": "Новая миссия",
+      "report": "Инженерный отчёт",
+      "stage": "Закончилась на этапе: {stage}",
       "tab": {
-        "result": "Result",
-        "score": "Score"
+        "result": "Итог",
+        "score": "Очки"
       },
-      "tabMistakes": "Mistakes ({count})",
-      "watchVideo": "Watch the mission video"
+      "tabMistakes": "Ошибки ({count})",
+      "watchVideo": "Смотреть видео миссии"
     },
     "instruments": {
-      "altitude": "Altitude",
-      "distance": "Distance",
-      "speed": "Speed",
-      "dv": "Δv left",
-      "battery": "Battery",
-      "equipment": "Equipment",
-      "noInstruments": "No science instruments on board — add one in the hangar to collect science.",
+      "altitude": "Высота",
+      "distance": "Расстояние",
+      "speed": "Скорость",
+      "dv": "Остаток Δv",
+      "battery": "Аккумулятор",
+      "equipment": "Оборудование",
+      "noInstruments": "На борту нет научных приборов — добавьте один в ангаре, чтобы собирать данные.",
       "status": {
-        "observing": "Observing",
-        "idle": "Ready",
-        "off": "Off",
-        "unpowered": "No power",
-        "fault": "Fault"
+        "observing": "Наблюдает",
+        "idle": "Готов",
+        "off": "Выключен",
+        "unpowered": "Нет питания",
+        "fault": "Неисправность"
       },
-      "attitude": "Attitude",
-      "accel": "Acceleration",
-      "toOrbit": "To orbit",
-      "profileNote": "Altitude, speed and acceleration come from the simulation. The ascent profile is schematic and the attitude is drawn from it."
+      "attitude": "Ориентация",
+      "accel": "Ускорение",
+      "toOrbit": "До орбиты",
+      "profileNote": "Высота, скорость и ускорение берутся из симуляции. Профиль выведения схематичный, а ориентация нарисована по нему."
     },
     "help": {
-      "title": "Help",
-      "hint": "Help (H)",
-      "close": "Close help",
-      "now": "What to do now",
-      "controls": "Controls",
-      "glossary": "Words you will meet",
+      "title": "Справка",
+      "hint": "Справка (H)",
+      "close": "Закрыть справку",
+      "now": "Что делать сейчас",
+      "controls": "Управление",
+      "glossary": "Слова, которые вам встретятся",
       "phases": {
         "map": {
-          "title": "Choose where to go",
-          "step1": "Click a planet, the Moon or an orbit on the map (or pick one from the row at the bottom).",
-          "step2": "Read the destination card: how far, how hard, what you can learn there.",
-          "step3": "Press Build mission to open the hangar."
+          "title": "Выберите, куда лететь",
+          "step1": "Нажмите на планету, Луну или орбиту на карте (или выберите в ряду внизу).",
+          "step2": "Прочитайте карточку цели: как далеко, насколько сложно, что там можно узнать.",
+          "step3": "Нажмите «Собрать миссию», чтобы открыть ангар."
         },
         "hangar": {
-          "title": "Build the spacecraft",
-          "step1": "Pick parts in the Parts bay (platform, power, radio, payload). The gauges on the right change as you add them.",
-          "step2": "Open Rockets and click a launch vehicle: bigger rockets carry more but cost more and are not perfectly reliable.",
-          "step3": "When the status says Ready to launch, press Launch."
+          "title": "Соберите аппарат",
+          "step1": "Выбирайте детали в отсеке (платформа, питание, радио, нагрузка). Шкалы справа меняются по мере добавления.",
+          "step2": "Откройте «Ракеты» и выберите носитель: большие ракеты берут больше, но стоят дороже и не идеально надёжны.",
+          "step3": "Когда статус «Готов к запуску», нажмите «Пуск»."
         },
         "flight": {
-          "title": "Watch the flight",
-          "step1": "Switch launch cameras with the buttons or the C key.",
-          "step2": "The dials and the telemetry panel show real values from the simulation.",
-          "step3": "Skip a stage if you do not want to wait; the result stays the same."
+          "title": "Следите за полётом",
+          "step1": "Меняйте камеры запуска кнопками или клавишей C.",
+          "step2": "Приборы и панель телеметрии показывают реальные значения из симуляции.",
+          "step3": "Этап можно пропустить, если не хотите ждать; результат не изменится."
         },
         "result": {
-          "title": "Read the result",
-          "step1": "See whether the mission requirements were met and why things happened.",
-          "step2": "Press Improve the design to go back to the hangar with the same spacecraft.",
-          "step3": "Or start a new mission, or open the Engineering report for every number."
+          "title": "Прочитайте итог",
+          "step1": "Узнайте, выполнены ли требования миссии и почему всё произошло именно так.",
+          "step2": "Нажмите «Улучшить проект», чтобы вернуться в ангар с тем же аппаратом.",
+          "step3": "Или начните новую миссию, или откройте инженерный отчёт со всеми числами."
         }
       },
       "keys": {
         "help": {
           "key": "H",
-          "text": "Open or close this help"
+          "text": "Открыть или закрыть эту справку"
         },
         "camera": {
           "key": "C",
-          "text": "Next launch camera (during the launch)"
+          "text": "Следующая камера запуска (во время запуска)"
         },
         "pause": {
-          "key": "Space",
-          "text": "Pause or resume the flight"
+          "key": "Пробел",
+          "text": "Пауза или продолжение полёта"
         },
         "sound": {
           "key": "🔊",
-          "text": "Sound on or off (top right)"
+          "text": "Звук вкл. или выкл. (справа вверху)"
         },
         "crew": {
           "key": "1–4",
-          "text": "Answer for a crew station (Shift = NO-GO)"
+          "text": "Ответ за станцию экипажа (Shift = NO-GO)"
         }
       },
       "terms": {
         "dv": {
-          "name": "Δv (delta-v)",
-          "text": "How much the spacecraft can change its speed with its fuel. It is the fuel gauge of space."
+          "name": "Δv (дельта-v)",
+          "text": "На сколько аппарат может изменить скорость за счёт топлива. Это топливный датчик космоса."
         },
         "leo": {
-          "name": "LEO",
-          "text": "Low Earth orbit, a few hundred kilometres up. Fast and close."
+          "name": "НОО",
+          "text": "Низкая околоземная орбита, несколько сотен километров над Землёй. Быстро и близко."
         },
         "geo": {
-          "name": "GEO",
-          "text": "Geostationary orbit, about 35,786 km up, where a satellite stays above one spot on Earth."
+          "name": "ГСО",
+          "text": "Геостационарная орбита, около 35 786 км над Землёй: спутник висит над одной точкой."
         },
         "maxq": {
           "name": "Max-Q",
-          "text": "The moment of greatest air pressure on a climbing rocket. It shakes the most."
+          "text": "Момент максимального давления воздуха на поднимающуюся ракету. Тогда трясёт сильнее всего."
         },
         "fairing": {
-          "name": "Fairing",
-          "text": "The nose shell that protects the payload in the air. It splits and falls away in space."
+          "name": "Обтекатель",
+          "text": "Носовая оболочка, защищающая нагрузку в атмосфере. В космосе она раскрывается и отлетает."
         },
         "downlink": {
-          "name": "Downlink",
-          "text": "The radio link that sends your science data to Earth."
+          "name": "Нисходящий канал",
+          "text": "Радиоканал, по которому научные данные уходят на Землю."
         }
       },
-      "honest": "Staging times, shaking and the map layout are drawn for effect. The numbers on the dials, gauges and result come from the mission calculations."
+      "honest": "Время разделения ступеней, тряска и расположение на карте нарисованы для эффекта. Числа на приборах, шкалах и в итоге берутся из расчётов миссии."
     },
     "voice": {
-      "cd60": "T-minus sixty seconds.",
-      "cd30": "Thirty seconds. All stations report go for launch.",
+      "cd60": "До старта шестьдесят секунд.",
+      "cd30": "Тридцать секунд. Все станции докладывают: готовы к пуску.",
       "count": "{n}",
-      "liftoff": "Liftoff! We have liftoff.",
-      "tower": "Tower is clear.",
-      "roll": "Roll program complete.",
-      "maxqApproach": "Approaching max-Q. Throttling down.",
-      "maxqPass": "Passed max-Q. Throttle up.",
-      "boosterSep": "Booster separation confirmed.",
-      "stageSep": "Stage separation. Second stage ignition.",
-      "fairingSep": "Fairing separation. The payload is exposed.",
-      "progress": "Altitude {altitude} kilometres, speed {speed} kilometres per second.",
-      "toOrbit": "{distance} kilometres to orbit.",
-      "secondsToOrbit": "{seconds} seconds to orbit. Engine cut-off soon.",
-      "meco": "Engine cut-off. We are in orbit.",
-      "orbitConfirmed": "Orbit confirmed, {altitude} kilometres.",
-      "lost": "Anomaly. We have lost the vehicle.",
-      "cruise": "Departure burn complete. Cruising to the target.",
-      "arrival": "Approaching the target. Preparing the arrival burn.",
-      "science": "In position. Science operations begin.",
-      "data": "Downlink acquired. Sending the data to Earth.",
-      "done": "Mission complete. Well done, team.",
+      "liftoff": "Старт! Подъём начался.",
+      "tower": "Башня пройдена.",
+      "roll": "Программный разворот завершён.",
+      "maxqApproach": "Подходим к максимальному скоростному напору. Снижаем тягу.",
+      "maxqPass": "Максимальный напор пройден. Тяга на максимум.",
+      "boosterSep": "Отделение ускорителей подтверждено.",
+      "stageSep": "Разделение ступеней. Запуск второй ступени.",
+      "fairingSep": "Сброс обтекателя. Нагрузка открыта.",
+      "progress": "Высота {altitude} километров, скорость {speed} километра в секунду.",
+      "toOrbit": "До орбиты {distance} километров.",
+      "secondsToOrbit": "До орбиты {seconds} секунд. Скоро отсечка двигателя.",
+      "meco": "Отсечка двигателя. Мы на орбите.",
+      "orbitConfirmed": "Орбита подтверждена, {altitude} километров.",
+      "lost": "Авария. Мы потеряли ракету.",
+      "cruise": "Разгонный импульс выполнен. Летим к цели.",
+      "arrival": "Подходим к цели. Готовим тормозной импульс.",
+      "science": "Вышли в точку. Начинаем научную работу.",
+      "data": "Канал связи установлен. Передаём данные на Землю.",
+      "done": "Миссия завершена. Отличная работа, команда.",
       "speakers": {
-        "mcc": "Mission control",
-        "crew": "Crew"
+        "mcc": "Центр управления",
+        "crew": "Экипаж"
       }
     },
     "crew": {
-      "title": "Crew",
-      "pts": "pts",
-      "standby": "Standing by",
+      "title": "Экипаж",
+      "pts": "очк.",
+      "standby": "Ожидает",
       "go": "GO",
       "nogo": "NO-GO",
-      "player": "Player {n}",
-      "keys": "Keys 1–4 answer for a station; Shift + key is NO-GO.",
-      "keysMulti": "Each player answers for their stations: keys 1–4 (Shift = NO-GO) or tap.",
-      "aborted": "Launch scrubbed. The vehicle goes back to the hangar.",
+      "player": "Игрок {n}",
+      "keys": "Клавиши 1–4 отвечают за станцию; Shift + клавиша — NO-GO.",
+      "keysMulti": "Каждый игрок отвечает за свои станции: клавиши 1–4 (Shift = NO-GO) или нажатие.",
+      "aborted": "Пуск отменён. Ракета возвращается в ангар.",
       "roles": {
         "director": {
-          "name": "Flight Director",
-          "text": "Gives the final GO, confirms stage separation and engine cut-off, approves arrival."
+          "name": "Руководитель полёта",
+          "text": "Даёт итоговое GO, подтверждает разделение ступеней и отсечку двигателя, одобряет прибытие."
         },
         "propulsion": {
-          "name": "Propulsion",
-          "text": "Engines and burns: Max-Q throttle, stage separation, course corrections, arrival burn."
+          "name": "Двигатели",
+          "text": "Двигатели и импульсы: снижение тяги на Max-Q, разделение ступеней, коррекции курса, тормозной импульс."
         },
         "power": {
-          "name": "Power & Systems",
-          "text": "Batteries and solar arrays: deploys the panels, answers power problems."
+          "name": "Питание и системы",
+          "text": "Аккумуляторы и солнечные батареи: раскрывает панели, отвечает на проблемы с питанием."
         },
         "comms": {
-          "name": "Comms & Science",
-          "text": "Radio link, fairing, instruments and the data downlink."
+          "name": "Связь и наука",
+          "text": "Радиоканал, обтекатель, приборы и передача данных."
         }
       },
       "tasks": {
         "go-power": {
-          "name": "Power systems: GO / NO-GO",
-          "call": "{name}, power systems: GO or NO-GO?"
+          "name": "Питание: GO / NO-GO",
+          "call": "{name}, системы питания: GO или NO-GO?"
         },
         "go-propulsion": {
-          "name": "Propulsion: GO / NO-GO",
-          "call": "{name}, propulsion: GO or NO-GO?"
+          "name": "Двигатели: GO / NO-GO",
+          "call": "{name}, двигатели: GO или NO-GO?"
         },
         "go-comms": {
-          "name": "Comms & payload: GO / NO-GO",
-          "call": "{name}, comms and payload: GO or NO-GO?"
+          "name": "Связь и нагрузка: GO / NO-GO",
+          "call": "{name}, связь и нагрузка: GO или NO-GO?"
         },
         "go-director": {
-          "name": "Final launch GO / NO-GO",
-          "call": "{name}, flight director: final GO for launch?"
+          "name": "Итоговое GO / NO-GO на пуск",
+          "call": "{name}, руководитель полёта: итоговое GO на пуск?"
         },
         "maxq": {
-          "name": "Max-Q: throttle down",
-          "call": "{name}, max dynamic pressure ahead: throttle down!",
-          "action": "Throttle down"
+          "name": "Max-Q: снизить тягу",
+          "call": "{name}, впереди максимальный напор: снижайте тягу!",
+          "action": "Снизить тягу"
         },
         "booster-sep": {
-          "name": "Confirm booster separation",
-          "call": "{name}, confirm booster separation!",
-          "action": "Separate boosters"
+          "name": "Подтвердить отделение ускорителей",
+          "call": "{name}, подтвердите отделение ускорителей!",
+          "action": "Отделить ускорители"
         },
         "stage-sep": {
-          "name": "Confirm stage separation",
-          "call": "{name}, confirm stage separation!",
-          "action": "Separate stage"
+          "name": "Подтвердить разделение ступеней",
+          "call": "{name}, подтвердите разделение ступеней!",
+          "action": "Разделить ступени"
         },
         "fairing-sep": {
-          "name": "Jettison the fairing",
-          "call": "{name}, jettison the fairing!",
-          "action": "Jettison fairing"
+          "name": "Сбросить обтекатель",
+          "call": "{name}, сбросьте обтекатель!",
+          "action": "Сбросить обтекатель"
         },
         "meco": {
-          "name": "Confirm engine cut-off",
-          "call": "{name}, confirm main engine cut-off!",
-          "action": "Confirm cut-off"
+          "name": "Подтвердить отсечку двигателя",
+          "call": "{name}, подтвердите отсечку маршевого двигателя!",
+          "action": "Подтвердить отсечку"
         },
         "deploy-panels": {
-          "name": "Deploy the solar panels",
-          "call": "{name}, deploy the solar panels!",
-          "action": "Deploy panels"
+          "name": "Раскрыть солнечные батареи",
+          "call": "{name}, раскройте солнечные батареи!",
+          "action": "Раскрыть батареи"
         },
         "link-check": {
-          "name": "Establish the ground link",
-          "call": "{name}, establish the ground link!",
-          "action": "Establish link"
+          "name": "Установить связь с Землёй",
+          "call": "{name}, установите связь с Землёй!",
+          "action": "Установить связь"
         },
         "course-correction": {
-          "name": "Trajectory correction burn",
-          "call": "{name}, perform the trajectory correction!",
-          "action": "Fire correction"
+          "name": "Импульс коррекции траектории",
+          "call": "{name}, выполните коррекцию траектории!",
+          "action": "Включить коррекцию"
         },
         "arrival-go": {
-          "name": "GO for arrival",
-          "call": "{name}, flight director: GO for arrival?",
-          "action": "GO for arrival"
+          "name": "GO на прибытие",
+          "call": "{name}, руководитель полёта: GO на прибытие?",
+          "action": "GO на прибытие"
         },
         "arrival-burn": {
-          "name": "Arrival burn",
-          "call": "{name}, start the arrival burn!",
-          "action": "Start burn"
+          "name": "Тормозной импульс",
+          "call": "{name}, начинайте тормозной импульс!",
+          "action": "Начать импульс"
         },
         "downlink": {
-          "name": "Start the data downlink",
-          "call": "{name}, start the data downlink!",
-          "action": "Start downlink"
+          "name": "Начать передачу данных",
+          "call": "{name}, начинайте передачу данных!",
+          "action": "Начать передачу"
         },
         "ev-solar-degradation": {
-          "name": "Panels degraded: re-trim",
-          "call": "{name}, solar output dropped: re-trim the arrays!",
-          "action": "Re-trim arrays"
+          "name": "Батареи ослабли: подстроить",
+          "call": "{name}, мощность батарей упала: подстройте панели!",
+          "action": "Подстроить панели"
         },
         "ev-instrument-malfunction": {
-          "name": "Instrument fault: restart it",
-          "call": "{name}, instrument fault: restart it!",
-          "action": "Restart instrument"
+          "name": "Сбой прибора: перезапустить",
+          "call": "{name}, сбой прибора: перезапустите его!",
+          "action": "Перезапустить прибор"
         },
         "ev-communication-outage": {
-          "name": "Link outage: switch antenna",
-          "call": "{name}, link lost: switch to the backup antenna!",
-          "action": "Switch antenna"
+          "name": "Обрыв связи: сменить антенну",
+          "call": "{name}, связь потеряна: переключитесь на резервную антенну!",
+          "action": "Сменить антенну"
         },
         "ev-observation-opportunity": {
-          "name": "Rare target: point instruments",
-          "call": "{name}, rare target in view: point the instruments!",
-          "action": "Point instruments"
+          "name": "Редкая цель: навести приборы",
+          "call": "{name}, в поле зрения редкая цель: наведите приборы!",
+          "action": "Навести приборы"
         },
         "ev-increased-power-demand": {
-          "name": "Power demand up: shed load",
-          "call": "{name}, power demand rising: shed non-essential load!",
-          "action": "Shed load"
+          "name": "Рост потребления: сбросить нагрузку",
+          "call": "{name}, потребление растёт: отключите несущественную нагрузку!",
+          "action": "Сбросить нагрузку"
         }
       },
       "setup": {
-        "title": "Crew",
-        "players": "Number of players",
-        "count": "{count, plural, one {# player} other {# players}} · four stations",
-        "name": "Name of player {n}",
-        "note": "Each station has real jobs in the flight and polls GO / NO-GO at the pad. A job nobody does is done by the flight computer for fewer points. The crew changes the score, not the physics."
+        "title": "Экипаж",
+        "players": "Число игроков",
+        "count": "{count, plural, one {# игрок} few {# игрока} many {# игроков} other {# игрока}} · четыре станции",
+        "name": "Имя игрока {n}",
+        "note": "У каждой станции есть настоящие задачи в полёте и опрос GO / NO-GO на старте. Задачу, которую никто не выполнил, делает бортовой компьютер за меньшие очки. Экипаж меняет счёт, а не физику."
       },
       "caption": {
-        "perfect": "{who} ({role}): {task} — on time, +{points}",
-        "good": "{who} ({role}): {task} — done, +{points}",
-        "missed": "{who} ({role}): {task} — missed, the flight computer did it, {points}",
-        "wrong-go": "{who} ({role}): GO despite a known fault, {points}",
-        "false-hold": "{who} ({role}): NO-GO on a healthy system, {points}",
-        "correct-nogo": "{who} ({role}): correct NO-GO, +{points}"
-      }
+        "perfect": "{who} ({role}): {task} — вовремя, +{points}",
+        "good": "{who} ({role}): {task} — выполнено, +{points}",
+        "missed": "{who} ({role}): {task} — пропущено, сделал бортовой компьютер, {points}",
+        "wrong-go": "{who} ({role}): GO при известной неисправности, {points}",
+        "false-hold": "{who} ({role}): NO-GO при исправной системе, {points}",
+        "correct-nogo": "{who} ({role}): верный NO-GO, +{points}"
+      },
+      "onlineWaiting": "Ждём ответа: {name} (онлайн)"
     },
     "score": {
-      "of": "out of {max}",
+      "of": "из {max}",
       "line": {
-        "outcome": "Mission result",
-        "requirements": "Requirements met",
-        "science": "Science returned",
-        "data": "Data delivered",
-        "health": "Spacecraft health",
-        "crew": "Crew performance"
+        "outcome": "Итог миссии",
+        "requirements": "Выполнение требований",
+        "science": "Полученная наука",
+        "data": "Доставленные данные",
+        "health": "Состояние аппарата",
+        "crew": "Работа экипажа"
       },
-      "honest": "The score comes from the simulation's outcome and the crew's jobs. It is for this flight only; there is no leaderboard.",
-      "crew": "The crew",
-      "mvp": "Best crew member",
-      "tasks": "{done} of {total} jobs"
+      "honest": "Очки берутся из результата симуляции и задач экипажа. Только за этот полёт; таблицы лидеров нет.",
+      "crew": "Экипаж",
+      "mvp": "Лучший член экипажа",
+      "tasks": "{done} из {total} задач"
     },
     "mistakes": {
-      "none": "No mistakes. A clean flight!",
-      "watch": "Watch",
+      "none": "Ошибок нет. Чистый полёт!",
+      "watch": "Смотреть",
       "category": {
-        "crew": "Crew",
-        "flight": "Flight",
-        "requirement": "Requirement",
-        "design": "Design"
+        "crew": "Экипаж",
+        "flight": "Полёт",
+        "requirement": "Требование",
+        "design": "Проект"
       },
       "crew": {
-        "missed": "{who} missed “{task}” ({role}): the flight computer did it.",
-        "missedWhy": "A job nobody does is done late by the flight computer. Answer quickly next time.",
-        "wrong-go": "{who} said GO for the {role} station although the design had a fault.",
-        "wrong-goWhy": "A GO means you accept the risk.",
-        "knownFault": "The design had {count, plural, one {# error} other {# errors}} in this area. The right call was NO-GO, which scrubs the launch so you can fix it.",
-        "false-hold": "{who} called NO-GO for {role} although nothing was wrong.",
-        "false-holdWhy": "The hold was overruled and the flight went on. A NO-GO is for real faults."
+        "missed": "{who} пропустил(а) «{task}» ({role}): сделал бортовой компьютер.",
+        "missedWhy": "Задачу, которую никто не выполнил, бортовой компьютер делает с опозданием. В следующий раз отвечайте быстрее.",
+        "wrong-go": "{who} сказал(а) GO за станцию «{role}», хотя в проекте была неисправность.",
+        "wrong-goWhy": "GO означает, что вы принимаете риск.",
+        "knownFault": "В проекте была {count, plural, one {# ошибка} few {# ошибки} many {# ошибок} other {# ошибки}} в этой области. Верным решением был NO-GO: он отменяет пуск, и вы можете всё исправить.",
+        "false-hold": "{who} сказал(а) NO-GO за «{role}», хотя всё было в порядке.",
+        "false-holdWhy": "Задержку отклонили, и полёт продолжился. NO-GO нужен для настоящих неисправностей."
       },
-      "requirement": "Requirement missed: {kind} was {actual}, the limit is {limit}.",
-      "designFix": "This error was in the design at launch. Fix it in the hangar."
+      "requirement": "Требование не выполнено: {kind} — {actual}, предел {limit}.",
+      "designFix": "Эта ошибка была в проекте при пуске. Исправьте её в ангаре."
     },
     "replay": {
-      "title": "Mission video",
-      "finished": "End of the video",
-      "timeline": "Video timeline",
-      "again": "Again",
-      "pause": "Pause",
-      "play": "Play",
-      "mistakes": "Mistakes ({count})",
-      "exit": "Back to result"
+      "title": "Видео миссии",
+      "finished": "Конец видео",
+      "timeline": "Шкала видео",
+      "again": "Ещё раз",
+      "pause": "Пауза",
+      "play": "Пуск",
+      "mistakes": "Ошибки ({count})",
+      "exit": "Назад к итогу"
+    },
+    "online": {
+      "button": "Онлайн",
+      "title": "Играть онлайн",
+      "shareCode": "Отправьте этот код экипажу (до 4 игроков):",
+      "copyLink": "Скопировать ссылку",
+      "copied": "Ссылка скопирована",
+      "host": "хозяин",
+      "hostNote": "Подключённые игроки отвечают со своего телефона. Не закрывайте эту вкладку: здесь идёт полёт.",
+      "close": "Закрыть комнату",
+      "leave": "Выйти из комнаты",
+      "yourName": "Ваше имя",
+      "create": "Создать комнату",
+      "joinCode": "Код комнаты",
+      "join": "Войти в комнату",
+      "room": "Комната {code}",
+      "connected": "подключено",
+      "reconnecting": "переподключение…",
+      "waiting": "Ждём, когда хозяин начнёт полёт…",
+      "yourStations": "Ваши станции",
+      "noStations": "В таком составе экипажа у вас нет станции.",
+      "consoleNote": "Пульт станции · полёт показан на экране хозяина",
+      "errors": {
+        "full": "Комната заполнена.",
+        "not-found": "Комнаты с таким кодом нет.",
+        "invalid": "Проверьте имя и код.",
+        "rate_limited": "Слишком много запросов. Подождите.",
+        "busy": "Сервер занят. Повторите.",
+        "network": "Нет связи с сервером.",
+        "closed": "Хозяин закрыл комнату."
+      }
     }
   }
 }

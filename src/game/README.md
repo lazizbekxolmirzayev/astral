@@ -84,3 +84,12 @@ second-stage engine.
 - **Score (`score.ts`).** Result 400 / 200 / 0, requirements 150, science 200, data 100, spacecraft health 50, crew performance (30 quick, 20 done, −20 missed, −30 GO against a known fault, −15 needless NO-GO). Grades S/A/B/C/D by share of the maximum. Per-player points and a best-crew-member star. Per flight only: **no leaderboard**.
 - **Mistakes (`mistakes.ts`).** One list: crew mistakes, the simulation's own warnings and errors (with their causes), unmet requirements, and design errors that were left in. Each flight moment can be watched in the video.
 - **Mission video (`replay.ts`).** The finished flight is flown again from the same plan, faster (ascent ×8, speed ×1/×2/×4), with a timeline of one segment per stage flown, mistakes marked on it, clickable to jump (the simulation is replayed deterministically up to that moment), and a caption for each crew answer. It is a replay of the simulation in the 3D scene, not a recorded video file.
+
+## Online rooms
+
+A player can open **Online** in the top bar, create a room (5-letter code, up to 4 players) and share the code or an invite link (`/?room=CODE`). Others join from their own phone or computer.
+
+- The **host's browser runs the simulation** and publishes a small snapshot (stage, clock, key telemetry, open jobs, points) about 3 times a second. Joiners see a full-screen **station console** with big GO / NO-GO / action buttons for the stations they own (`playerOfRole`), the key numbers, and the result. The 3D flight is shown on the host screen only.
+- Answers are validated on the host: only the player who owns a station can answer for it. Each joiner's console speaks new jobs in that player's own language (uz/ru/en).
+- The relay is an **in-memory** store in one Node process (`src/lib/server/rooms.ts`, SSE + POST, rate-limited, rooms expire when idle). It needs a single long-running server (`next start`), not serverless. Rooms are lost on restart.
+- There is no account system and no leaderboard.

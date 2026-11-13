@@ -1477,7 +1477,8 @@
         "rear": "Rear",
         "onboard": "Onboard",
         "crew": "Crew",
-        "key": "Press C to switch"
+        "key": "Press C to switch",
+        "orbit": "Orbit view"
       },
       "ascentSpeed": {
         "label": "Speed",
@@ -1793,7 +1794,8 @@
         "wrong-go": "{who} ({role}): GO despite a known fault, {points}",
         "false-hold": "{who} ({role}): NO-GO on a healthy system, {points}",
         "correct-nogo": "{who} ({role}): correct NO-GO, +{points}"
-      }
+      },
+      "onlineWaiting": "Waiting for {name} (online)"
     },
     "score": {
       "of": "out of {max}",
@@ -1840,6 +1842,37 @@
       "play": "Play",
       "mistakes": "Mistakes ({count})",
       "exit": "Back to result"
+    },
+    "online": {
+      "button": "Online",
+      "title": "Play online",
+      "shareCode": "Share this code with your crew (up to 4 players):",
+      "copyLink": "Copy invite link",
+      "copied": "Link copied",
+      "host": "host",
+      "hostNote": "Joined players answer from their own phone. Keep this tab open: it runs the flight.",
+      "close": "Close room",
+      "leave": "Leave room",
+      "yourName": "Your name",
+      "create": "Create room",
+      "joinCode": "Room code",
+      "join": "Join room",
+      "room": "Room {code}",
+      "connected": "connected",
+      "reconnecting": "reconnecting…",
+      "waiting": "Waiting for the host to start the flight…",
+      "yourStations": "Your stations",
+      "noStations": "You have no station in this crew size.",
+      "consoleNote": "Station console · the flight is shown on the host screen",
+      "errors": {
+        "full": "This room is full.",
+        "not-found": "No room with that code.",
+        "invalid": "Check the name and code.",
+        "rate_limited": "Too many requests. Wait a moment.",
+        "busy": "Server is busy. Try again.",
+        "network": "No connection to the server.",
+        "closed": "The host closed the room."
+      }
     }
   }
 }

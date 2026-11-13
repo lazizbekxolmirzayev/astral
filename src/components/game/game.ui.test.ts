@@ -2,6 +2,10 @@ import { createElement, type ComponentType, type ReactElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { OnlineConsole } from './OnlineConsole';
+import { RoomMenu } from './RoomMenu';
+import { onlineStore } from '@/game/online';
+import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import en from '@/messages/en.json';
 import ru from '@/messages/ru.json';
 import uz from '@/messages/uz.json';
@@ -24,7 +28,7 @@ const problems: string[] = [];
 
 function render(locale: Locale, element: ReactElement): string {
   return renderToStaticMarkup(
-    createElement(NextIntlClientProvider as unknown as ComponentType<Record<string, unknown>>, { locale, messages: MESSAGES[locale] as never, timeZone: 'UTC', onError: (error: { message: string }) => void problems.push(error.message) }, element),
+    createElement(NextIntlClientProvider as unknown as ComponentType<Record<string, unknown>>, { locale, messages: MESSAGES[locale] as never, timeZone: 'UTC', onError: (error: { message: string }) => void problems.push(error.message) }, createElement(AppRouterContext.Provider, { value: { back() {}, forward() {}, refresh() {}, push() {}, replace() {}, prefetch() {} } as never }, element)),
   );
 }
 
@@ -181,4 +185,15 @@ describe('crew, score and video screens', () => {
     expect(card).toContain('data-action="tab-mistakes"');
     expect(problems).toEqual([]);
   });
+  for (const locale of ['uz', 'en', 'ru'] as const) {
+    it(`the online room menu and the joined player's console render in ${locale}`, () => {
+      expect(render(locale, createElement(RoomMenu))).toContain('data-action="toggle-online"');
+      onlineStore.setState({ mode: 'client', code: 'ABCDE', index: 1, roster: [{ index: 0, name: 'A', connected: true }, { index: 1, name: 'B', connected: true }], connected: true, snapshot: { v: 1, phase: 'flight', stage: 'launch', stageTitle: { en: 'Launch', uz: 'Uchirish' }, clock: 'T+ 00:00:10', tm: { altitudeKm: 1, distanceKm: 0, speedKms: 0.1, battery: 1, health: 1 }, tasks: [{ key: 'k', defId: 'go-propulsion', role: 'propulsion', kind: 'poll', leftS: 5, windowS: 10 }], lost: false, result: null, names: ['A', 'B'], playerCount: 2, points: 0 } });
+      const html = render(locale, createElement(OnlineConsole));
+      expect(html).toContain('data-testid="online-console"');
+      expect(html).toContain('data-action="console-go-propulsion"');
+      onlineStore.setState({ mode: 'off', snapshot: null });
+      expect(problems).toEqual([]);
+    });
+  }
 });

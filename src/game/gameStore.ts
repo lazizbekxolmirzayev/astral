@@ -19,8 +19,8 @@ import { computeScore, type Score } from './score';
  */
 export type GamePhase = 'map' | 'hangar' | 'flight' | 'result' | 'replay';
 export type HangarView = 'ship' | 'rockets';
-export type LaunchCameraMode = 'auto' | 'side' | 'track' | 'chase' | 'rear' | 'onboard' | 'crew';
-export const LAUNCH_CAMERAS: readonly LaunchCameraMode[] = ['auto', 'side', 'track', 'chase', 'rear', 'onboard', 'crew'];
+export type LaunchCameraMode = 'auto' | 'side' | 'track' | 'chase' | 'rear' | 'onboard' | 'crew' | 'orbit';
+export const LAUNCH_CAMERAS: readonly LaunchCameraMode[] = ['auto', 'side', 'track', 'chase', 'rear', 'onboard', 'crew', 'orbit'];
 
 /** Everything the result screen and the video need about the flight that just ended. */
 export type FlightRecord = {
