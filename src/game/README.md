@@ -93,3 +93,9 @@ A player can open **Online** in the top bar, create a room (5-letter code, up to
 - The **host's browser runs the simulation** and publishes a small snapshot (stage, clock, key telemetry, open jobs, points) about 3 times a second. Joiners see a full-screen **station console** with big GO / NO-GO / action buttons for the stations they own (`playerOfRole`), the key numbers, and the result. The 3D flight is shown on the host screen only.
 - Answers are validated on the host: only the player who owns a station can answer for it. Each joiner's console speaks new jobs in that player's own language (uz/ru/en).
 - Rooms live only while the host's tab is open. There is no account system and no leaderboard.
+
+## Looking around and the cosmos
+
+- **Free look** (`CameraDirector`, `freeLook`): drag with the mouse or a finger and the camera swings around what it is looking at; the wheel or a two-finger pinch zooms. A few seconds after the drag ends the view eases back to the director's shot.
+- **Heliocentric flights** draw the rest of the Solar System (`Cosmos.tsx`): the other planets at their real mean distances and approximate current positions (circular orbits, J2000 mean longitude + mean motion), the main asteroid belt, and orbit lines. Sizes are exaggerated; surfaces are procedural.
+- The launch sky is an opaque dome drawn first (a transparent, depth-test-free dome paints over the vehicle) and goes black with altitude by about 100 km. The drawn height near the ground is exaggerated so the vehicle visibly leaves the tower; the HUD altitude is the real one.

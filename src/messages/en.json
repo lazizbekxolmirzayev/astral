@@ -1477,7 +1477,7 @@
         "rear": "Rear",
         "onboard": "Onboard",
         "crew": "Crew",
-        "key": "Press C to switch",
+        "key": "Press C to switch · drag to look, wheel to zoom",
         "orbit": "Orbit view"
       },
       "ascentSpeed": {

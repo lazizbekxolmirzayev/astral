@@ -12,6 +12,7 @@ import { simStore } from '@/stores/simStore';
 import { planets, SUN_LOOK } from '../3d/layout';
 import { createGlowTexture, GLOW_BLENDING } from '../3d/proceduralTextures';
 import { CameraDirector, type CameraPose } from './CameraDirector';
+import { Cosmos } from './Cosmos';
 import { GamePlanet, GameSun } from './GamePlanet';
 import { removeAnchors, setAnchor } from './labels';
 import { gameStore, type LaunchCameraMode } from '@/game/gameStore';
@@ -43,7 +44,8 @@ varying vec3 vDir;
 void main() {
   float h = clamp(vDir.y * 0.5 + 0.5, 0.0, 1.0);
   vec3 c = mix(uHorizon, uTop, pow(h, 0.7));
-  gl_FragColor = vec4(c, uAlpha);
+  // opaque on purpose: a transparent sky is drawn after every opaque object and, with no depth test, would paint over the vehicle
+  gl_FragColor = vec4(c * uAlpha, 1.0);
 }`;
 
 function Gantry() {
@@ -199,7 +201,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
   const register = useMemo(() => (id: PieceId, group: Group | null) => { pieceGroups.current[id] = group; }, []);
 
   const sky = useMemo(
-    () => new ShaderMaterial({ uniforms: { uTop: { value: new Color('#16356b') }, uHorizon: { value: new Color('#e9a27a') }, uAlpha: { value: 1 } }, vertexShader: SKY_VERTEX, fragmentShader: SKY_FRAGMENT, transparent: true, depthWrite: false, depthTest: false, side: BackSide }),
+    () => new ShaderMaterial({ uniforms: { uTop: { value: new Color('#16356b') }, uHorizon: { value: new Color('#e9a27a') }, uAlpha: { value: 1 } }, vertexShader: SKY_VERTEX, fragmentShader: SKY_FRAGMENT, transparent: false, depthWrite: false, depthTest: false, side: BackSide }),
     [],
   );
   const glow = useMemo(() => createGlowTexture('#ffd9a0', 'rgba(255,140,40,0)'), []);
@@ -333,8 +335,8 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       if (fog) {
         fog.color.copy(skyMaterial.uniforms.uHorizon!.value as Color).multiplyScalar(0.6);
         // the haze of the lowest layer of air thins out with altitude, so the Earth below is seen clearly from above
-        fog.near = 40 + (1 - amount) * 6000;
-        fog.far = 380 + (1 - amount) * 24000;
+        fog.near = 160 + (1 - amount) * 6000;
+        fog.far = 1300 + (1 - amount) * 24000;
       }
     }
     if (dome.current) dome.current.position.copy(camera.position);
@@ -370,12 +372,12 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
 
   return (
     <>
-      <CameraDirector getPose={() => poseRef.current} damping={RIGID.has(camKey.slice(7)) ? 40 : camKey === 'launch-track' ? 9 : 3.2} sway={RIGID.has(camKey.slice(7)) ? 0 : 0.18} snapKey={camKey} />
-      <fog ref={fogRef} attach="fog" args={['#8a5a4a', 40, 380]} />
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[-20, 25, 30]} intensity={2.6} color="#ffd9b0" />
-      <pointLight position={[8, 22, 14]} intensity={900} distance={120} color="#ffe2b8" />
-      <spotLight position={[16, 10, 26]} angle={0.5} penumbra={0.9} intensity={2200} distance={120} color="#fff1dc" />
+      <CameraDirector freeLook getPose={() => poseRef.current} damping={RIGID.has(camKey.slice(7)) ? 40 : camKey === 'launch-track' ? 9 : 3.2} sway={RIGID.has(camKey.slice(7)) ? 0 : 0.18} snapKey={camKey} />
+      <fog ref={fogRef} attach="fog" args={['#8a5a4a', 160, 1300]} />
+      <ambientLight intensity={0.22} />
+      <directionalLight position={[-24, 18, 30]} intensity={1.7} color="#ffe9d0" />
+      <directionalLight position={[30, 8, -20]} intensity={0.6} color="#9fc2ff" />
+      <pointLight position={[8, 22, 14]} intensity={260} distance={160} color="#ffe2b8" />
       <group ref={dome} renderOrder={-10}>
         <mesh renderOrder={-10} raycast={() => null}>
           <sphereGeometry args={[250, 32, 24]} />
@@ -481,7 +483,8 @@ export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; f
   const trail = useRef<Vec3Like[]>([[0, 0, 0], [0.001, 0, 0]]);
   const trailKey = useRef(0);
   // wide orbits (the planet is small next to the orbit) are watched from above and slowly circled instead of from behind
-  const wideOrbit = !OVERVIEW_FRAMES.has(frame.key) && frame.unit === 'radii' && frame.extent > 3;
+  const wideOrbit = !OVERVIEW_FRAMES.has(frame.key) && frame.unit === 'radii';
+  const [epochMs] = useState(() => Date.now());
   const overview = OVERVIEW_FRAMES.has(frame.key) || wideOrbit;
   const shipRadius = wideOrbit ? 0.8 : overview ? 0.55 : 0.9;
 
@@ -538,8 +541,10 @@ export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; f
     }
     if (overview) {
       const swing = visualClock.current * 0.06;
+      // a small frame means a big planet on screen: back off so the whole globe and its orbit are in view
+      const back = frame.unit === 'radii' ? Math.max(1, (scale * 4.6) / (WORLD_EXTENT * 1.3)) : 1;
       poseRef.current = wideOrbit
-        ? { position: [Math.sin(swing) * WORLD_EXTENT * 1.1, WORLD_EXTENT * 0.9, Math.cos(swing) * WORLD_EXTENT * 1.5], target: [world[0] * 0.2, 0, world[2] * 0.2] }
+        ? { position: [Math.sin(swing) * WORLD_EXTENT * 1.1 * back, WORLD_EXTENT * 0.9 * back, Math.cos(swing) * WORLD_EXTENT * 1.5 * back], target: [world[0] * 0.2, 0, world[2] * 0.2] }
         : { position: [Math.sin(swing) * WORLD_EXTENT * 0.5, WORLD_EXTENT * 0.72, Math.cos(swing) * WORLD_EXTENT * 1.25], target: [world[0] * 0.3, 0, world[2] * 0.3] };
     } else {
       // Chase view: behind the spacecraft and a little above it, looking along its path, so the planet's
@@ -563,9 +568,10 @@ export function OrbitFrameView({ plan, frame, lost, rocket }: { plan: SimPlan; f
 
   return (
     <>
-      <CameraDirector getPose={() => poseRef.current} damping={overview ? 1.6 : 5} sway={0.08} snapKey={`flight-${frame.key}`} />
+      <CameraDirector freeLook getPose={() => poseRef.current} damping={overview ? 1.6 : 5} sway={0.08} snapKey={`flight-${frame.key}`} />
       <ambientLight intensity={0.22} />
       <directionalLight position={[-30, 8, 14]} intensity={3.6} color="#fff2dd" />
+      {frame.center === 'sun' ? <Cosmos scale={scale} extent={frame.extent} epochMs={epochMs} /> : null}
       {frame.bodies.map((body) => (
         <Body key={`${body.id}-${body.position.join(',')}`} body={body} scale={scale} />
       ))}
