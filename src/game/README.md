@@ -89,7 +89,7 @@ second-stage engine.
 
 A player can open **Online** in the top bar, create a room (5-letter code, up to 4 players) and share the code or an invite link (`/?room=CODE`). Others join from their own phone or computer.
 
+- **No game server.** Browsers connect directly to each other (WebRTC through PeerJS, `src/game/online.ts`); the public PeerJS broker only introduces them, so it works on any static/serverless host such as Vercel. Set `NEXT_PUBLIC_PEER_HOST` (+ `_PORT`, `_PATH`, `_SECURE`) to use your own broker. Strict corporate networks without a TURN relay may block direct connections.
 - The **host's browser runs the simulation** and publishes a small snapshot (stage, clock, key telemetry, open jobs, points) about 3 times a second. Joiners see a full-screen **station console** with big GO / NO-GO / action buttons for the stations they own (`playerOfRole`), the key numbers, and the result. The 3D flight is shown on the host screen only.
 - Answers are validated on the host: only the player who owns a station can answer for it. Each joiner's console speaks new jobs in that player's own language (uz/ru/en).
-- The relay is an **in-memory** store in one Node process (`src/lib/server/rooms.ts`, SSE + POST, rate-limited, rooms expire when idle). It needs a single long-running server (`next start`), not serverless. Rooms are lost on restart.
-- There is no account system and no leaderboard.
+- Rooms live only while the host's tab is open. There is no account system and no leaderboard.

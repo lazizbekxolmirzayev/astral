@@ -44,7 +44,9 @@ function downrangeFraction(tau: number): number {
  */
 export function ascentPose(tau: number): AscentPose {
   const clamped = Math.min(1, Math.max(0, tau));
-  const altitude = ASCENT_DISTANCE * ascentAltitudeFraction(clamped);
+  // the first tens of kilometres are only a few drawn units at true scale (the vehicle itself is drawn far larger than life),
+  // so the drawn height rises faster than the real one near the ground and meets it at orbit: the HUD numbers stay real
+  const altitude = ASCENT_DISTANCE * Math.sqrt(ascentAltitudeFraction(clamped));
   const x = DOWNRANGE * downrangeFraction(clamped);
   // the rocket stays at its altitude above the *curved* ground
   const y = altitude + (x * x) / (2 * EARTH_SCENE_RADIUS);

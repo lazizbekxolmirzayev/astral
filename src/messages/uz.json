@@ -1870,7 +1870,7 @@
         "invalid": "Ism va kodni tekshiring.",
         "rate_limited": "Juda ko‘p so‘rov. Biroz kuting.",
         "busy": "Server band. Qayta urinib ko‘ring.",
-        "network": "Serverga ulanib bo‘lmadi.",
+        "network": "Xona xizmatiga ulanib bo‘lmadi.",
         "closed": "Boshlovchi xonani yopdi."
       }
     }
