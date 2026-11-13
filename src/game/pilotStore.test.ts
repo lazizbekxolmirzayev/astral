@@ -125,4 +125,22 @@ describe('the pilot store', () => {
     expect(run(4)).toBe('broke-up');
     expect(run(1)).not.toBe('broke-up');
   });
+
+  it('a human power tech can switch the load limiter on: the same hard turn no longer breaks the vehicle up', () => {
+    const run = (limiter: boolean) => {
+      const store = createPilotStore();
+      store.getState().setMode('manual');
+      store.getState().setCrewCount(4);
+      store.getState().setLimiter(limiter);
+      store.getState().setWarp(4);
+      store.getState().begin(planOf('leo'));
+      for (let i = 0; i < 600 && store.getState().flight?.status === 'flying'; i += 1) {
+        store.getState().update(0.05);
+        if (i > 100) store.getState().nudgePitch(20);
+      }
+      return store.getState().flight!.status;
+    };
+    expect(run(false)).toBe('broke-up');
+    expect(run(true)).not.toBe('broke-up');
+  });
 });

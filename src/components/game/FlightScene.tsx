@@ -230,7 +230,22 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     const pose = pilot ? pilot.pose : ascentPose(tau);
     const t = clock.elapsedTime;
     const exploded = failed && stage !== 'pre-launch';
-    if (exploded && failedAt.current === null) { failedAt.current = t; failPos.current = [pose.x, pose.y + 2]; }
+    if (exploded && failedAt.current === null) {
+      failedAt.current = t;
+      failPos.current = [pose.x, pose.y + 2];
+      // the vehicle comes apart: every piece still on it is flung out and tumbles
+      const rest: PieceId[] = [];
+      if (!done.current.stage1) rest.push('stage1');
+      if (!done.current.fairing) rest.push('fairingA', 'fairingB');
+      if (!done.current.boosters && dims.boosters > 0) rest.push('boosterL', 'boosterR');
+      rest.forEach((id, index) => {
+        const setup = pieceSetup(rocket, id);
+        const [wx, wy] = toWorld(setup.pivot[0] * LAUNCH_SCALE, setup.pivot[1] * LAUNCH_SCALE, pose.pitch);
+        const angle = (index / Math.max(1, rest.length)) * Math.PI * 2 + 0.6;
+        pieces.current[id] = { t0: t, p0: [pose.x + wx, pose.y + wy], v: [velocity.current[0] * 0.6 + Math.cos(angle) * 16, velocity.current[1] * 0.6 + 8 + Math.sin(angle) * 14], pitch: pose.pitch, spin: (index % 2 ? 1 : -1) * (2.2 + index * 0.7) };
+      });
+      done.current = { boosters: true, stage1: true, fairing: true };
+    }
     const sinceFail = failedAt.current === null ? -1 : t - failedAt.current;
     const ux = Math.sin(pose.pitch);
     const uy = Math.cos(pose.pitch);
@@ -290,7 +305,7 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
       if (!piece || !group) continue;
       const dt = t - piece.t0;
       group.visible = dt < PIECE_LIFE;
-      group.position.set(piece.p0[0] + piece.v[0] * dt, piece.p0[1] + piece.v[1] * dt + 0.5 * PIECE_GRAVITY * dt * dt, 0);
+      group.position.set(piece.p0[0] + piece.v[0] * dt, Math.max(0.3, piece.p0[1] + piece.v[1] * dt + 0.5 * PIECE_GRAVITY * dt * dt), 0);
       group.rotation.set(0, 0, -piece.pitch + piece.spin * dt);
     }
 
@@ -660,7 +675,7 @@ function readLaunch(): LaunchRead {
     return {
       stage: 'launch',
       progress: tauOfAltitude(altitudeKm),
-      failed: flown.status === 'crashed' || flown.status === 'broke-up' || flown.status === 'suborbital',
+      failed: flown.status === 'crashed' || flown.status === 'broke-up', // running dry is not an explosion: the vehicle just coasts
       pilot: { pose, tau: tauOfAltitude(altitudeKm), altitudeKm, thrust: flown.thrust, separated: { boosters: flown.boostersGone || flown.stage === 2, stage1: flown.stage === 2, fairing: flown.fairingGone } },
     };
   }

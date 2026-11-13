@@ -4,7 +4,7 @@ import { compareLaunchers } from '@/mission/launchView';
 import { evaluateMission } from '@/mission/engine';
 import type { SimPlan } from '@/mission/sim';
 import { isAiRole } from './crew';
-import { altitudeOf, autopilot, createFlight, createVehicle, rateFlight, stepFlight, type Flight, type FlightRating, type FlightStatus, type PilotInput } from './pilot/model';
+import { altitudeOf, autopilot, referencePitch, createFlight, createVehicle, rateFlight, stepFlight, type Flight, type FlightRating, type FlightStatus, type PilotInput } from './pilot/model';
 
 /**
  * Who flies the ascent. `off` is the film of the ascent (the scripted climb), `auto` the reference pilot, `assist` flies
@@ -18,7 +18,7 @@ export const WARPS: readonly Warp[] = [1, 2, 4, 8];
 
 const STEP_S = 0.05;
 /** The AI power tech lets the person steer this far (radians) from the reference flight path while the air is thick. */
-const GUARD_BAND = (12 * Math.PI) / 180;
+const GUARD_BAND = (5 * Math.PI) / 180;
 /** Real seconds the scene keeps the outcome on screen (explosion or orbit) before the mission goes on. */
 export const OUTCOME_HOLD_S = 3.4;
 /** Pitch changes by this many degrees per second while a key is held. */
@@ -41,6 +41,9 @@ export type PilotState = {
   pitchIdle: number;
   /** What the AI crew is doing right now, for the console. */
   aiAction: 'throttle' | 'guard' | null;
+  /** The power station's load limiter: keeps the steering near the safe path while the air is thick (always on when the AI sits there). */
+  limiter: boolean;
+  setLimiter: (on: boolean) => void;
   setCrewCount: (count: number) => void;
   /** Real seconds since the flight ended, null while it flies. */
   endedFor: number | null;
@@ -80,6 +83,8 @@ export function createPilotStore(): StoreApi<PilotState> {
     throttleIdle: 99,
     pitchIdle: 99,
     aiAction: null,
+    limiter: false,
+    setLimiter: (on) => set({ limiter: on }),
     setCrewCount: (count) => set({ crewCount: count }),
     endedFor: null,
     rating: null,
@@ -108,7 +113,7 @@ export function createPilotStore(): StoreApi<PilotState> {
       let throttle = state.throttle;
       let aiAction: PilotState['aiAction'] = null;
       const aiEngines = state.mode !== 'auto' && isAiRole('propulsion', state.crewCount) && state.throttleIdle + realSeconds > 3;
-      const aiGuard = state.mode !== 'auto' && isAiRole('power', state.crewCount);
+      const aiGuard = state.mode !== 'auto' && (isAiRole('power', state.crewCount) || state.limiter);
       while (remaining > 1e-9 && flight.status === 'flying') {
         const step = Math.min(STEP_S, remaining);
         remaining -= step;
@@ -121,8 +126,9 @@ export function createPilotStore(): StoreApi<PilotState> {
           if (aiEngines) { input.throttle = autopilot(flight).throttle; throttle = input.throttle; aiAction = 'throttle'; }
           // the AI power tech eases the steering off when the vehicle is about to break up
           if (aiGuard && !input.hold && (altitudeOf(flight) < 45_000 || flight.stressRatio > 0.7)) {
-            const reference = autopilot(flight).pitchCommand;
-            const clamped = Math.min(reference + GUARD_BAND, Math.max(reference - GUARD_BAND, input.pitchCommand));
+            const reference = referencePitch(flight);
+            const band = GUARD_BAND * Math.min(1, Math.max(0.05, 1 - flight.stressRatio / 0.6)); // the closer to the limit, the less freedom
+            const clamped = Math.min(reference + band, Math.max(reference - band, input.pitchCommand));
             if (clamped !== input.pitchCommand) { input.pitchCommand = clamped; pitchCommand = clamped; aiAction = 'guard'; }
           }
         }

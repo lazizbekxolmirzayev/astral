@@ -159,6 +159,14 @@ function pathAngle(flight: Flight): number {
   return Math.atan2(vtRel, flight.vr);
 }
 
+/** The pitch (radians from vertical) the reference pilot would fly right now: the flight path during the first stage, the guidance after it. */
+export function referencePitch(flight: Flight): number {
+  const reference = autopilot(flight);
+  if (!reference.hold) return reference.pitchCommand;
+  const speed = Math.hypot(flight.vr, flight.vt - OMEGA * Math.cos(flight.latitude) * flight.r);
+  return flight.t < 8 || speed < 40 ? 0 : Math.max(pathAngle(flight), flight.pitch < deg(1.5) ? deg(2.2) : 0);
+}
+
 /** One step of the flight. Mutates and returns `flight`. */
 export function stepFlight(flight: Flight, input: PilotInput, dt: number): Flight {
   if (flight.status !== 'flying') return flight;

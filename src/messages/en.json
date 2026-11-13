@@ -1959,7 +1959,11 @@
         "power": "Watches the load",
         "powerActive": "AI eases the steering",
         "comms": "Calls the status"
-      }
+      },
+      "limiter": "Load limiter",
+      "on": "on",
+      "off": "off",
+      "limiterHint": "Keeps the steering within a safe angle of the flight path while the air is thick."
     }
   }
 }

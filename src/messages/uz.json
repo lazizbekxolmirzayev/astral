@@ -1959,7 +1959,11 @@
         "power": "Yuklamani kuzatadi",
         "powerActive": "AI burilishni yumshatdi",
         "comms": "Holatni xabar qiladi"
-      }
+      },
+      "limiter": "Yuklama cheklagichi",
+      "on": "yoqilgan",
+      "off": "o'chiq",
+      "limiterHint": "Havo zich joyda burilishni uchish yo'lidan xavfsiz burchak ichida ushlab turadi."
     }
   }
 }
