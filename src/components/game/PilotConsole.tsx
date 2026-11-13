@@ -8,6 +8,7 @@ import { OUTCOME_HOLD_S, PILOT_MODES, PITCH_RATE_DEG, pilotStore, usePilot, WARP
 import { Dial, GuardedSwitch, Lamp, Lcd, Lever, Plate, Selector, Stick, Tank, Toggle } from './CockpitParts';
 import { onlineStore } from '@/game/online';
 import { simStore } from '@/stores/simStore';
+import { DIFFICULTY_RULES } from '@/game/difficulty';
 import { PLAYER_COLORS, isAiRole, type CrewRole } from '@/game/crew';
 import { crewStore, useCrewStore } from '@/game/crewStore';
 
@@ -121,7 +122,8 @@ export function PilotConsole() {
   const stationSub = (role: CrewRole, index: number) => (isAiRole(role, crewCount) ? t('duty.ai') : crewNames[index]?.trim() || tCrew('player', { n: index + 1 }));
   const crewCount = pilot.crewCount;
   const aiPower = isAiRole('power', crewCount);
-  const limiterOn = aiPower || pilot.limiter;
+  const rules = DIFFICULTY_RULES[pilot.difficulty];
+  const limiterOn = aiPower || pilot.limiter || rules.forcedLimiter;
 
   return (
     <section data-testid="pilot-console" aria-label={t('title')} className="absolute inset-x-2 bottom-2 z-30 mx-auto w-auto max-w-[960px] rounded-xl border border-[#2d3648] p-2 shadow-[0_0_40px_rgba(0,0,0,0.6)] sm:bottom-3" style={{ background: 'linear-gradient(180deg,rgba(15,20,30,0.96),rgba(8,11,18,0.97))' }}>
@@ -139,10 +141,10 @@ export function PilotConsole() {
         {/* captain: where the nose points, and the stage */}
         <Plate testId="duty-director" title={tRole('director.name')} sub={stationSub('director', 0)} color={stationColor('director', 0)} ai={isAiRole('director', crewCount)}>
           <div className="flex items-center justify-around">
-            <Dial value={elevationDeg} min={0} max={90} marker={advisedDeg} label={t('pitch')} unit="°" display={`${Math.round(elevationDeg)}`} ticks={6} testId="pilot-pitch" />
+            <Dial value={elevationDeg} min={0} max={90} marker={rules.advice ? advisedDeg : undefined} label={t('pitch')} unit="°" display={`${Math.round(elevationDeg)}`} ticks={6} testId="pilot-pitch" />
             <Stick label={t('stick')} disabled={ended || mode === 'auto' || (mode === 'assist' && flight.stage === 1)} onChange={(direction) => { held.delete('pitchUp'); held.delete('pitchDown'); if (direction < 0) held.add('pitchUp'); else if (direction > 0) held.add('pitchDown'); }} />
           </div>
-          <div className="mt-1 flex items-center justify-between gap-2 text-[9px] text-slate-400"><span>{t('advised')}</span><span data-testid="pilot-advised" className="font-mono" style={{ color: Math.abs(offDeg) <= 3 ? '#6ee7b7' : '#e2e8f0' }}>{Math.round(advisedDeg)}°</span></div>
+          <div className="mt-1 flex items-center justify-between gap-2 text-[9px] text-slate-400"><span>{t('advised')}</span><span data-testid="pilot-advised" className="font-mono" style={{ color: rules.advice && Math.abs(offDeg) <= 3 ? '#6ee7b7' : '#e2e8f0' }}>{rules.advice ? `${Math.round(advisedDeg)}°` : '—'}</span></div>
           <div className="mt-1"><GuardedSwitch action="pilot-stage" label={t('stage')} cover={t('lift')} disabled={ended || flight.stage === 2 || mode === 'auto'} onThrow={() => pilot.requestSeparate()} /></div>
         </Plate>
 
@@ -170,7 +172,7 @@ export function PilotConsole() {
             <Lamp on={stress > 0.7} color="red" label={t('lamp.overload')} flash />
             <Lamp on={limiterOn} color={guardActing ? 'amber' : 'green'} label={t('lamp.limiter')} />
           </div>
-          <div className="mt-1.5"><Toggle action="pilot-limiter" label={t('limiter')} state={limiterOn ? t('on') : t('off')} title={t('limiterHint')} on={limiterOn} disabled={ended || mode === 'auto' || aiPower} onToggle={() => pilot.setLimiter(!pilot.limiter)} /></div>
+          <div className="mt-1.5"><Toggle action="pilot-limiter" label={t('limiter')} state={limiterOn ? t('on') : t('off')} title={t('limiterHint')} on={limiterOn} disabled={ended || mode === 'auto' || aiPower || rules.forcedLimiter} onToggle={() => pilot.setLimiter(!pilot.limiter)} /></div>
         </Plate>
 
         {/* comms officer: the numbers and the lamps */}
@@ -183,7 +185,7 @@ export function PilotConsole() {
             <Lcd label={t('climb')} value={`${Math.round(flight.vr)} m/s`} />
             <Lcd label={t('time')} value={`T+${Math.floor(flight.t / 60)}:${String(Math.floor(flight.t % 60)).padStart(2, '0')}`} />
           </div>
-          <div className="mt-1.5 flex items-center justify-between">
+          <div className="mt-1.5 flex flex-wrap items-center justify-between gap-1">
             <div className="flex gap-1">
               <Lamp on={orbit.periapsis >= 150_000} color="green" label={t('lamp.orbit')} />
               <Lamp on={flight.stage === 2} color="blue" label={t('lamp.stage2')} />

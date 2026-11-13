@@ -1380,7 +1380,16 @@
       "orbitValue": "{peri} × {apo} km, {inc}°",
       "notToScale": "The map is a stylised picture, not to scale.",
       "pick": "Select {name}",
-      "close": "Close"
+      "close": "Close",
+      "difficulty": {
+        "label": "Difficulty",
+        "cadet": "Cadet",
+        "engineer": "Engineer",
+        "director": "Director",
+        "cadetHint": "Assisted flight, advised angle, load limiter always on.",
+        "engineerHint": "Assisted flight with the advised angle. The limiter is the power station's choice.",
+        "directorHint": "You fly the whole ascent by hand with no advice. A clean orbit earns a bonus."
+      }
     },
     "hangar": {
       "back": "Back to map",
@@ -1813,7 +1822,8 @@
         "science": "Science returned",
         "data": "Data delivered",
         "health": "Spacecraft health",
-        "crew": "Crew performance"
+        "crew": "Crew performance",
+        "difficulty": "Difficulty bonus"
       },
       "honest": "The score comes from the simulation's outcome and the crew's jobs. It is for this flight only; there is no leaderboard.",
       "crew": "The crew",

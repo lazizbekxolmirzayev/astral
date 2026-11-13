@@ -149,3 +149,10 @@ A station without a player is run by the AI crew member: the AI engineer sets th
 touched it for 3 seconds, and the AI power tech keeps the steering within 5° of the reference path while the air is thick
 (below 45 km), so a lone player cannot tear the vehicle apart by one wrong key. With every station crewed nothing is
 automatic.
+
+## Difficulty levels
+
+`difficulty.ts`: **Cadet** (assisted flight, advised angle, load limiter always on), **Engineer** (assisted flight, advised
+angle, limiter is the power station's choice) and **Director** (the whole ascent by hand, no advice, a clean orbit adds a
+100-point bonus line to the score). Chosen on the destination card; `gameStore.setDifficulty` also sets the pilot's starting
+mode. A level changes help and scoring only, never the physics or the simulation's numbers.

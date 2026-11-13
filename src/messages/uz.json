@@ -1380,7 +1380,16 @@
       "orbitValue": "{peri} × {apo} km, {inc}°",
       "notToScale": "Xarita bezatilgan rasm, masshtabga mos emas.",
       "pick": "{name} ni tanlash",
-      "close": "Yopish"
+      "close": "Yopish",
+      "difficulty": {
+        "label": "Qiyinlik",
+        "cadet": "Kursant",
+        "engineer": "Muhandis",
+        "director": "Direktor",
+        "cadetHint": "Yordam bilan uchish, tavsiya burchagi, yuklama cheklagichi doim yoqiq.",
+        "engineerHint": "Yordam bilan uchish va tavsiya burchagi. Cheklagichni energetik tanlaydi.",
+        "directorHint": "Butun ko'tarilishni o'zingiz, maslahatsiz boshqarasiz. Toza orbita bonus beradi."
+      }
     },
     "hangar": {
       "back": "Xaritaga qaytish",
@@ -1813,7 +1822,8 @@
         "science": "Qaytgan ilmiy natija",
         "data": "Yetkazilgan ma'lumot",
         "health": "Apparat holati",
-        "crew": "Ekipaj ishi"
+        "crew": "Ekipaj ishi",
+        "difficulty": "Qiyinlik bonusi"
       },
       "honest": "Ball simulyatsiya natijasidan va ekipaj vazifalaridan olinadi. Faqat shu parvoz uchun; reyting jadvali yo'q.",
       "crew": "Ekipaj",

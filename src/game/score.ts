@@ -3,11 +3,12 @@
  * requirements, science, data, spacecraft health) and how well the *crew* ran the mission (the jobs in `crew.ts`).
  * Pure; nothing here is random or invented. There is no leaderboard: the score is for this flight only.
  */
+import { DIFFICULTY_RULES, type Difficulty } from './difficulty';
 import type { MissionOutcome } from '@/mission/sim';
 import { CREW_ROLES, TASK_MAX, playerOfRole, type CrewRole } from './crew';
 import type { CrewLogEntry } from './crewStore';
 
-export type ScoreLineId = 'outcome' | 'requirements' | 'science' | 'data' | 'health' | 'crew';
+export type ScoreLineId = 'outcome' | 'requirements' | 'science' | 'data' | 'health' | 'crew' | 'difficulty';
 export type ScoreLine = { id: ScoreLineId; points: number; max: number };
 export type Grade = 'S' | 'A' | 'B' | 'C' | 'D';
 export type PlayerScore = { player: number; points: number; tasks: number; quick: number; missed: number; roles: CrewRole[] };
@@ -24,7 +25,7 @@ export function gradeOf(fraction: number): Grade {
   return 'D';
 }
 
-export function computeScore(input: { outcome: MissionOutcome; health: number; log: readonly CrewLogEntry[]; playerCount: number }): Score {
+export function computeScore(input: { outcome: MissionOutcome; health: number; log: readonly CrewLogEntry[]; playerCount: number; difficulty?: Difficulty }): Score {
   const { outcome, health, log, playerCount } = input;
   const lines: ScoreLine[] = [{ id: 'outcome', points: OUTCOME_POINTS[outcome.kind], max: OUTCOME_POINTS.success }];
   if (outcome.requirements.length > 0) {
@@ -38,6 +39,9 @@ export function computeScore(input: { outcome: MissionOutcome; health: number; l
   const counted = log.filter((entry) => entry.result !== 'skipped' && !entry.ai);
   const crewSum = counted.reduce((sum, entry) => sum + entry.points, 0);
   lines.push({ id: 'crew', points: Math.max(0, Math.min(counted.length * TASK_MAX, crewSum)), max: Math.max(TASK_MAX, counted.length * TASK_MAX) });
+
+  const bonus = input.difficulty ? DIFFICULTY_RULES[input.difficulty].bonus : 0;
+  if (bonus > 0) lines.push({ id: 'difficulty', points: outcome.kind === 'success' ? bonus : outcome.kind === 'partial' ? Math.round(bonus / 2) : 0, max: bonus });
 
   const total = lines.reduce((sum, line) => sum + line.points, 0);
   const max = lines.reduce((sum, line) => sum + line.max, 0);

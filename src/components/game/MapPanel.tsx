@@ -2,7 +2,9 @@
 
 import { useLocale, useTranslations } from 'next-intl';
 import { DESTINATIONS, DESTINATION_IDS, pickText, toBase, type DestinationId } from '@/mission';
+import { useStore } from 'zustand';
 import { gameStore } from '@/game/gameStore';
+import { DIFFICULTIES } from '@/game/difficulty';
 import { formatNumber } from '@/game/format';
 
 const DEST_COLOR: Record<DestinationId, string> = { leo: '#5cf2ff', sso: '#9d8bff', geo: '#ffd166', moon: '#c7d2e2', mars: '#ff8a5c', helio: '#ffb347' };
@@ -11,6 +13,7 @@ const DEST_COLOR: Record<DestinationId, string> = { leo: '#5cf2ff', sso: '#9d8bf
 export function MapPanel({ focus, onBuild }: { focus: DestinationId | null; onBuild: () => void }) {
   const t = useTranslations('game.map');
   const locale = useLocale();
+  const difficulty = useStore(gameStore, (state) => state.difficulty);
   const destination = focus ? DESTINATIONS.find((entry) => entry.id === focus) : undefined;
 
   return (
@@ -38,6 +41,15 @@ export function MapPanel({ focus, onBuild }: { focus: DestinationId | null; onBu
               <dd className="mt-0.5 font-medium text-white">{t('orbitValue', { peri: formatNumber(destination.defaultOrbit.periapsisAltKm, locale), apo: formatNumber(destination.defaultOrbit.apoapsisAltKm, locale), inc: formatNumber(destination.defaultOrbit.inclinationDeg, locale, 1) })}</dd>
             </div>
           </dl>
+          <div role="group" aria-label={t('difficulty.label')} className="mt-3">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">{t('difficulty.label')}</p>
+            <div className="mt-1 grid grid-cols-3 gap-1.5">
+              {DIFFICULTIES.map((level) => (
+                <button key={level} type="button" data-action={`difficulty-${level}`} aria-pressed={difficulty === level} title={t(`difficulty.${level}Hint`)} onClick={() => gameStore.getState().setDifficulty(level)} className={`rounded-lg border px-2 py-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] transition ${difficulty === level ? 'border-amber-300/70 bg-amber-400/20 text-amber-100' : 'border-white/15 bg-white/[0.04] text-white/65 hover:border-white/40 hover:text-white'}`}>{t(`difficulty.${level}`)}</button>
+              ))}
+            </div>
+            <p className="mt-1 text-[11px] leading-snug text-white/55">{t(`difficulty.${difficulty}Hint`)}</p>
+          </div>
           <button
             type="button"
             data-action="build-mission"

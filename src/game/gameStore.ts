@@ -10,6 +10,7 @@ import { pilotStore } from './pilotStore';
 import { crewStore, type AbortInfo, type CrewLogEntry } from './crewStore';
 import { collectMistakes, type Mistake } from './mistakes';
 import { REPLAY_ASCENT_SPEED, type ReplaySpeed } from './replay';
+import { DEFAULT_DIFFICULTY, type Difficulty } from './difficulty';
 import { computeScore, type Score } from './score';
 
 /**
@@ -65,6 +66,8 @@ export type GameState = {
   launchCamera: LaunchCameraMode;
   setLaunchCamera: (mode: LaunchCameraMode) => void;
   /** How much faster than real time the countdown and the climb play (1 = a real launch). */
+  difficulty: Difficulty;
+  setDifficulty: (difficulty: Difficulty) => void;
   ascentSpeed: AscentSpeed;
   setAscentSpeed: (speed: AscentSpeed) => void;
   /** The camera actually in use right now (differs from `launchCamera` while it is `auto`); null outside the launch. */
@@ -119,6 +122,8 @@ export function createGameStore(): StoreApi<GameState> {
     missionId: null,
     hangarView: 'ship',
     launchCamera: 'auto',
+    difficulty: DEFAULT_DIFFICULTY,
+    setDifficulty: (difficulty) => { pilotStore.getState().setDifficulty(difficulty); set({ difficulty }); },
     ascentSpeed: 1,
     setAscentSpeed: (ascentSpeed) => set({ ascentSpeed }),
     setLaunchCamera: (launchCamera) => set({ launchCamera }),
@@ -161,7 +166,7 @@ export function createGameStore(): StoreApi<GameState> {
       crewStore.getState().cancelAll();
       const crew = crewStore.getState();
       const log = crew.log;
-      const score = computeScore({ outcome, health: sim.health, log, playerCount: crew.playerCount });
+      const score = computeScore({ outcome, health: sim.health, log, playerCount: crew.playerCount, difficulty: get().difficulty });
       const mistakes = collectMistakes({ outcome, timeline: sim.timeline, log, designIssues: plan.evaluation.issues.map((issue) => ({ code: issue.code, severity: issue.severity, message: issue.message })) });
       set({ phase: 'result', record: { missionId, outcome, stages: sim.stages, endedT: sim.t, score, mistakes, log, playerCount: crew.playerCount, names: crew.names } });
     },

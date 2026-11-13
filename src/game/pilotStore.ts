@@ -4,6 +4,7 @@ import { compareLaunchers } from '@/mission/launchView';
 import { evaluateMission } from '@/mission/engine';
 import type { SimPlan } from '@/mission/sim';
 import { isAiRole } from './crew';
+import { DEFAULT_DIFFICULTY, DIFFICULTY_RULES, type Difficulty } from './difficulty';
 import { altitudeOf, autopilot, referencePitch, createFlight, createVehicle, rateFlight, stepFlight, type Flight, type FlightRating, type FlightStatus, type PilotInput } from './pilot/model';
 
 /**
@@ -43,6 +44,9 @@ export type PilotState = {
   aiAction: 'throttle' | 'guard' | null;
   /** The power station's load limiter: keeps the steering near the safe path while the air is thick (always on when the AI sits there). */
   limiter: boolean;
+  /** The difficulty level: sets the starting mode, whether the limiter is forced and whether the angle is advised. */
+  difficulty: Difficulty;
+  setDifficulty: (difficulty: Difficulty) => void;
   setLimiter: (on: boolean) => void;
   setCrewCount: (count: number) => void;
   /** Real seconds since the flight ended, null while it flies. */
@@ -84,6 +88,8 @@ export function createPilotStore(): StoreApi<PilotState> {
     pitchIdle: 99,
     aiAction: null,
     limiter: false,
+    difficulty: DEFAULT_DIFFICULTY,
+    setDifficulty: (difficulty) => set({ difficulty, mode: DIFFICULTY_RULES[difficulty].mode }),
     setLimiter: (on) => set({ limiter: on }),
     setCrewCount: (count) => set({ crewCount: count }),
     endedFor: null,
@@ -113,7 +119,7 @@ export function createPilotStore(): StoreApi<PilotState> {
       let throttle = state.throttle;
       let aiAction: PilotState['aiAction'] = null;
       const aiEngines = state.mode !== 'auto' && isAiRole('propulsion', state.crewCount) && state.throttleIdle + realSeconds > 3;
-      const aiGuard = state.mode !== 'auto' && (isAiRole('power', state.crewCount) || state.limiter);
+      const aiGuard = state.mode !== 'auto' && (isAiRole('power', state.crewCount) || state.limiter || DIFFICULTY_RULES[state.difficulty].forcedLimiter);
       while (remaining > 1e-9 && flight.status === 'flying') {
         const step = Math.min(STEP_S, remaining);
         remaining -= step;

@@ -4,6 +4,8 @@ import { buildSimPlan, advanceSim, createSim } from '@/mission/sim';
 import { missionStore } from '@/stores/missionStore';
 import { orbitOf, TARGET_ALTITUDE_M } from './pilot/model';
 import { createPilotStore, vehicleOf } from './pilotStore';
+import { DIFFICULTIES, DIFFICULTY_RULES } from './difficulty';
+import { computeScore } from './score';
 
 const planOf = (destination: (typeof DESTINATION_IDS)[number]) => {
   const id = missionStore.getState().createFromTemplate(destination, 'Pilot test');
@@ -142,5 +144,42 @@ describe('the pilot store', () => {
     };
     expect(run(false)).toBe('broke-up');
     expect(run(true)).not.toBe('broke-up');
+  });
+
+  it('each difficulty level sets the starting mode: cadet and engineer are assisted, director flies by hand', () => {
+    const store = createPilotStore();
+    for (const level of DIFFICULTIES) {
+      store.getState().setDifficulty(level);
+      expect(store.getState().mode).toBe(DIFFICULTY_RULES[level].mode);
+    }
+    expect(DIFFICULTY_RULES.cadet.mode).toBe('assist');
+    expect(DIFFICULTY_RULES.director.mode).toBe('manual');
+  });
+
+  it('on cadet the load limiter is always on, even with every station crewed', () => {
+    const run = (difficulty: 'cadet' | 'engineer') => {
+      const store = createPilotStore();
+      store.getState().setDifficulty(difficulty);
+      store.getState().setMode('manual');
+      store.getState().setCrewCount(4);
+      store.getState().setWarp(4);
+      store.getState().begin(planOf('leo'));
+      for (let i = 0; i < 600 && store.getState().flight?.status === 'flying'; i += 1) {
+        store.getState().update(0.05);
+        if (i > 100) store.getState().nudgePitch(20);
+      }
+      return store.getState().flight!.status;
+    };
+    expect(run('engineer')).toBe('broke-up');
+    expect(run('cadet')).not.toBe('broke-up');
+  });
+
+  it('the director level adds a bonus line to the score; the other levels do not', () => {
+    const outcome = { kind: 'success', requirements: [], scienceNominal: 0, sciencePoints: 0, generatedBits: 0, deliveredBits: 0 } as never;
+    const base = { outcome, health: 1, log: [], playerCount: 1 };
+    expect(computeScore({ ...base, difficulty: 'engineer' }).lines.some((line) => line.id === 'difficulty')).toBe(false);
+    const director = computeScore({ ...base, difficulty: 'director' });
+    expect(director.lines.find((line) => line.id === 'difficulty')).toEqual({ id: 'difficulty', points: 100, max: 100 });
+    expect(computeScore({ ...base, outcome: { ...(outcome as object), kind: 'failure' } as never, difficulty: 'director' }).lines.find((line) => line.id === 'difficulty')?.points).toBe(0);
   });
 });

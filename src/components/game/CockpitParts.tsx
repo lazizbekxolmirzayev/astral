@@ -21,8 +21,8 @@ export function Plate({ title, sub, color, lit, testId, ai, children }: { title:
     <section data-testid={testId} data-ai={ai ? 'true' : 'false'} className="relative min-w-0 rounded-lg border border-[#2d3648] px-2 pb-2 pt-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.07),0_2px_10px_rgba(0,0,0,0.5)]" style={{ background: METAL, boxShadow: lit ? `inset 0 0 0 1px rgba(251,191,36,0.55), 0 0 18px rgba(251,191,36,0.18)` : undefined }}>
       <Screw className="left-1 top-1" />
       <Screw className="right-1 top-1" />
-      <header className="mb-1 flex items-baseline justify-between gap-1 px-2">
-        <h3 className="truncate text-[9px] font-bold uppercase tracking-[0.2em] text-slate-300">{title}</h3>
+      <header className="mb-1 flex flex-col px-2 sm:flex-row sm:items-baseline sm:justify-between sm:gap-1">
+        <h3 className="truncate text-[9px] font-bold uppercase tracking-[0.14em] text-slate-300 sm:tracking-[0.2em]">{title}</h3>
         <span className="truncate text-[9px] font-medium" style={{ color }}>{sub}</span>
       </header>
       {children}
@@ -95,7 +95,7 @@ export function Lcd({ label, value, tone, testId }: { label: string; value: stri
   return (
     <div className="min-w-0">
       <p className="text-[7px] font-semibold uppercase tracking-[0.16em] text-slate-500">{label}</p>
-      <p data-testid={testId} className="truncate rounded-[3px] border border-[#1b2a22] bg-[#04100a] px-1.5 py-0.5 text-right font-mono text-[12px] leading-tight tabular-nums" style={{ color: tone === 'warn' ? '#fca5a5' : tone === 'good' ? '#86efac' : '#4ade80', textShadow: '0 0 6px rgba(74,222,128,0.5)' }}>{value}</p>
+      <p data-testid={testId} className="truncate rounded-[3px] border border-[#1b2a22] bg-[#04100a] px-1 py-0.5 text-right font-mono text-[11px] sm:px-1.5 sm:text-[12px] leading-tight tabular-nums" style={{ color: tone === 'warn' ? '#fca5a5' : tone === 'good' ? '#86efac' : '#4ade80', textShadow: '0 0 6px rgba(74,222,128,0.5)' }}>{value}</p>
     </div>
   );
 }
