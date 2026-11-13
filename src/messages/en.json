@@ -1963,7 +1963,17 @@
       "limiter": "Load limiter",
       "on": "on",
       "off": "off",
-      "limiterHint": "Keeps the steering within a safe angle of the flight path while the air is thick."
+      "limiterHint": "Keeps the steering within a safe angle of the flight path while the air is thick.",
+      "lift": "Lift the cover",
+      "stick": "Hand controller: pull for a steeper climb, push to lean over",
+      "lamp": {
+        "caution": "Caution",
+        "overload": "Overload",
+        "limiter": "Limiter",
+        "orbit": "Orbit",
+        "stage2": "Stage 2",
+        "fuel": "Fuel low"
+      }
     }
   }
 }

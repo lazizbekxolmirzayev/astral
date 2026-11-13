@@ -1963,7 +1963,17 @@
       "limiter": "Yuklama cheklagichi",
       "on": "yoqilgan",
       "off": "o'chiq",
-      "limiterHint": "Havo zich joyda burilishni uchish yo'lidan xavfsiz burchak ichida ushlab turadi."
+      "limiterHint": "Havo zich joyda burilishni uchish yo'lidan xavfsiz burchak ichida ushlab turadi.",
+      "lift": "Qopqoqni ko'taring",
+      "stick": "Boshqaruv dastasi: tortsangiz tik ko'tariladi, itarsangiz egiladi",
+      "lamp": {
+        "caution": "Ogohlantirish",
+        "overload": "Ortiqcha yuk",
+        "limiter": "Cheklagich",
+        "orbit": "Orbita",
+        "stage2": "2-bosqich",
+        "fuel": "Yoqilg'i oz"
+      }
     }
   }
 }

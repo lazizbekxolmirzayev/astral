@@ -5,11 +5,11 @@ import { useTranslations } from 'next-intl';
 import { useStore } from 'zustand';
 import { altitudeOf, referencePitch, downrangeOf, fuelFraction, hintOf, orbitOf, speedOf, TARGET_ALTITUDE_M, type HintKey } from '@/game/pilot/model';
 import { OUTCOME_HOLD_S, PILOT_MODES, PITCH_RATE_DEG, pilotStore, usePilot, WARPS, type PilotMode } from '@/game/pilotStore';
+import { Dial, GuardedSwitch, Lamp, Lcd, Lever, Plate, Selector, Stick, Tank, Toggle } from './CockpitParts';
 import { onlineStore } from '@/game/online';
 import { simStore } from '@/stores/simStore';
 import { PLAYER_COLORS, isAiRole, type CrewRole } from '@/game/crew';
 import { crewStore, useCrewStore } from '@/game/crewStore';
-import { usePlayerName } from './CrewPanel';
 
 const THROTTLE_RATE = 0.7; // per second while a key is held
 const km = (meters: number, digits = 0) => (Number.isFinite(meters) ? (meters / 1000).toFixed(digits) : '∞');
@@ -23,6 +23,10 @@ const held = new Set<string>();
  */
 export function PilotConsole() {
   const t = useTranslations('game.pilot');
+  const tRole = useTranslations('game.crew.roles');
+  const tCrew = useTranslations('game.crew');
+  const crewNames = useCrewStore((state) => state.names);
+  const aiAction = usePilot((state) => state.aiAction);
   const mode = usePilot((state) => state.mode);
   const hasFlight = usePilot((state) => state.flight !== null);
   const warp = usePilot((state) => state.warp);
@@ -110,139 +114,99 @@ export function PilotConsole() {
   const elevationDeg = 90 - (flight.pitch * 180) / Math.PI;
   const advisedDeg = 90 - (referencePitch(flight) * 180) / Math.PI;
   const offDeg = elevationDeg - advisedDeg;
+  const caution = !ended && (hint === 'stress' || hint === 'stage' || hint === 'circularize' || hint === 'cut');
+  const fuelLow = !ended && (flight.stage === 1 ? fuel1 : fuel2) < 0.12;
+  const guardActing = aiAction === 'guard';
+  const stationColor = (role: CrewRole, index: number) => (isAiRole(role, crewCount) ? '#94a3b8' : PLAYER_COLORS[index]!);
+  const stationSub = (role: CrewRole, index: number) => (isAiRole(role, crewCount) ? t('duty.ai') : crewNames[index]?.trim() || tCrew('player', { n: index + 1 }));
   const crewCount = pilot.crewCount;
   const aiPower = isAiRole('power', crewCount);
   const limiterOn = aiPower || pilot.limiter;
 
   return (
-    <section data-testid="pilot-console" aria-label={t('title')} className="absolute inset-x-2 bottom-2 z-30 mx-auto w-auto max-w-[940px] rounded-2xl border border-cyan-300/25 bg-[linear-gradient(170deg,rgba(6,12,24,0.88),rgba(6,8,18,0.8))] p-2 shadow-[0_0_40px_rgba(0,160,255,0.12)] backdrop-blur-md sm:bottom-3">
-      {ended ? (
-        <p data-testid="pilot-result" className={`mb-2 text-center text-sm font-bold uppercase tracking-[0.2em] ${flight.status === 'orbit' ? 'text-emerald-300' : 'text-red-300'}`}>
-          {flight.status === 'orbit' ? t(`result.${pilot.rating?.grade ?? 'good'}`) : t(`fail.${flight.reason ?? 'ground'}`)}
-        </p>
-      ) : (
-        <p data-testid="pilot-hint" className={`mb-1 text-center text-[12px] font-medium ${hint === 'stress' ? 'animate-pulse text-red-300' : hint === 'stage' || hint === 'circularize' || hint === 'cut' ? 'text-amber-200' : 'text-cyan-100/90'}`}>{t(`hint.${hint}`)}</p>
-      )}
-      <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-[1fr_1.1fr_0.9fr_1.3fr]">
-        {/* captain: where the vehicle points, and the stage */}
-        <Station role="director" index={0} keys="A / D · E">
-          <dl className="space-y-1 text-[11px]">
-            <Reading label={t('pitch')} value={`${Math.round(elevationDeg)}°`} />
-            <Reading label={t('advised')} value={`${Math.round(advisedDeg)}°`} testId="pilot-advised" tone={Math.abs(offDeg) <= 3 ? 'good' : undefined} />
-          </dl>
-          <div className="mt-1.5 flex gap-1.5">
-            <HoldButton name="pitchUp" label={t('pitchUp')} disabled={ended || mode === 'auto' || (mode === 'assist' && flight.stage === 1)}>▲</HoldButton>
-            <HoldButton name="pitchDown" label={t('pitchDown')} disabled={ended || mode === 'auto' || (mode === 'assist' && flight.stage === 1)}>▼</HoldButton>
+    <section data-testid="pilot-console" aria-label={t('title')} className="absolute inset-x-2 bottom-2 z-30 mx-auto w-auto max-w-[960px] rounded-xl border border-[#2d3648] p-2 shadow-[0_0_40px_rgba(0,0,0,0.6)] sm:bottom-3" style={{ background: 'linear-gradient(180deg,rgba(15,20,30,0.96),rgba(8,11,18,0.97))' }}>
+      <div className="mb-1.5 flex items-center gap-2 rounded-md border border-[#1b2a22] bg-[#04100a] px-2 py-1">
+        <Lamp on={caution || (ended && flight.status !== 'orbit')} color={ended && flight.status !== 'orbit' ? 'red' : 'amber'} label={t('lamp.caution')} flash={!ended && hint === 'stress'} />
+        {ended ? (
+          <p data-testid="pilot-result" className={`flex-1 text-center font-mono text-[12px] font-bold uppercase tracking-[0.18em] ${flight.status === 'orbit' ? 'text-emerald-300' : 'text-red-300'}`}>
+            {flight.status === 'orbit' ? t(`result.${pilot.rating?.grade ?? 'good'}`) : t(`fail.${flight.reason ?? 'ground'}`)}
+          </p>
+        ) : (
+          <p data-testid="pilot-hint" className={`flex-1 text-center font-mono text-[12px] ${hint === 'stress' ? 'animate-pulse text-red-300' : caution ? 'text-amber-200' : 'text-emerald-200/90'}`} style={{ textShadow: '0 0 6px rgba(74,222,128,0.35)' }}>{t(`hint.${hint}`)}</p>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-[1.15fr_1.25fr_0.95fr_1.15fr]">
+        {/* captain: where the nose points, and the stage */}
+        <Plate testId="duty-director" title={tRole('director.name')} sub={stationSub('director', 0)} color={stationColor('director', 0)} ai={isAiRole('director', crewCount)}>
+          <div className="flex items-center justify-around">
+            <Dial value={elevationDeg} min={0} max={90} marker={advisedDeg} label={t('pitch')} unit="°" display={`${Math.round(elevationDeg)}`} ticks={6} testId="pilot-pitch" />
+            <Stick label={t('stick')} disabled={ended || mode === 'auto' || (mode === 'assist' && flight.stage === 1)} onChange={(direction) => { held.delete('pitchUp'); held.delete('pitchDown'); if (direction < 0) held.add('pitchUp'); else if (direction > 0) held.add('pitchDown'); }} />
           </div>
-          <button type="button" data-action="pilot-stage" disabled={ended || flight.stage === 2 || mode === 'auto'} onClick={() => pilot.requestSeparate()} className="mt-1.5 w-full rounded-lg border border-amber-300/50 bg-amber-400/15 px-2 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-amber-100 enabled:hover:bg-amber-400/25 disabled:opacity-35">{t('stage')} <kbd className="ml-0.5 opacity-60">E</kbd></button>
-        </Station>
+          <div className="mt-1 flex items-center justify-between gap-2 text-[9px] text-slate-400"><span>{t('advised')}</span><span data-testid="pilot-advised" className="font-mono" style={{ color: Math.abs(offDeg) <= 3 ? '#6ee7b7' : '#e2e8f0' }}>{Math.round(advisedDeg)}°</span></div>
+          <div className="mt-1"><GuardedSwitch action="pilot-stage" label={t('stage')} cover={t('lift')} disabled={ended || flight.stage === 2 || mode === 'auto'} onThrow={() => pilot.requestSeparate()} /></div>
+        </Plate>
 
         {/* engineer: the engines and the tanks */}
-        <Station role="propulsion" index={1} keys="W / S · X · Z">
-          <div className="flex items-stretch gap-2">
-            <div className="flex w-10 flex-col items-center gap-1">
-              <div className="relative h-[48px] w-4 overflow-hidden rounded-full border border-white/15 bg-black/50" aria-hidden>
-                <div className="absolute inset-x-0 bottom-0 rounded-full bg-gradient-to-t from-orange-500 to-amber-200" style={{ height: `${flight.thrust > 0 ? Math.max(flight.thrust, pilot.throttle) * 100 : pilot.throttle * 100}%`, opacity: flight.thrust > 0 ? 1 : 0.45 }} />
-              </div>
-              <span className="font-mono text-[11px] text-white" data-testid="pilot-throttle-value">{Math.round(pilot.throttle * 100)}%</span>
+        <Plate testId="duty-propulsion" title={tRole('propulsion.name')} sub={stationSub('propulsion', 1)} color={stationColor('propulsion', 1)} lit={isAiRole('propulsion', crewCount) && aiAction === 'throttle'} ai={isAiRole('propulsion', crewCount)}>
+          <div className="flex items-end justify-around gap-1">
+            <div className="flex flex-col items-center gap-0.5">
+              <Lever testId="pilot-throttle" label={t('throttle')} value={pilot.throttle} disabled={ended || mode === 'auto'} onChange={(next) => pilot.setThrottle(next)} />
+              <span className="font-mono text-[10px] text-amber-200" data-testid="pilot-throttle-value">{Math.round(pilot.throttle * 100)}%</span>
+              <span className="text-[7px] font-semibold uppercase tracking-[0.12em] text-slate-400">{t('throttle')}</span>
             </div>
-            <div className="min-w-0 flex-1 space-y-1.5 text-[11px]">
-              <input aria-label={t('throttle')} data-testid="pilot-throttle" type="range" min={0} max={100} value={Math.round(pilot.throttle * 100)} disabled={ended || mode === 'auto'} onChange={(event) => pilot.setThrottle(Number(event.target.value) / 100)} className="w-full accent-orange-400" />
-              <dl className="space-y-1">
-                <Meter label={t('fuel1')} fraction={fuel1} color="#fb923c" />
-                <Meter label={t('fuel2')} fraction={fuel2} color="#38bdf8" />
-              </dl>
-            </div>
+            <Tank label={t('fuel1')} fraction={fuel1} color="#fb923c" />
+            <Tank label={t('fuel2')} fraction={fuel2} color="#38bdf8" />
           </div>
-          <div className="mt-1.5 flex gap-1.5">
-            <button type="button" data-action="pilot-cut" disabled={ended || mode === 'auto'} onClick={() => pilot.setThrottle(0)} className="flex-1 rounded-lg border border-white/20 bg-white/5 px-1 py-1 text-[10px] font-semibold uppercase text-white/80 disabled:opacity-35">{t('cut')}</button>
-            <button type="button" data-action="pilot-full" disabled={ended || mode === 'auto'} onClick={() => pilot.setThrottle(1)} className="flex-1 rounded-lg border border-white/20 bg-white/5 px-1 py-1 text-[10px] font-semibold uppercase text-white/80 disabled:opacity-35">{t('full')}</button>
-          </div>
-        </Station>
+          <button type="button" data-action="pilot-cut" aria-label={t('cut')} disabled={ended || mode === 'auto'} onClick={() => pilot.setThrottle(0)} className="mt-1.5 flex w-full items-center justify-between rounded-md border border-[#3b465c] bg-[#070a10] px-2 py-1 disabled:opacity-50">
+            <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-200">{t('cut')}</span>
+            <span aria-hidden className="h-5 w-5 rounded-full border border-red-200/60 shadow-[0_3px_5px_rgba(0,0,0,0.7)]" style={{ background: 'radial-gradient(circle at 35% 30%,#fca5a5,#dc2626 55%,#7f1d1d)' }} />
+          </button>
+        </Plate>
 
         {/* power tech: the load on the structure */}
-        <Station role="power" index={2} keys="L">
-          <dl className="text-[11px]"><Meter label={t('stress')} fraction={stress} color={stress > 0.7 ? '#f87171' : '#a3e635'} /></dl>
-          <button type="button" data-action="pilot-limiter" title={t('limiterHint')} aria-pressed={limiterOn} disabled={ended || mode === 'auto' || aiPower} onClick={() => pilot.setLimiter(!pilot.limiter)} className={`mt-1.5 w-full rounded-lg border px-2 py-1.5 text-[11px] font-bold uppercase tracking-[0.12em] disabled:opacity-60 ${limiterOn ? 'border-emerald-300/60 bg-emerald-400/15 text-emerald-100' : 'border-white/20 bg-white/5 text-white/80'}`}>{t('limiter')}: {limiterOn ? t('on') : t('off')}</button>
-        </Station>
+        <Plate testId="duty-power" title={tRole('power.name')} sub={stationSub('power', 2)} color={stationColor('power', 2)} lit={aiPower && aiAction === 'guard'} ai={aiPower}>
+          <div className="flex justify-center"><Dial value={stress * 100} min={0} max={100} redFrom={70} label={t('stress')} unit="%" display={`${Math.round(stress * 100)}`} ticks={5} /></div>
+          <div className="mt-1 flex justify-center gap-1">
+            <Lamp on={stress > 0.7} color="red" label={t('lamp.overload')} flash />
+            <Lamp on={limiterOn} color={guardActing ? 'amber' : 'green'} label={t('lamp.limiter')} />
+          </div>
+          <div className="mt-1.5"><Toggle action="pilot-limiter" label={t('limiter')} state={limiterOn ? t('on') : t('off')} title={t('limiterHint')} on={limiterOn} disabled={ended || mode === 'auto' || aiPower} onToggle={() => pilot.setLimiter(!pilot.limiter)} /></div>
+        </Plate>
 
-        {/* comms officer: the numbers */}
-        <Station role="comms" index={3} keys="">
-          <dl className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px]">
-            <Reading label={t('altitude')} value={`${km(altitude, 1)} km`} testId="pilot-altitude" />
-            <Reading label={t('speed')} value={`${(speedOf(flight) / 1000).toFixed(2)} km/s`} testId="pilot-speed" />
-            <Reading label={t('climb')} value={`${Math.round(flight.vr)} m/s`} />
-            <Reading label={t('apogee')} value={`${km(orbit.apoapsis)} km`} testId="pilot-apogee" />
-            <Reading label={t('perigee')} value={`${km(orbit.periapsis)} km`} testId="pilot-perigee" tone={orbit.periapsis >= 150_000 ? 'good' : undefined} />
-            <Reading label={t('target')} value={`${km(TARGET_ALTITUDE_M)} km`} />
-            <Reading label={t('downrange')} value={`${km(downrangeOf(flight))} km`} />
-            <Reading label={t('time')} value={`T+${Math.floor(flight.t / 60)}:${String(Math.floor(flight.t % 60)).padStart(2, '0')}`} />
-          </dl>
-        </Station>
-      </div>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-white/10 pt-2">
-        <p className="hidden text-[10px] text-white/45 sm:block">{t('keys')}</p>
-        <div className="flex items-center gap-1" role="group" aria-label={t('warp')}>
-          <span className="mr-1 text-[10px] uppercase tracking-[0.14em] text-white/45">{t('warp')}</span>
-          {WARPS.map((value) => (
-            <button key={value} type="button" data-action={`pilot-warp-${value}`} aria-pressed={warp === value} onClick={() => pilot.setWarp(value)} className={`rounded-full border px-2 py-0.5 text-[10px] ${warp === value ? 'border-cyan-300/70 bg-cyan-400/20 text-cyan-100' : 'border-white/15 text-white/60'}`}>×{value}</button>
-          ))}
-        </div>
+        {/* comms officer: the numbers and the lamps */}
+        <Plate testId="duty-comms" title={tRole('comms.name')} sub={stationSub('comms', 3)} color={stationColor('comms', 3)} ai={isAiRole('comms', crewCount)}>
+          <div className="grid grid-cols-2 gap-x-2 gap-y-1">
+            <Lcd label={t('altitude')} value={`${km(altitude, 1)} km`} testId="pilot-altitude" />
+            <Lcd label={t('speed')} value={`${(speedOf(flight) / 1000).toFixed(2)} km/s`} testId="pilot-speed" />
+            <Lcd label={t('apogee')} value={`${km(orbit.apoapsis)} km`} testId="pilot-apogee" />
+            <Lcd label={t('perigee')} value={`${km(orbit.periapsis)} km`} testId="pilot-perigee" tone={orbit.periapsis >= 150_000 ? 'good' : undefined} />
+            <Lcd label={t('climb')} value={`${Math.round(flight.vr)} m/s`} />
+            <Lcd label={t('time')} value={`T+${Math.floor(flight.t / 60)}:${String(Math.floor(flight.t % 60)).padStart(2, '0')}`} />
+          </div>
+          <div className="mt-1.5 flex items-center justify-between">
+            <div className="flex gap-1">
+              <Lamp on={orbit.periapsis >= 150_000} color="green" label={t('lamp.orbit')} />
+              <Lamp on={flight.stage === 2} color="blue" label={t('lamp.stage2')} />
+              <Lamp on={fuelLow} color="red" label={t('lamp.fuel')} flash />
+            </div>
+            <Selector label={t('warp')} value={warp} options={WARPS} labelOf={(value) => `×${value}`} onSelect={(value) => pilot.setWarp(value)} action={(value) => `pilot-warp-${value}`} />
+          </div>
+        </Plate>
       </div>
       <span hidden data-testid="pilot-active" data-hold={hasFlight ? 'true' : 'false'} />
     </section>
   );
 }
 
-function Reading({ label, value, testId, tone }: { label: string; value: string; testId?: string; tone?: 'good' }) {
-  return (
-    <div className="flex justify-between gap-2">
-      <dt className="text-white/50">{label}</dt>
-      <dd className={`font-mono font-medium ${tone === 'good' ? 'text-emerald-300' : 'text-white'}`} data-testid={testId}>{value}</dd>
-    </div>
-  );
-}
-
-function Meter({ label, fraction, color }: { label: string; fraction: number; color: string }) {
-  return (
-    <div>
-      <div className="flex justify-between gap-2"><dt className="text-white/50">{label}</dt><dd className="font-mono text-white">{Math.round(Math.max(0, fraction) * 100)}%</dd></div>
-      <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(1, fraction)) * 100}%`, background: color }} /></div>
-    </div>
-  );
-}
-
-/** A button that counts as a held key while it is pressed (mouse or touch). */
-function HoldButton({ name, label, disabled, children }: { name: string; label: string; disabled: boolean; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      aria-label={label}
-      title={label}
-      data-action={`pilot-${name}`}
-      disabled={disabled}
-      onPointerDown={(event) => { event.currentTarget.setPointerCapture?.(event.pointerId); held.add(name); }}
-      onPointerUp={() => held.delete(name)}
-      onPointerCancel={() => held.delete(name)}
-      onPointerLeave={() => held.delete(name)}
-      className="flex-1 touch-none rounded-lg border border-cyan-300/40 bg-cyan-400/10 py-1.5 text-sm text-cyan-100 enabled:active:bg-cyan-400/30 disabled:opacity-35"
-    >
-      {children}
-    </button>
-  );
-}
-
-/** Chooses who flies the ascent; changes are allowed on the pad and during the flight (except back to the film). */
+/** The flight-mode selector: a rotary switch with its four positions. Going back to the film is locked once the flight began. */
 export function PilotModeChips() {
   const t = useTranslations('game.pilot');
   const mode = useStore(pilotStore, (state) => state.mode);
   const flying = useStore(pilotStore, (state) => state.flight !== null);
   return (
-    <div role="group" aria-label={t('modeLabel')} className="flex flex-wrap items-center justify-center gap-1 sm:justify-end">
-      <span className="mr-1 text-[10px] uppercase tracking-[0.14em] text-white/45">{t('modeLabel')}</span>
-      {PILOT_MODES.map((value: PilotMode) => (
-        <button key={value} type="button" data-action={`pilot-mode-${value}`} aria-pressed={mode === value} title={t(`modeHint.${value}`)} disabled={flying && value === 'off'} onClick={() => pilotStore.getState().setMode(value)} className={`rounded-full border px-2 py-0.5 text-[10px] disabled:opacity-35 ${mode === value ? 'border-cyan-300/70 bg-cyan-400/20 text-cyan-100' : 'border-white/15 bg-black/30 text-white/60 hover:text-white'}`}>{t(`mode.${value}`)}</button>
-      ))}
+    <div className="flex items-center gap-2 rounded-lg border border-[#2d3648] px-2 py-0.5" style={{ background: 'linear-gradient(180deg,rgba(29,37,51,0.92),rgba(18,23,35,0.92))' }}>
+      <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('modeLabel')}</span>
+      <Selector label={t('modeLabel')} value={mode} options={PILOT_MODES} labelOf={(value) => t(`mode.${value}`)} onSelect={(value: PilotMode) => pilotStore.getState().setMode(value)} action={(value) => `pilot-mode-${value}`} disabledOf={(value) => flying && value === 'off'} />
     </div>
   );
 }
@@ -254,28 +218,4 @@ export function PilotClock() {
   const flight = pilotStore.getState().flight;
   const seconds = Math.floor(flight?.t ?? 0);
   return <p className="font-mono text-[11px] tracking-wider text-cyan-200/80" data-testid="mission-clock">T+ {String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}</p>;
-}
-
-/** One crew station of the cockpit: its own part of the flight, its own controls, the player or the AI crew member who runs it. */
-function Station({ role, index, keys, children }: { role: CrewRole; index: number; keys: string; children: React.ReactNode }) {
-  const t = useTranslations('game.pilot');
-  const tRole = useTranslations('game.crew.roles');
-  const name = usePlayerName(index);
-  const count = useCrewStore((state) => state.playerCount);
-  const ai = isAiRole(role, count);
-  const action = usePilot((state) => state.aiAction);
-  const active = (role === 'propulsion' && ai && action === 'throttle') || (role === 'power' && ai && action === 'guard');
-  const color = ai ? '#94a3b8' : PLAYER_COLORS[index]!;
-  return (
-    <section data-testid={`duty-${role}`} data-ai={ai ? 'true' : 'false'} className={`min-w-0 rounded-xl border p-2 ${active ? 'border-amber-300/60 bg-amber-300/10' : 'border-white/10 bg-white/[0.04]'}`} style={{ boxShadow: `inset 3px 0 0 ${color}` }}>
-      <header className="mb-1.5 flex items-center justify-between gap-1">
-        <div className="min-w-0">
-          <h3 className="truncate text-[10px] font-bold uppercase tracking-[0.14em] text-white/90">{tRole(`${role}.name`)}</h3>
-          <p className="truncate text-[10px]" style={{ color }}>{ai ? t(active ? `duty.${role}Active` : 'duty.ai') : name}</p>
-        </div>
-        {keys ? <kbd className="shrink-0 rounded border border-white/15 px-1 text-[9px] text-white/50">{keys}</kbd> : null}
-      </header>
-      {children}
-    </section>
-  );
 }
