@@ -157,8 +157,8 @@ export function GameHome() {
               </ol>
             </div>
             <div className="pointer-events-auto flex items-center gap-1.5">
-              <Link href="/universe" className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.universe')}</Link>
-              <Link href={missionId ? `/missions/${missionId}` : '/missions'} title={t('topbar.engineerHint')} className="rounded-full border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.engineer')}</Link>
+              <Link href="/universe" className="hidden rounded-full sm:inline-flex border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.universe')}</Link>
+              <Link href={missionId ? `/missions/${missionId}` : '/missions'} title={t('topbar.engineerHint')} className="hidden rounded-full sm:inline-flex border border-white/15 bg-black/40 px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-white/70 backdrop-blur-md transition hover:border-white/40 hover:text-white">{t('topbar.engineer')}</Link>
               <RoomMenu />
               <LangSwitch />
               <HelpBox phase={phase === 'replay' ? 'result' : phase} />
