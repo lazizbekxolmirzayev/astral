@@ -374,11 +374,13 @@ export function LaunchScene({ rocket, read }: { rocket: RocketClass; read: () =>
     }
 
     // camera: the player's choice, or the broadcast schedule; a lost vehicle is always watched from outside
-    const chosen = gameStore.getState().launchCamera;
+    // live, the crew sees the flight only from inside the cabin; the mission video (replay) can be watched from anywhere
+    const game = gameStore.getState();
+    const chosen = game.phase === 'replay' ? game.launchCamera : 'crew';
     let mode: Exclude<LaunchCameraMode, 'auto'> = chosen === 'auto' ? autoCameraAt(tau) : chosen;
     const pre = stage === 'pre-launch';
-    if (sinceFail >= 0) mode = 'chase';
-    if (pre && (mode === 'crew' || mode === 'onboard' || mode === 'rear')) mode = 'chase';
+    if (sinceFail >= 0 && chosen !== 'crew') mode = 'chase';
+    if (pre && chosen !== 'crew' && (mode === 'crew' || mode === 'onboard' || mode === 'rear')) mode = 'chase';
     if (pre && chosen === 'auto') mode = 'chase';
     const orbitView = mode === 'orbit' && sinceFail < 0;
     if (marker.current) {

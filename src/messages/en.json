@@ -1487,7 +1487,8 @@
         "onboard": "Onboard",
         "crew": "Crew",
         "key": "Press C to switch · drag to look, wheel to zoom",
-        "orbit": "Orbit view"
+        "orbit": "Orbit view",
+        "cabin": "Cabin view: you watch the launch from inside. After the flight, the mission video shows it from every side."
       },
       "ascentSpeed": {
         "label": "Speed",

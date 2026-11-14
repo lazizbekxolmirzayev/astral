@@ -33,6 +33,18 @@ function Bar({ fraction, color }: { fraction: number; color: string }) {
   );
 }
 
+/** The crew's view: the hull around a window, so the launch is watched from inside the cabin. Decoration only; it never takes a click. */
+function CabinFrame() {
+  return (
+    <div aria-hidden data-testid="cabin-frame" className="pointer-events-none absolute inset-0 z-[5]">
+      <div className="absolute inset-x-[2%] bottom-[36%] top-[15%] rounded-[34px] border-[10px] border-[#1c2433]" style={{ boxShadow: '0 0 0 100vmax rgba(9,12,19,0.97), inset 0 0 46px rgba(0,0,0,0.6), inset 0 0 0 2px rgba(120,140,170,0.25)' }}>
+        <div className="absolute inset-0 rounded-[24px]" style={{ background: 'linear-gradient(115deg,rgba(255,255,255,0.10) 0%,rgba(255,255,255,0) 28%,rgba(255,255,255,0) 70%,rgba(255,255,255,0.05) 100%)' }} />
+        <div className="absolute inset-y-0 left-1/2 w-[6px] -translate-x-1/2 bg-[#1c2433]/90" />
+      </div>
+    </div>
+  );
+}
+
 /** The flight screen's overlay: stage track, telemetry, event log, countdown and controls. All numbers come from the simulation. */
 export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: RocketClass; replay?: boolean }) {
   const t = useTranslations('game.flight');
@@ -45,7 +57,7 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
   const onAscent = Boolean(plan && sim && (plan.stageIds[sim.stageIndex] === 'pre-launch' || plan.stageIds[sim.stageIndex] === 'launch') && !sim.ended);
   // C cycles through the launch cameras
   useEffect(() => {
-    if (!onAscent) return;
+    if (!onAscent || !replay) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key.toLowerCase() !== 'c' || event.metaKey || event.ctrlKey || event.altKey) return;
       const state = gameStore.getState();
@@ -54,7 +66,7 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [onAscent]);
+  }, [onAscent, replay]);
   // Space pauses or resumes the flight (unless a button has the focus, which Space already activates)
   const flying = Boolean(plan && sim && !sim.ended);
   useEffect(() => {
@@ -87,6 +99,7 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
 
   return (
     <>
+      {onAscent && !replay ? <CabinFrame /> : null}
       {/* stage track */}
       <div className="pointer-events-none absolute inset-x-0 top-[64px] z-10 flex flex-col items-center gap-1.5 px-3 [text-shadow:0_1px_10px_rgba(0,12,40,0.85),0_0_2px_rgba(0,12,40,0.9)]">
         <ol className="flex items-center gap-1.5" aria-label={t('stage', { current: sim.stageIndex + 1, total: plan.stageIds.length })}>
@@ -173,7 +186,7 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
             ))}
           </div>
         ) : null}
-        {onAscent ? (
+        {onAscent && replay ? (
           <div role="group" aria-label={t('camera.label')} className="flex gap-1 overflow-x-auto pb-0.5 sm:max-w-[330px] sm:flex-wrap sm:justify-end sm:overflow-visible">
             {LAUNCH_CAMERAS.map((mode) => {
             const selected = launchCamera === mode;
@@ -183,7 +196,8 @@ export function FlightHud({ rocket = 'medium', replay = false }: { rocket?: Rock
           })}
           </div>
         ) : null}
-        {onAscent ? (
+        {onAscent && !replay ? <p className="hidden max-w-[330px] text-right text-[10px] tracking-[0.08em] text-white/45 sm:block">{t('camera.cabin')}</p> : null}
+        {onAscent && replay ? (
           <p className="hidden text-right sm:block text-[10px] tracking-[0.12em] text-white/45">{launchCamera === 'auto' && activeCamera ? `${t('camera.auto')} · ${t(`camera.${activeCamera}`)} · ` : ''}{t('camera.key')}</p>
         ) : null}
       </div>

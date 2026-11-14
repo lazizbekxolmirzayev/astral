@@ -156,3 +156,9 @@ automatic.
 angle, limiter is the power station's choice) and **Director** (the whole ascent by hand, no advice, a clean orbit adds a
 100-point bonus line to the score). Chosen on the destination card; `gameStore.setDifficulty` also sets the pilot's starting
 mode. A level changes help and scoring only, never the physics or the simulation's numbers.
+
+## Cameras: cabin live, every side in the video
+
+Live, the crew watches the launch only from inside the cabin (the crew camera, drawn through a cabin window frame, `CabinFrame`);
+there are no camera buttons and the `C` key does nothing. The **mission video** (replay) has all cameras (`LAUNCH_CAMERAS`: Auto
+broadcast, Pad, Tracking, Chase, Rear, Onboard, Crew, Orbit view) so the finished flight, including a loss, can be watched from every side.

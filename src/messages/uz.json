@@ -1487,7 +1487,8 @@
         "onboard": "Bortdan",
         "crew": "Ekipaj",
         "key": "Almashtirish: C · ko‘rish uchun sudrang, g‘ildirak — yaqinlashtirish",
-        "orbit": "Orbita ko'rinishi"
+        "orbit": "Orbita ko'rinishi",
+        "cabin": "Kabina ko'rinishi: uchishni ichkaridan ko'rasiz. Uchishdan keyin missiya videosida har tomondan ko'rasiz."
       },
       "ascentSpeed": {
         "label": "Tezlik",
