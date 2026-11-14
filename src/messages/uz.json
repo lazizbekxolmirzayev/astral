@@ -1949,7 +1949,8 @@
         "circularize": "Yuqori nuqtada: past nuqtani ko'tarish uchun ufq bo'ylab yoqing.",
         "cut": "Barqaror orbita! Tugatish uchun dvigatelni o'chiring (X).",
         "fuelLow": "Yoqilg'i oz qoldi. Ehtiyot bo'ling.",
-        "orbit": "Siz orbitadasiz!"
+        "orbit": "Siz orbitadasiz!",
+        "ignition": "Maydonda. Qopqoqni ko'tarib YOQISH (I) kalitini bosing: dvigatellar yonadi."
       },
       "result": {
         "perfect": "Orbitaga chiqdingiz: a'lo!",
@@ -1984,7 +1985,11 @@
         "orbit": "Orbita",
         "stage2": "2-bosqich",
         "fuel": "Yoqilg'i oz"
-      }
+      },
+      "trim": "Trim",
+      "pathHold": "Gravitatsion burilish",
+      "pathHoldHint": "Raketa o'z uchish yo'lini kuzatadi: hujum burchagi ham, stress ham yo'q. O'zingiz boshqarish uchun o'chiring.",
+      "ignition": "Yoqish"
     }
   }
 }

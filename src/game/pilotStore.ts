@@ -44,6 +44,15 @@ export type PilotState = {
   aiAction: 'throttle' | 'guard' | null;
   /** The power station's load limiter: keeps the steering near the safe path while the air is thick (always on when the AI sits there). */
   limiter: boolean;
+  /** Live flights wait on the pad until someone throws the ignition switch (the AI engineer does it after 3 s if nobody sits there). */
+  requireIgnition: boolean;
+  setRequireIgnition: (on: boolean) => void;
+  ignited: boolean;
+  ignitionIdle: number;
+  ignite: () => void;
+  /** The captain's gravity-turn switch: the vehicle follows its own flight path instead of the pitch command. */
+  pathHold: boolean;
+  setPathHold: (on: boolean) => void;
   /** The difficulty level: sets the starting mode, whether the limiter is forced and whether the angle is advised. */
   difficulty: Difficulty;
   setDifficulty: (difficulty: Difficulty) => void;
@@ -88,6 +97,13 @@ export function createPilotStore(): StoreApi<PilotState> {
     pitchIdle: 99,
     aiAction: null,
     limiter: false,
+    requireIgnition: false,
+    setRequireIgnition: (on) => set({ requireIgnition: on }),
+    ignited: true,
+    ignitionIdle: 0,
+    ignite: () => set({ ignited: true }),
+    pathHold: false,
+    setPathHold: (on) => set({ pathHold: on }),
     difficulty: DEFAULT_DIFFICULTY,
     setDifficulty: (difficulty) => set({ difficulty, mode: DIFFICULTY_RULES[difficulty].mode }),
     setLimiter: (on) => set({ limiter: on }),
@@ -101,7 +117,7 @@ export function createPilotStore(): StoreApi<PilotState> {
     setWarp: (warp) => set({ warp }),
     begin: (plan) => {
       if (get().mode === 'off') return false;
-      set({ flight: createFlight(vehicleOf(plan), plan.siteLatitudeRad), throttle: 1, pitchCommand: 0, separateRequested: false, endedFor: null, rating: null, tick: 0 });
+      set({ flight: createFlight(vehicleOf(plan), plan.siteLatitudeRad), throttle: 1, pitchCommand: 0, separateRequested: false, ignited: !get().requireIgnition || get().mode === 'auto', ignitionIdle: 0, endedFor: null, rating: null, tick: 0 });
       return true;
     },
     update: (realSeconds) => {
@@ -110,6 +126,13 @@ export function createPilotStore(): StoreApi<PilotState> {
       if (!flight) return;
       if (flight.status !== 'flying') {
         set({ endedFor: (state.endedFor ?? 0) + realSeconds, tick: state.tick + 1 });
+        return;
+      }
+      if (!state.ignited) {
+        // on the pad: nothing moves until the engines are lit
+        const idle = state.ignitionIdle + realSeconds;
+        if (isAiRole('propulsion', state.crewCount) && idle > 3) set({ ignited: true, ignitionIdle: 0, aiAction: 'throttle', tick: state.tick + 1 });
+        else set({ ignitionIdle: idle, tick: state.tick + 1 });
         return;
       }
       const dt = Math.min(realSeconds, 0.25) * state.warp;
@@ -127,7 +150,7 @@ export function createPilotStore(): StoreApi<PilotState> {
         if (state.mode === 'auto') input = autopilot(flight);
         else if (state.mode === 'assist') {
           input = { throttle: state.throttle, pitchCommand, hold: flight.stage === 1, separate: separate || (flight.stage === 1 && flight.prop1 <= 0) };
-        } else input = { throttle: state.throttle, pitchCommand, hold: false, separate };
+        } else input = { throttle: state.throttle, pitchCommand, hold: state.pathHold, separate };
         if (state.mode !== 'auto') {
           if (aiEngines) { input.throttle = autopilot(flight).throttle; throttle = input.throttle; aiAction = 'throttle'; }
           // the AI power tech eases the steering off when the vehicle is about to break up

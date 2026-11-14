@@ -162,3 +162,11 @@ mode. A level changes help and scoring only, never the physics or the simulation
 Live, the crew watches the launch only from inside the cabin (the crew camera, drawn through a cabin window frame, `CabinFrame`);
 there are no camera buttons and the `C` key does nothing. The **mission video** (replay) has all cameras (`LAUNCH_CAMERAS`: Auto
 broadcast, Pad, Tracking, Chase, Rear, Onboard, Crew, Orbit view) so the finished flight, including a loss, can be watched from every side.
+
+## More controls in the cockpit
+
+- **Ignition** (engineer, key `I`): a live flight waits on the pad, the clock does not run, until the guarded IGNITION switch is thrown. An AI engineer lights the engines after 3 s.
+- **Gravity turn** (captain, key `G`, manual mode): the vehicle follows its own flight path, so there is no angle of attack and no stress.
+- **Trim** (captain): ±1° of pitch per press, for fine steering.
+- **Throttle presets** (engineer): CUT, 50 %, 75 %, 100 % beside the lever.
+- Every switch, toggle, selector and button clicks (Web Audio blip, muted by the mute button).

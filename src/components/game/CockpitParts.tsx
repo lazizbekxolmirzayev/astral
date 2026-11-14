@@ -1,5 +1,6 @@
 'use client';
 
+import { blip } from '@/game/audio';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 /**
@@ -136,7 +137,7 @@ export function Lever({ value, onChange, disabled, label, testId }: { value: num
       aria-disabled={disabled}
       data-testid={testId}
       className={`relative h-[74px] w-9 touch-none select-none rounded-md border border-[#3b465c] bg-[#070a10] ${disabled ? 'opacity-50' : 'cursor-grab active:cursor-grabbing'}`}
-      onPointerDown={(event) => { if (disabled) return; dragging.current = true; event.currentTarget.setPointerCapture?.(event.pointerId); set(event.clientY); }}
+      onPointerDown={(event) => { if (disabled) return; dragging.current = true; blip(240, 0.05); event.currentTarget.setPointerCapture?.(event.pointerId); set(event.clientY); }}
       onPointerMove={(event) => { if (dragging.current) set(event.clientY); }}
       onPointerUp={() => { dragging.current = false; }}
       onPointerCancel={() => { dragging.current = false; }}
@@ -191,8 +192,8 @@ export function GuardedSwitch({ label, cover, disabled, onThrow, action }: { lab
   return (
     <div className="relative flex h-[38px] w-full items-center justify-between rounded-md border border-[#3b465c] bg-[#070a10] px-2" data-open={open ? 'true' : 'false'}>
       <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-amber-100">{label}</span>
-      <button type="button" data-action={action} disabled={disabled || !open} aria-label={label} onClick={() => { onThrow(); setOpen(false); }} className="h-5 w-7 rounded-[3px] border border-red-300/60 bg-[linear-gradient(180deg,#ef4444,#7f1d1d)] shadow-[0_2px_4px_rgba(0,0,0,0.7)] disabled:opacity-60" />
-      <button type="button" data-action={`${action}-cover`} disabled={disabled} aria-expanded={open} aria-label={cover} onClick={() => setOpen((value) => !value)} className="absolute right-1 top-1 h-[28px] w-[34px] origin-bottom rounded-[4px] border border-red-200/50 bg-red-500/35 backdrop-blur-[1px] transition-transform duration-200 disabled:opacity-40" style={{ transform: open ? 'translateY(-15px) rotateX(70deg)' : 'none', transformOrigin: 'top' }} />
+      <button type="button" data-action={action} disabled={disabled || !open} aria-label={label} onClick={() => { blip(300, 0.09); onThrow(); setOpen(false); }} className="h-5 w-7 rounded-[3px] border border-red-300/60 bg-[linear-gradient(180deg,#ef4444,#7f1d1d)] shadow-[0_2px_4px_rgba(0,0,0,0.7)] disabled:opacity-60" />
+      <button type="button" data-action={`${action}-cover`} disabled={disabled} aria-expanded={open} aria-label={cover} onClick={() => { blip(780, 0.04); setOpen((value) => !value); }} className="absolute right-1 top-1 h-[28px] w-[34px] origin-bottom rounded-[4px] border border-red-200/50 bg-red-500/35 backdrop-blur-[1px] transition-transform duration-200 disabled:opacity-40" style={{ transform: open ? 'translateY(-15px) rotateX(70deg)' : 'none', transformOrigin: 'top' }} />
     </div>
   );
 }
@@ -200,7 +201,7 @@ export function GuardedSwitch({ label, cover, disabled, onThrow, action }: { lab
 /** A metal toggle switch with its engraved ON and OFF. */
 export function Toggle({ on, onToggle, disabled, label, state, action, title }: { on: boolean; onToggle: () => void; disabled: boolean; label: string; state: string; action: string; title?: string }) {
   return (
-    <button type="button" data-action={action} title={title} aria-pressed={on} disabled={disabled} onClick={onToggle} className="flex w-full items-center justify-between gap-2 rounded-md border border-[#3b465c] bg-[#070a10] px-2 py-1 text-left disabled:opacity-60">
+    <button type="button" data-action={action} title={title} aria-pressed={on} disabled={disabled} onClick={() => { blip(on ? 420 : 560, 0.05); onToggle(); }} className="flex w-full items-center justify-between gap-2 rounded-md border border-[#3b465c] bg-[#070a10] px-2 py-1 text-left disabled:opacity-60">
       <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-200">{label}</span>
       <span className="flex items-center gap-1.5">
         <span className="text-[8px] font-semibold uppercase" style={{ color: on ? '#6ee7b7' : '#64748b' }}>{state}</span>
@@ -223,11 +224,20 @@ export function Selector<T extends string | number>({ value, options, labelOf, o
       </span>
       <span className="flex flex-nowrap gap-x-1.5 whitespace-nowrap">
         {options.map((option) => (
-          <button key={String(option)} type="button" data-action={action(option)} aria-pressed={option === value} disabled={disabledOf?.(option)} onClick={() => onSelect(option)} className={`text-[9px] font-semibold uppercase tracking-[0.1em] disabled:opacity-30 ${option === value ? 'text-amber-200' : 'text-slate-500 hover:text-slate-300'}`}>
+          <button key={String(option)} type="button" data-action={action(option)} aria-pressed={option === value} disabled={disabledOf?.(option)} onClick={() => { blip(640, 0.04); onSelect(option); }} className={`text-[9px] font-semibold uppercase tracking-[0.1em] disabled:opacity-30 ${option === value ? 'text-amber-200' : 'text-slate-500 hover:text-slate-300'}`}>
             {labelOf(option)}
           </button>
         ))}
       </span>
     </div>
+  );
+}
+
+/** A small square push button with an engraved label, like a preset on a control panel. */
+export function Push({ label, onPress, disabled, action, tone = 'plain' }: { label: string; onPress: () => void; disabled: boolean; action: string; tone?: 'plain' | 'amber' }) {
+  return (
+    <button type="button" data-action={action} disabled={disabled} aria-label={label} onClick={() => { blip(520, 0.04); onPress(); }} className={`min-w-0 flex-1 rounded-[4px] border px-1 py-1 text-[9px] font-bold uppercase tracking-[0.08em] shadow-[0_2px_0_rgba(0,0,0,0.6)] active:translate-y-px active:shadow-none disabled:opacity-40 ${tone === 'amber' ? 'border-amber-300/50 bg-amber-400/15 text-amber-100' : 'border-[#475569] bg-[#111827] text-slate-200'}`}>
+      {label}
+    </button>
   );
 }

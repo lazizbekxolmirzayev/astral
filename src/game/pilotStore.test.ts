@@ -182,4 +182,44 @@ describe('the pilot store', () => {
     expect(director.lines.find((line) => line.id === 'difficulty')).toEqual({ id: 'difficulty', points: 100, max: 100 });
     expect(computeScore({ ...base, outcome: { ...(outcome as object), kind: 'failure' } as never, difficulty: 'director' }).lines.find((line) => line.id === 'difficulty')?.points).toBe(0);
   });
+
+  it('with ignition required the vehicle waits on the pad until it is lit; an AI engineer lights it after three seconds', () => {
+    const store = createPilotStore();
+    store.getState().setRequireIgnition(true);
+    store.getState().setCrewCount(4);
+    store.getState().begin(planOf('leo'));
+    for (let i = 0; i < 100; i += 1) store.getState().update(0.1);
+    expect(store.getState().ignited).toBe(false);
+    expect(store.getState().flight!.t).toBe(0);
+    store.getState().ignite();
+    for (let i = 0; i < 20; i += 1) store.getState().update(0.1);
+    expect(store.getState().flight!.t).toBeGreaterThan(0);
+
+    const lone = createPilotStore();
+    lone.getState().setRequireIgnition(true);
+    lone.getState().setCrewCount(1);
+    lone.getState().begin(planOf('leo'));
+    for (let i = 0; i < 20; i += 1) lone.getState().update(0.1);
+    expect(lone.getState().ignited).toBe(false);
+    for (let i = 0; i < 20; i += 1) lone.getState().update(0.1);
+    expect(lone.getState().ignited).toBe(true);
+  });
+
+  it('the gravity-turn switch makes a hand-flown first stage follow its own path, so it does not break up', () => {
+    const run = (pathHold: boolean) => {
+      const store = createPilotStore();
+      store.getState().setMode('manual');
+      store.getState().setCrewCount(4);
+      store.getState().setPathHold(pathHold);
+      store.getState().setWarp(4);
+      store.getState().begin(planOf('leo'));
+      for (let i = 0; i < 600 && store.getState().flight?.status === 'flying' && store.getState().flight!.stage === 1; i += 1) {
+        store.getState().update(0.05);
+        if (i > 100) store.getState().nudgePitch(20);
+      }
+      return store.getState().flight!.status;
+    };
+    expect(run(false)).toBe('broke-up');
+    expect(run(true)).not.toBe('broke-up');
+  });
 });

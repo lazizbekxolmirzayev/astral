@@ -1949,7 +1949,8 @@
         "circularize": "At the high point: burn along the horizon to raise the low point.",
         "cut": "Stable orbit! Cut the engine (X) to finish.",
         "fuelLow": "Fuel is low. Burn smartly.",
-        "orbit": "You are in orbit!"
+        "orbit": "You are in orbit!",
+        "ignition": "On the pad. Lift the cover and throw IGNITION (I) to light the engines."
       },
       "result": {
         "perfect": "Orbit reached: perfect!",
@@ -1984,7 +1985,11 @@
         "orbit": "Orbit",
         "stage2": "Stage 2",
         "fuel": "Fuel low"
-      }
+      },
+      "trim": "Trim",
+      "pathHold": "Gravity turn",
+      "pathHoldHint": "The vehicle follows its own flight path: no angle of attack, no stress. Switch it off to steer yourself.",
+      "ignition": "Ignition"
     }
   }
 }

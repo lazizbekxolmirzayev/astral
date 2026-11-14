@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useStore } from 'zustand';
 import { altitudeOf, referencePitch, downrangeOf, fuelFraction, hintOf, orbitOf, speedOf, TARGET_ALTITUDE_M, type HintKey } from '@/game/pilot/model';
 import { OUTCOME_HOLD_S, PILOT_MODES, PITCH_RATE_DEG, pilotStore, usePilot, WARPS, type PilotMode } from '@/game/pilotStore';
-import { Dial, GuardedSwitch, Lamp, Lcd, Lever, Plate, Selector, Stick, Tank, Toggle } from './CockpitParts';
+import { Dial, GuardedSwitch, Lamp, Lcd, Lever, Plate, Push, Selector, Stick, Tank, Toggle } from './CockpitParts';
 import { onlineStore } from '@/game/online';
 import { simStore } from '@/stores/simStore';
 import { DIFFICULTY_RULES } from '@/game/difficulty';
@@ -51,7 +51,7 @@ export function PilotConsole() {
       }
       if (pilot.crewCount !== crewStore.getState().playerCount) pilot.setCrewCount(crewStore.getState().playerCount);
       if (pilot.mode === 'off' || onlineStore.getState().mode !== 'off') return;
-      if (!pilot.flight) { pilot.begin(plan); return; }
+      if (!pilot.flight) { pilot.setRequireIgnition(true); pilot.begin(plan); return; }
       // keys: throttle and pitch
       if (pilot.flight.status === 'flying' && pilot.mode !== 'auto') {
         if (held.has('throttleUp')) pilot.setThrottle(pilot.throttle + THROTTLE_RATE * dt);
@@ -92,6 +92,8 @@ export function PilotConsole() {
       if (key === 'e') pilot.requestSeparate();
       else if (key === 'x') pilot.setThrottle(0);
       else if (key === 'z') pilot.setThrottle(1);
+      else if (key === 'i') pilot.ignite();
+      else if (key === 'g' && pilot.mode === 'manual') pilot.setPathHold(!pilot.pathHold);
       else if (key === 'l' && !isAiRole('power', pilot.crewCount)) pilot.setLimiter(!pilot.limiter);
     };
     const onUp = (event: KeyboardEvent) => { const name = map[event.key.toLowerCase()]; if (name) held.delete(name); };
@@ -123,6 +125,7 @@ export function PilotConsole() {
   const crewCount = pilot.crewCount;
   const aiPower = isAiRole('power', crewCount);
   const rules = DIFFICULTY_RULES[pilot.difficulty];
+  const pathHoldOn = mode === 'assist' ? flight.stage === 1 : mode === 'auto' || pilot.pathHold;
   const limiterOn = aiPower || pilot.limiter || rules.forcedLimiter;
 
   return (
@@ -134,7 +137,7 @@ export function PilotConsole() {
             {flight.status === 'orbit' ? t(`result.${pilot.rating?.grade ?? 'good'}`) : t(`fail.${flight.reason ?? 'ground'}`)}
           </p>
         ) : (
-          <p data-testid="pilot-hint" className={`flex-1 text-center font-mono text-[12px] ${hint === 'stress' ? 'animate-pulse text-red-300' : caution ? 'text-amber-200' : 'text-emerald-200/90'}`} style={{ textShadow: '0 0 6px rgba(74,222,128,0.35)' }}>{t(`hint.${hint}`)}</p>
+          <p data-testid="pilot-hint" className={`flex-1 text-center font-mono text-[12px] ${hint === 'stress' ? 'animate-pulse text-red-300' : caution ? 'text-amber-200' : 'text-emerald-200/90'}`} style={{ textShadow: '0 0 6px rgba(74,222,128,0.35)' }}>{pilot.ignited ? t(`hint.${hint}`) : t('hint.ignition')}</p>
         )}
       </div>
       <div className="grid grid-cols-2 gap-1.5 lg:grid-cols-[1.15fr_1.25fr_0.95fr_1.15fr]">
@@ -145,6 +148,8 @@ export function PilotConsole() {
             <Stick label={t('stick')} disabled={ended || mode === 'auto' || (mode === 'assist' && flight.stage === 1)} onChange={(direction) => { held.delete('pitchUp'); held.delete('pitchDown'); if (direction < 0) held.add('pitchUp'); else if (direction > 0) held.add('pitchDown'); }} />
           </div>
           <div className="mt-1 flex items-center justify-between gap-2 text-[9px] text-slate-400"><span>{t('advised')}</span><span data-testid="pilot-advised" className="font-mono" style={{ color: rules.advice && Math.abs(offDeg) <= 3 ? '#6ee7b7' : '#e2e8f0' }}>{rules.advice ? `${Math.round(advisedDeg)}°` : '—'}</span></div>
+          <div className="mt-1 flex items-center gap-1"><span className="text-[8px] font-semibold uppercase tracking-[0.12em] text-slate-400">{t('trim')}</span><Push action="pilot-trim-up" label="▲ 1°" disabled={ended || mode === 'auto' || pilot.pathHold || (mode === 'assist' && flight.stage === 1)} onPress={() => pilot.nudgePitch(-1)} /><Push action="pilot-trim-down" label="▼ 1°" disabled={ended || mode === 'auto' || pilot.pathHold || (mode === 'assist' && flight.stage === 1)} onPress={() => pilot.nudgePitch(1)} /></div>
+          <div className="mt-1"><Toggle action="pilot-pathhold" label={t('pathHold')} state={pathHoldOn ? t('on') : t('off')} on={pathHoldOn} disabled={ended || mode !== 'manual'} onToggle={() => pilot.setPathHold(!pilot.pathHold)} title={t('pathHoldHint')} /></div>
           <div className="mt-1"><GuardedSwitch action="pilot-stage" label={t('stage')} cover={t('lift')} disabled={ended || flight.stage === 2 || mode === 'auto'} onThrow={() => pilot.requestSeparate()} /></div>
         </Plate>
 
@@ -159,10 +164,13 @@ export function PilotConsole() {
             <Tank label={t('fuel1')} fraction={fuel1} color="#fb923c" />
             <Tank label={t('fuel2')} fraction={fuel2} color="#38bdf8" />
           </div>
-          <button type="button" data-action="pilot-cut" aria-label={t('cut')} disabled={ended || mode === 'auto'} onClick={() => pilot.setThrottle(0)} className="mt-1.5 flex w-full items-center justify-between rounded-md border border-[#3b465c] bg-[#070a10] px-2 py-1 disabled:opacity-50">
-            <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-200">{t('cut')}</span>
-            <span aria-hidden className="h-5 w-5 rounded-full border border-red-200/60 shadow-[0_3px_5px_rgba(0,0,0,0.7)]" style={{ background: 'radial-gradient(circle at 35% 30%,#fca5a5,#dc2626 55%,#7f1d1d)' }} />
-          </button>
+          <div className="mt-1.5"><GuardedSwitch action="pilot-ignition" label={t('ignition')} cover={t('lift')} disabled={ended || mode === 'auto' || pilot.ignited} onThrow={() => pilot.ignite()} /></div>
+          <div className="mt-1 flex gap-1">
+            <Push action="pilot-cut" label={t('cut')} tone="amber" disabled={ended || mode === 'auto'} onPress={() => pilot.setThrottle(0)} />
+            <Push action="pilot-half" label="50%" disabled={ended || mode === 'auto'} onPress={() => pilot.setThrottle(0.5)} />
+            <Push action="pilot-most" label="75%" disabled={ended || mode === 'auto'} onPress={() => pilot.setThrottle(0.75)} />
+            <Push action="pilot-full" label="100%" disabled={ended || mode === 'auto'} onPress={() => pilot.setThrottle(1)} />
+          </div>
         </Plate>
 
         {/* power tech: the load on the structure */}
